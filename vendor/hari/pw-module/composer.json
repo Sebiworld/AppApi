@@ -1,0 +1,33 @@
+{
+    "name": "hari/pw-module",    
+    "type": "composer-installer",
+    "license": "BSD-2-Clause",
+    "description": "Installs processwire 3rd party modules to PW system \"site/modules\" directory.",    
+    "minimum-stability": "dev",
+    "keywords": ["processwire", "module", "installer"],
+    "authors": [
+        {
+            "name": "Kyle Robinson Young",
+            "email": "kyle@dontkry.com",
+            "homepage": "https://github.com/shama"
+        },
+        {
+            "name": "Paul M. Jones",
+            "email": "pmjones88@gmail.com",
+            "homepage": "http://paul-m-jones.com"
+        },
+        {
+            "name": "Hari KT",
+            "email": "kthari85@gmail.com",
+            "homepage": "http://harikt.com"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "PW\\Composer\\": "src/"
+        }
+    },
+    "extra" : {
+        "class" : "PW\\Composer\\SystemInstaller"
+    }
+}

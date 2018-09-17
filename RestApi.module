@@ -1,0 +1,65 @@
+<?php namespace ProcessWire;
+
+require_once __DIR__ . "/Router.php";
+
+// set_error_handler(function($errno, $errstr, $errfile, $errline, array $errcontext) {
+//   $message = "Error: $errstr. File: $errfile:$errline";
+
+//   \TD::fireLog('EXCEPTION: ' . $message);
+
+//   // if(wire('config')->debug === true) throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
+//   // else {
+//   //   wire('log')->save('api-error', $message);
+//   //   throw new \Exception('Error. If you are a system administrator, please check logs', 500);
+//   // }
+// });
+
+// \set_error_handler(function($errno, $errstr, $errfile, $errline, array $errcontext) {
+//   echo "error";
+//   exit();
+// });
+
+class RestApi extends WireData implements Module {
+
+  // public function __construct() {
+  //   echo "construct";
+  //   set_error_handler(array($this, 'handleErrorCallback'));
+  //   set_exception_handler(array($this, 'handleErrorCallback'));
+  // }
+  
+  public function init() {
+    $this->addHookBefore('ProcessPageView::execute', $this, 'checkIfApiRequest');
+  }
+
+  public function ready () {
+  }
+
+  public function checkIfApiRequest(HookEvent $event) {
+    $url = $this->sanitizer->url($this->input->url);
+    $regex = '/^\/api\/?.*/m';
+    preg_match($regex, $url, $matches);
+
+    if($matches) {
+      Router::go();
+      $event->replace = true;
+    }
+  }
+
+  public function ___install() {
+    $apiPath = "{$this->config->paths->site}api";
+    $routesPath = "{$this->config->paths->site}api/Routes.php";
+
+    if (!file_exists($apiPath)) {
+      $this->files->mkdir("{$this->config->paths->site}api");
+      $this->message("$this->className: Created api directory: $apiPath");
+    } 
+
+    if (!file_exists($routesPath)) {
+      $this->files->copy(__DIR__ . "/RoutesTemplate.php", $routesPath);
+      $this->message("$this->className: Created Routes.php in: $routesPath");
+    }
+  }
+
+  public function ___uninstall() {     
+  }
+}
