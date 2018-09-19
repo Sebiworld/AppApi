@@ -66,7 +66,7 @@ To use JWT-Auth you have to send a GET Request to http://yourhost/api/auth with 
 Authorization: Bearer+yourtoken
 ```
 
-An example for a simple login form is implemented as a Vue SPA, you can find it in this repository: [include url]
+An example for a simple login form is implemented as a Vue SPA, you can find it in this repository: https://github.com/thomasaull/RestApi-Vue-Example
 
 ### Helper
 
