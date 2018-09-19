@@ -16,8 +16,14 @@ However `http://yourhost.test/api/test` is not going to work, since this route n
 All you routes are defined under /site/api/Routes.php. This folder will be created while you install the module (in case it's not, you can find the example content in the modules folder of this module under `apiTemplate`). To add new routes, just add items to the array in the following format:
 
 ```php
-['httpMethod (e.g. GET', 'endpoint', HandlerClass::class, 'methodInHandlerClass'],
+['httpMethod (e.g. GET', 'endpoint', HandlerClass::class, 'methodInHandlerClass', ["options" => "are optional"],
 ```
+
+With the optional options you can control the behaviour of the router, at the moment there is just one supported parameter:
+
+| Parameter | Type | Default | Description
+| --- | --- | --- | ---
+| auth | Boolean | true | controls if Authorization is required for this route
 
 Also you need to require your handler classes you might create in Routes.php.
 
@@ -43,8 +49,8 @@ There are some default routes defined in the module:
 
 | Method | Route | Description
 | --- | --- | ---
-* | / | no Endpoint
-OPTIONS, POST, DELETE | /auth | Logic for JWT Authorization
+| * | / | no Endpoint
+| OPTIONS, POST, DELETE | /auth | Logic for JWT Authorization
 
 You can check the default routes in `DefaultRoutes.php` of the modules folder.
 
