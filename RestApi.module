@@ -48,6 +48,7 @@ class RestApi extends WireData implements Module {
   public function ___install() {
     $apiPath = "{$this->config->paths->site}api";
     $routesPath = "{$this->config->paths->site}api/Routes.php";
+    $examplesPath = "{$this->config->paths->site}api/Example.php";
 
     if (!file_exists($apiPath)) {
       $this->files->mkdir("{$this->config->paths->site}api");
@@ -55,11 +56,17 @@ class RestApi extends WireData implements Module {
     } 
 
     if (!file_exists($routesPath)) {
-      $this->files->copy(__DIR__ . "/RoutesTemplate.php", $routesPath);
+      $this->files->copy(__DIR__ . "/apiTemplate/Routes.php", $routesPath);
       $this->message("$this->className: Created Routes.php in: $routesPath");
+    }
+
+    if (!file_exists($examplesPath)) {
+      $this->files->copy(__DIR__ . "/apiTemplate/Example.php", $examplesPath);
+      $this->message("$this->className: Created Example.php in: $examplesPath");
     }
   }
 
-  public function ___uninstall() {     
+  public function ___uninstall() {
+    $this->message("$this->className: You need to remove the site/api folder yourself if you're not planning on using it anymore"); 
   }
 }

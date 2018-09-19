@@ -8,18 +8,18 @@ use \Firebase\JWT\JWT;
 class Auth
 {
   public static function preflight() {
-	  return;
+    return;
   }
-
+  
   public static function auth() 
   {
-    throw new \Exception('blupp');
-    // echo $aooj;
-
-    if(wire('user')->isGuest())
+    if(wire('user')->isGuest()) {
+      echo "is guest";
+      exit();
       throw new \Exception('user is not logged in', 401);
+    }
 
-    if(!isset(wire('modules')->RestApi->jwtSecretzz)) {
+    if(!isset(wire('modules')->RestApi->jwtSecret)) {
       throw new \Exception('No JWT secret defined. Please adjust settings in Module RestApi', 500);
     }
 
@@ -34,12 +34,14 @@ class Auth
       "iat" => $issuedAt, // issued at
       "nbf" => $notBefore, // valid not before
       "exp" => $expire, // token expire time
+      "userId" => wire('user')->id
     );
 
-    $jwt = JWT::encode($token, wire('config')->jwtSecret);
+    $jwt = JWT::encode($token, wire('modules')->RestApi->jwtSecret);
 
     $response = new \StdClass();
     $response->jwt = $jwt;
+
     return $response;
   }
 

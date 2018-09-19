@@ -12,131 +12,115 @@
 
 require_once __DIR__ . "/vendor/autoload.php";
 require_once __DIR__ . "/RestApiHelper.php";
+require_once __DIR__ . "/DefaultRoutes.php";
 require_once __DIR__ . "/Auth.php";
 
 use \Firebase\JWT\JWT;
 
-// set custom error handler:
-// set_error_handler(function($errno, $errstr, $errfile, $errline, array $errcontext) {
-//   $message = "Error: $errstr. File: $errfile:$errline";
-
-//   \TD::fireLog('EXCEPTION: ' . $message);
-
-//   // if(wire('config')->debug === true) throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
-//   // else {
-//   //   wire('log')->save('api-error', $message);
-//   //   throw new \Exception('Error. If you are a system administrator, please check logs', 500);
-//   // }
-// });
-
-// set_error_handler(function($errno, $errstr, $errfile, $errline, array $errcontext) {
-//   echo "error";
-//   die();
-// });
-
-// class ErrorHandling {
-
-//   public static function error($errNo, $errStr, $errFile, $errLine) {
-//     echo "error";
-//     exit();
-//   }
-// }
-
-// function exceptionHandler($exception) {
-//   // Show a human message to the user.
-//   echo $exception->getMessage();
-// 	echo '<h1>Server error (500)</h1>';
-// 	echo '<p>Please contact your administrator, etc.</p>';
-// }
-
-// set_exception_handler('ProcessWire\exceptionHandler');
-// throw new \Exception();
-// echo "hallo";
-// exit();
-
-
 class Router
-{
-  /**
-   * @param callable $callback Route configurator
-   * @param string   $path Optionally overwrite the default of using the whole urlSegmentStr
-   * @throws Wire404Exception
-   */
-  // public static function go(callable $callback)
+{ 
   public static function go()
   {
     set_error_handler("ProcessWire\Router::handleError");
     set_exception_handler('ProcessWire\Router::handleException');
     register_shutdown_function('ProcessWire\Router::handleFatalError');
 
+    header("Content-Type: application/json");
+
     // $routes are coming from this file:
     require_once wire('config')->paths->site . "api/Routes.php";
 
-    $dispatcher = \FastRoute\simpleDispatcher($routes);
+    $flatUserRoutes = [];
+    self::flattenGroup($flatUserRoutes, $routes);
+
+    $flatDefaultRoutes = [];
+    self::flattenGroup($flatDefaultRoutes, DefaultRoutes::get());
+
+    $allRoutes = array_merge($flatUserRoutes, $flatDefaultRoutes);
+
+    // create FastRoute Dispatcher:
+    $router = function(\FastRoute\RouteCollector $r) use ($allRoutes) {
+      foreach($allRoutes as $key => $route) {
+        $method = $route[0];
+        $url = $route[1];
+
+        // add trailing slash if not present:
+        if(substr($url, -1) !== '/') $url .= '/';
+
+        $class = $route[2];
+        $function = $route[3];
+        $routeParams = isset($route[4]) ? $route[4] : [];
+
+        $r->addRoute($method, $url, [$class, $function, $routeParams]);
+      }
+    };
+
+    $dispatcher = \FastRoute\simpleDispatcher($router);
 
     $httpMethod = $_SERVER['REQUEST_METHOD'];
     $url = wire('sanitizer')->url(wire('input')->url);
-
+    
     // strip /api from request url:
     $regex = '/\/api\/?/';
     $url = preg_replace($regex, '/', $url);
+
+    // add trailing slash if not present:
+    if(substr($url, -1) !== '/') $url .= '/';
 
     $routeInfo = $dispatcher->dispatch($httpMethod, $url);
 
     switch ($routeInfo[0]) {
       case \FastRoute\Dispatcher::NOT_FOUND:
       case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
-        // \TD::fireLog('404');
-        // throw new Wire404Exception();
-        // throw new Wire404Exception('error');
-        // throw new \Exception('das ist eine exception');
         http_response_code(404);
         return;
 
       case \FastRoute\Dispatcher::FOUND:
         $handler = $routeInfo[1];
         $vars = $routeInfo[2];
-        list($class, $method) = explode('@', $handler, 2);
-        return Router::handle($class, $method, $vars);
+
+        $class = $handler[0];
+        $method = $handler[1];
+        $routeParams = $handler[2];
+
+        return Router::handle($class, $method, $vars, $routeParams);
     }
   }
 
 
-  public static function handle($class, $method, $vars)
+  public static function handle($class, $method, $vars, $routeParams)
   {
-    $authActive = true;
     $return = new \StdClass();
     $vars = (object) $vars;
 
-    // if regular and not auth request, check Authorization:
-    // otherwise go right through regular api handling
-    if($authActive === true && $class !== Auth::class)
+    $authActive = wire('modules')->RestApi->useJwtAuth == true;
+    $routeNeedsAuth = true; // By default every route needs auth if not specified otherwise
+
+    // check if particular route does not need auth
+    if(isset($routeParams['auth'])) {
+      if($routeParams['auth'] === false)
+      $routeNeedsAuth = false;
+    }
+
+    // if auth is active (in module settings) and this particular route needs auth (default)
+    if($authActive && $routeNeedsAuth)
     {
       try {
-        // convert all headers to lowercase:
-        $headers = array();
-        foreach($_SERVER as $key => $value) {
-          $headers[strtolower($key)] = $value;
-        }
-
         // check for auth header
-        // if(!array_key_exists('authorization', $headers)) {
-        //   http_response_code(400);
-        //   $return->error = 'No Authorization Header found';
-        //   echo json_encode($return);
-        //   return;
-        // };
+        $authHeader = self::getAuthorizationHeader();
+        if(!$authHeader) {
+          self::displayError('No Authorization Header found', 400);
+        };
 
         // Check if jwtSecret is in config
-        if(!isset(wire('modules')->RestApi->jwtSecretzz)) {
-          throw new \Exception('no JWT scret defined');
+        if(!isset(wire('modules')->RestApi->jwtSecret)) {
+          self::displayOrLogError('No JWT secret defined. Please adjust settings in Module RestApi');
         }
 
-        echo 'jo klappt';
-
-        // $secret = wire('config')->jwtSecret;
-        // list($jwt) = sscanf($headers['authorization'], 'Bearer %s');
-        // $decoded = JWT::decode($jwt, $secret, array('HS256'));
+        $secret = wire('modules')->RestApi->jwtSecret;
+        $token = str_replace('Bearer', '', $authHeader);
+        $token = trim($token);
+        $decoded = JWT::decode($token, wire('modules')->RestApi->jwtSecret, array('HS256'));
       }
       catch (\Throwable $e)
       {
@@ -144,14 +128,22 @@ class Router
       }
     }
 
-    // If the code runs until here, the request is authenticated
+    // If the code runs until here, the request is authenticated 
     // or the request does not need authentication
     // Get Data:
     try {
       // merge url $vars with params
       $vars = array_merge((array) Router::params(), (array) $vars);
+
+      // merge in user id if present in JWT payload otherwise use ProcessWire $user (guest or logged in user)
+      $userId = wire('user')->id;
+      if(isset($decoded->userId)) $userId = $decoded->userId;
+      // merge with $vars
+      $vars = array_merge($vars, ['userId' => $userId]);
+
       // convert array to object:
       $vars = json_decode(json_encode($vars));
+      
       $data = $class::$method($vars);
 
       if(gettype($data) == "string") $return->message = $data;
@@ -186,13 +178,13 @@ class Router
       $src = $source ? $source : $_REQUEST;
 
       //Basic HTTP Authetication
-      if (isset($_SERVER['PHP_AUTH_USER'])) {
-      $credentials = [
-      "uname" => $_SERVER['PHP_AUTH_USER'],
-      "upass" => $_SERVER['PHP_AUTH_PW']
-      ];
-      $src = array_merge($src, $credentials);
-      }
+      // if (isset($_SERVER['PHP_AUTH_USER'])) {
+      // $credentials = [
+      // "uname" => $_SERVER['PHP_AUTH_USER'],
+      // "upass" => $_SERVER['PHP_AUTH_PW']
+      // ];
+      // $src = array_merge($src, $credentials);
+      // }
 
       return Router::fetch_from_array($src, $index, $default);
   }
@@ -243,18 +235,41 @@ class Router
     return $default;
   }
 
-  public static function handleError($errNo, $errStr, $errFile, $errLine) {
-    // if(wire('config')->debug === true) throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
-    // echo "handleError";
-    // throw new \Exception('handleError Exception');
-    throw new \ErrorException($errStr, 0, $errNo, $errFile, $errLine);
+  private static function getAuthorizationHeader() {
+    // convert all headers to lowercase:
+    $headers = array();
+    foreach($_SERVER as $key => $value) {
+      $headers[strtolower($key)] = $value;
+    }
 
-    // $message = "Error: $errStr. File: $errFile:$errLine";
-    // self::displayOrLogError($message);
+    if(array_key_exists('authorization', $headers)) return $headers['authorization'];
+    if(array_key_exists('http_authorization', $headers)) return $headers['http_authorization'];
+    
+    return null;
+  }
+
+  private static function flattenGroup (&$putInArray, $group, $prefix = '') {
+    foreach($group as $key => $item) {
+      if(is_array($item[0])) {
+        self::flattenGroup($putInArray, $item, '/' . $key);
+      } else {
+        $item[1] = $prefix . '/' . $item[1];
+        array_push($putInArray, $item);
+      }
+    }
+  }
+
+  public static function handleError($errNo, $errStr, $errFile, $errLine) {
+    // throw new \Exception('handleError Exception');
+    // throw new \ErrorException($errStr, 0, $errNo, $errFile, $errLine);
+    // exit();
+
+    $message = "Error: $errStr. File: $errFile:$errLine";
+    self::displayOrLogError($message);
   }
 
   public static function handleException(\Throwable $e) {
-    // echo "handle exception";
+    echo "handle exception";
 
     $message = $e->getMessage();
     self::displayOrLogError($message);
@@ -268,16 +283,18 @@ class Router
     }
   }
 
-  public static function displayOrLogError ($message) {
-    http_response_code(500);
-    $return = new \StdClass();
-    $return->error = $message;
-    
+  public static function displayOrLogError ($message, $status = 500) {
     if(wire('config')->debug !== true) {
       wire('log')->save('api-error', $message);
-      $return->error = 'Error: If you are a system administrator, please check logs';
+      self::displayError('Error: If you are a system administrator, please check logs', $status);
     }
+    else self::displayError($message, $status);
+  }
 
+  public static function displayError ($message, $status = 500) {
+    http_response_code($status);
+    $return = new \StdClass();
+    $return->error = $message;
     echo json_encode($return);
     exit();
   }

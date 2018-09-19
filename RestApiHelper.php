@@ -2,11 +2,12 @@
 
 class RestApiHelper
 {
+  public static function preflight() {
+    return;
+  }
+
   public static function noEndPoint() {
-    // return 'no endpoint specified!';
-    // throw new \Exception('geht nicht');
-    // return $jaos;
-    return wire('user')->name;
+    return 'no endpoint defined';
   }
   
   public static function checkAndSanitizeRequiredParameters($data, $params) {
