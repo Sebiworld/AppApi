@@ -54,6 +54,10 @@ There are some default routes defined in the module:
 
 You can check the default routes in `DefaultRoutes.php` of the modules folder.
 
+### Endpoint
+
+Currently the endpoint for the api is hardcoded to `/api`. That means a page with the name `api` is not going to work if you`ve installed this module. I might make the endpoint configurable via module settings in the future.
+
 ### JWT Auth
 
 To use JWT-Auth you have to send a GET Request to http://yourhost/api/auth with two parameters, username and password. The API will create and return you the JWT-Token which you have to add as a header to every following request:
