@@ -13,6 +13,8 @@ The Rest-API should work now. To check you can use [Postman](https://www.getpost
 
 However `http://yourhost.test/api/test` is not going to work, since this route needs Authentification (if you activated it in your settings).
 
+> It is generally a good idea, to use a secure HTTPS connection in production environments, especially if you transmit sensitive user data!
+
 All you routes are defined under /site/api/Routes.php. This folder will be created while you install the module (in case it's not, you can find the example content in the modules folder of this module under `apiTemplate`). To add new routes, just add items to the array in the following format:
 
 ```php
