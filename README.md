@@ -19,6 +19,8 @@ All you routes are defined under /site/api/Routes.php. This folder will be creat
 ['httpMethod (e.g. GET', 'endpoint', HandlerClass::class, 'methodInHandlerClass'],
 ```
 
+> Check https://github.com/nikic/FastRoute#usage for more information about routing (e.g. url params like `/user/41`)
+
 Also you need to require your handler classes you might create in Routes.php.
 
 You can also create groups, which makes it a bit easier to create multiple sub-routes for the same endpoint (for example it is a good idea to version your API):

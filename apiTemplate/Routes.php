@@ -12,5 +12,6 @@ $routes = [
   'users' => [
     ['OPTIONS', '', RestApiHelper::class, 'preflight', ['auth' => false]], // this is needed for CORS Requests
     ['GET', '', Example::class, 'getAllUsers', ["auth" => false]],
+    ['GET', '{id:\d+}', Example::class, 'getUser', ["auth" => false]], // check: https://github.com/nikic/FastRoute
   ],
 ];
