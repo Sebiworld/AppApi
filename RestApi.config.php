@@ -4,7 +4,7 @@ $config = array(
   'useJwtAuth' => array(
     'type' => 'checkbox',
     'label' => 'Authentication',
-    'description' => 'If you check this, users have to authenticate to be able to use the API. Learn more: [insert url]', 
+    'description' => 'If you check this, users have to authenticate to be able to use the API. Learn more: https://github.com/thomasaull/RestApi', 
     'required' => false, 
     'value' => true // default
   ),

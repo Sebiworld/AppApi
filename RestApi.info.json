@@ -3,7 +3,7 @@
 	"version": "0.0.1",
 	"summary": "Module to create a REST API with ProcessWire",
 	"author": "Thomas Aull",
-	"href": "http://modules.processwire.com/",
+	"href": "https://modules.processwire.com/modules/rest-api/",
 	"icon": "terminal",
 	"autoload": true,
 	"singular": true,
