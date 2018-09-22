@@ -60,7 +60,7 @@ You can check the default routes in `DefaultRoutes.php` of the modules folder.
 
 ### Endpoint
 
-The default endpoint for the API is `/api`. That means a page with the name `api` is not going to work if you`ve installed this module. However, the endpoint is configurable in the module settings (falls back to `api` if no value is present)
+The default endpoint for the API is `/api`. That means a page with the name `api` is not going to work if you've installed this module. However, the endpoint is configurable in the module settings (falls back to `api` if no value is present)
 
 ### JWT Auth
 
