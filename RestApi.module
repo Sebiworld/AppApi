@@ -29,6 +29,9 @@ class RestApi extends WireData implements Module {
   
   public function init() {
     $this->addHookBefore('ProcessPageView::execute', $this, 'checkIfApiRequest');
+
+    // Let endpoint fall back to 'api' if not set:
+    if(!$this->endpoint) $this->endpoint = 'api';
   }
 
   public function ready () {
@@ -36,7 +39,7 @@ class RestApi extends WireData implements Module {
 
   public function checkIfApiRequest(HookEvent $event) {
     $url = $this->sanitizer->url($this->input->url);
-    $regex = '/^\/api\/?.*/m';
+    $regex = '/^\/'.$this->endpoint.'\/?.*/m';
     preg_match($regex, $url, $matches);
 
     if($matches) {

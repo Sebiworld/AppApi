@@ -61,7 +61,8 @@ class Router
     $url = wire('sanitizer')->url(wire('input')->url);
     
     // strip /api from request url:
-    $regex = '/\/api\/?/';
+    $endpoint = wire('modules')->RestApi->endpoint;
+    $regex = '/\/'.$endpoint.'\/?/';
     $url = preg_replace($regex, '/', $url);
 
     // add trailing slash if not present:
