@@ -94,7 +94,7 @@ class Router
     $return = new \StdClass();
     $vars = (object) $vars;
 
-    $authActive = wire('modules')->RestApi->useJwtAuth == true;
+    $authMethod = wire('modules')->RestApi->authMethod;
     $routeNeedsAuth = true; // By default every route needs auth if not specified otherwise
 
     // check if particular route does not need auth
@@ -104,8 +104,7 @@ class Router
     }
 
     // if auth is active (in module settings) and this particular route needs auth (default)
-    if($authActive && $routeNeedsAuth)
-    {
+    if($authMethod === 'jwt' && $routeNeedsAuth) {
       try {
         // check for auth header
         $authHeader = self::getAuthorizationHeader();
@@ -127,6 +126,10 @@ class Router
       {
         throw new \Exception($e->getMessage());
       }
+    }
+
+    if($authMethod === 'session' && $routeNeedsAuth) {
+      if(wire('user')->isGuest()) self::displayError('user does not have authorization', 401);
     }
 
     // If the code runs until here, the request is authenticated 
@@ -270,8 +273,6 @@ class Router
   }
 
   public static function handleException(\Throwable $e) {
-    echo "handle exception";
-
     $message = $e->getMessage();
     self::displayOrLogError($message);
   }

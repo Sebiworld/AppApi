@@ -1,12 +1,18 @@
 <?php
 
 $config = array(
-  'useJwtAuth' => array(
-    'type' => 'checkbox',
-    'label' => 'Authentication',
-    'description' => 'If you check this, users have to authenticate to be able to use the API. Learn more: https://github.com/thomasaull/RestApi', 
-    'required' => false, 
-    'value' => true // default
+  'authMethod' => array(
+    'type' => 'radios',
+    'label' => 'Authorization Method',
+    'description' => 'Which Authorization Method do you want to use?', 
+    'options' => array(
+      'none' => 'None', 
+      'session' => 'Session',
+      'jwt' => 'JWT', 
+    ),
+    'value' => 'none',
+    'required' => true,
+    'notes' => 'If you use Session/JWT, users have to authenticate by default to be able to use the API. Learn more: https://github.com/thomasaull/RestApi'
   ),
 
   'jwtSecret' => array(

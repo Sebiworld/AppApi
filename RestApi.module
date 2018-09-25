@@ -72,4 +72,16 @@ class RestApi extends WireData implements Module {
   public function ___uninstall() {
     $this->message("$this->className: You need to remove the site/api folder yourself if you're not planning on using it anymore"); 
   }
+
+  public function ___upgrade($fromVersion, $toVersion) {
+    // set authMethod to jwt if it was used before on upgrade to 0.0.3:
+    if(version_compare($fromVersion, "0.0.3") === -1) {
+      if($this->useJwtAuth) {
+        $data = $this->modules->getConfig($this->className);
+        $data['authMethod'] = 'jwt';
+        $this->modules->saveConfig($this->className, $data);
+        $this->message("$this->className: Automatically set Auth Method to 'JWT' since you used JWT Auth before");
+      }
+    }
+  }
 }

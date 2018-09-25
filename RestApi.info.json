@@ -1,6 +1,6 @@
 {
 	"title": "RestApi",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"summary": "Module to create a REST API with ProcessWire",
 	"author": "Thomas Aull",
 	"href": "https://modules.processwire.com/modules/rest-api/",

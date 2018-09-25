@@ -11,11 +11,9 @@ class Auth
     return;
   }
   
-  public static function auth() 
+  public static function createJwt() 
   {
     if(wire('user')->isGuest()) {
-      echo "is guest";
-      exit();
       throw new \Exception('user is not logged in', 401);
     }
 
@@ -55,13 +53,17 @@ class Auth
     if(!$user->id) throw new \Exception("Login not successful", 401); 
 
     $loggedIn = wire('session')->login($data->username, $data->password);
-
-    if($loggedIn) return self::auth();
+  
+    if($loggedIn) {
+      if(wire('modules')->RestApi->authMethod === 'session') return 'logged in: ' . wire('user')->name;
+      if(wire('modules')->RestApi->authMethod === 'jwt') return self::createJWT();
+    }
     else throw new \Exception("Login not successful", 401); 
   }
 
   public static function logout() {
+    $username = wire('user')->name;
     wire('session')->logout(wire('user'));
-    return 'user logged out';
+    return "logged out: $username";
   }
 }
