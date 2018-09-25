@@ -11,7 +11,7 @@ Install the module and on the module page, make sure to save the page at least o
 
 The Rest-API should work now. To check you can use [Postman](https://www.getpostman.com/) or [Insomnia](https://insomnia.rest/) and run a GET Request: `http://yourhost.test/api/users`
 
-However `http://yourhost.test/api/test` is not going to work, since this route needs Authentification (if you activated it in your settings).
+However `http://yourhost.test/api/test` is not going to work, since this route needs Authentification (if you activated session or jwt authentication method in your settings).
 
 > It is generally a good idea, to use a secure HTTPS connection in production environments, especially if you transmit sensitive user data!
 
@@ -62,7 +62,19 @@ You can check the default routes in `DefaultRoutes.php` of the modules folder.
 
 The default endpoint for the API is `/api`. That means a page with the name `api` is not going to work if you've installed this module. However, the endpoint is configurable in the module settings (falls back to `api` if no value is present)
 
-### JWT Auth
+### Authorization
+
+You can choose between `none`, `session` and `jwt` in module settings.
+
+### Authorization: Session
+
+If you are using axios you need to include the `withCredentials` options to make it work cross-origin:
+
+```
+axios.defaults.withCredentials = true
+```
+
+### Authorization: JWT
 
 To use JWT-Auth you have to send a GET Request to http://yourhost/api/auth with two parameters, username and password. The API will create and return you the JWT-Token which you have to add as a header to every following request:
 
