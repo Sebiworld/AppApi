@@ -294,6 +294,8 @@ class Router
   }
 
   public static function displayError ($message, $status = 500) {
+    if(error_reporting() === 0) return;
+    
     http_response_code($status);
     $return = new \StdClass();
     $return->error = $message;
