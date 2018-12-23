@@ -76,7 +76,7 @@ axios.defaults.withCredentials = true
 
 ### Authorization: JWT
 
-To use JWT-Auth you have to send a GET Request to http://yourhost/api/auth with two parameters, username and password. The API will create and return you the JWT-Token which you have to add as a header to every following request:
+To use JWT-Auth you have to send a POST Request to http://yourhost/api/auth with two parameters, username and password. The API will create and return you the JWT-Token which you have to add as a header to every following request:
 
 ```
 Authorization: Bearer+yourtoken
