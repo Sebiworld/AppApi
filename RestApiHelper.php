@@ -25,7 +25,7 @@ class RestApiHelper
       if (!isset($sanitizer[1])) $sanitizer = 'text';
       else $sanitizer = $sanitizer[1];
 
-      if(!method_exists(wire('sanitizer'), $sanitizer)) throw new \Exception("Sanitizer: '$sanitizer' ist no valid sanitizer", 400);
+      if(!method_exists(wire('sanitizer'), $sanitizer)) throw new \Exception("Sanitizer: '$sanitizer' is no valid sanitizer", 400);
       
       $data->$name = wire('sanitizer')->$sanitizer($data->$name);
     }
