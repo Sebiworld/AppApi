@@ -62,6 +62,10 @@ class Router
     
     // strip /api from request url:
     $endpoint = wire('modules')->RestApi->endpoint;
+    
+    // support / in endpoint url:
+    $endpoint = str_replace("/", "\/", $endpoint);
+
     $regex = '/\/'.$endpoint.'\/?/';
     $url = preg_replace($regex, '/', $url);
 

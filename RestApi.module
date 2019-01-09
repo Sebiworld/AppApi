@@ -39,7 +39,11 @@ class RestApi extends WireData implements Module {
 
   public function checkIfApiRequest(HookEvent $event) {
     $url = $this->sanitizer->url($this->input->url);
-    $regex = '/^\/'.$this->endpoint.'\/?.*/m';
+    
+    // support / in endpoint url:
+    $endpoint = str_replace("/", "\/", $this->endpoint);
+
+    $regex = '/^\/'.$endpoint.'\/?.*/m';
     preg_match($regex, $url, $matches);
 
     if($matches) {

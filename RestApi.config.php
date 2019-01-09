@@ -30,10 +30,10 @@ $config = array(
     'type' => 'text',
     'label' => 'API Endpoint',
     'description' => "Endpoint under which your API should be available", 
-    'pattern' => '[a-z-]+',
+    'pattern' => '[a-z-/]+',
     'minlength' => 1,
     'required' => true, 
     'value' => 'api',
-    'notes' => "('a-z' and '-' allowed, Default: 'api')"
+    'notes' => "('a-z', '-' and '/' allowed, Default: 'api')\nFor subdirectories use e.g. subdir/api (no leading slash)"
   )
 );
