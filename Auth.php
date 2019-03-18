@@ -5,65 +5,63 @@ require_once __DIR__ . "/RestApiHelper.php";
 
 use \Firebase\JWT\JWT;
 
-class Auth
-{
-  public static function preflight() {
-    return;
-  }
-  
-  public static function createJwt() 
-  {
-    if(wire('user')->isGuest()) {
-      throw new \Exception('user is not logged in', 401);
-    }
+class Auth {
+	public static function preflight() {
+		return;
+	}
 
-    if(!isset(wire('modules')->RestApi->jwtSecret)) {
-      throw new \Exception('No JWT secret defined. Please adjust settings in Module RestApi', 500);
-    }
+	public static function createJwt() {
+		if(wire('user')->isGuest()) {
+			throw new \Exception('user is not logged in', 401);
+		}
 
-    $issuedAt = time();
-    $notBefore = $issuedAt;
-    $expire = $notBefore + wire('config')->sessionExpireSeconds;
-    $serverName = wire('config')->httpHost;
+		if(!isset(wire('modules')->RestApi->jwtSecret)) {
+			throw new \Exception('No JWT secret defined. Please adjust settings in Module RestApi', 500);
+		}
 
-    $token = array(
-      "iss" => $serverName, // issuer
-      "aud" => $serverName, // audience
-      "iat" => $issuedAt, // issued at
-      "nbf" => $notBefore, // valid not before
-      "exp" => $expire, // token expire time
-      "userId" => wire('user')->id
-    );
+		$issuedAt = time();
+		$notBefore = $issuedAt;
+		$expire = $notBefore + wire('config')->sessionExpireSeconds;
+		$serverName = wire('config')->httpHost;
 
-    $jwt = JWT::encode($token, wire('modules')->RestApi->jwtSecret);
+		$token = array(
+      		"iss" => $serverName, // issuer
+      		"aud" => $serverName, // audience
+      		"iat" => $issuedAt, // issued at
+      		"nbf" => $notBefore, // valid not before
+      		"exp" => $expire, // token expire time
+      		"userId" => wire('user')->id
+      	);
 
-    $response = new \StdClass();
-    $response->jwt = $jwt;
+		$jwt = JWT::encode($token, wire('modules')->RestApi->jwtSecret);
 
-    return $response;
-  }
+		$response = new \StdClass();
+		$response->jwt = $jwt;
 
-  public static function login($data) {
-    RestApiHelper::checkAndSanitizeRequiredParameters($data, ['username|selectorValue', 'password|string']);
+		return $response;
+	}
 
-    $user = wire('users')->get($data->username);
+	public static function login($data) {
+		RestApiHelper::checkAndSanitizeRequiredParameters($data, ['username|selectorValue', 'password|string']);
 
-    // if(!$user->id) throw new \Exception("User with username: $data->username not found", 404);
-    // prevent username sniffing by just throwing a general exception:
-    if(!$user->id) throw new \Exception("Login not successful", 401); 
+		$user = wire('users')->get($data->username);
 
-    $loggedIn = wire('session')->login($data->username, $data->password);
-  
-    if($loggedIn) {
-      if(wire('modules')->RestApi->authMethod === 'session') return 'logged in: ' . wire('user')->name;
-      if(wire('modules')->RestApi->authMethod === 'jwt') return self::createJWT();
-    }
-    else throw new \Exception("Login not successful", 401); 
-  }
+    	// if(!$user->id) throw new \Exception("User with username: $data->username not found", 404);
+    	// prevent username sniffing by just throwing a general exception:
+		if(!$user->id) throw new \Exception("Login not successful", 401);
 
-  public static function logout() {
-    $username = wire('user')->name;
-    wire('session')->logout(wire('user'));
-    return "logged out: $username";
-  }
+		$loggedIn = wire('session')->login($data->username, $data->password);
+
+		if($loggedIn) {
+			if(wire('modules')->RestApi->authMethod === 'session') return 'logged in: ' . wire('user')->name;
+			if(wire('modules')->RestApi->authMethod === 'jwt') return self::createJWT();
+		}
+		else throw new \Exception("Login not successful", 401);
+	}
+
+	public static function logout() {
+		$username = wire('user')->name;
+		wire('session')->logout(wire('user'));
+		return "logged out: $username";
+	}
 }
