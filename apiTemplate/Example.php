@@ -1,4 +1,5 @@
-<?php namespace ProcessWire;
+<?php
+namespace ProcessWire;
 
 class Example {
 	public static function test () {

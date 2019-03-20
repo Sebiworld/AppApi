@@ -1,4 +1,5 @@
-<?php namespace ProcessWire;
+<?php
+namespace ProcessWire;
 
 class DefaultRoutes {
 	private static $routes = [

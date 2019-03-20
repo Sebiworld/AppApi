@@ -1,4 +1,5 @@
-<?php namespace ProcessWire;
+<?php
+namespace ProcessWire;
 
 require_once wire('config')->paths->RestApi . "vendor/autoload.php";
 require_once wire('config')->paths->RestApi . "RestApiHelper.php";

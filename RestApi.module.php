@@ -1,31 +1,9 @@
-<?php namespace ProcessWire;
+<?php
+namespace ProcessWire;
 
-require_once __DIR__ . "/Router.php";
-
-// set_error_handler(function($errno, $errstr, $errfile, $errline, array $errcontext) {
-//   $message = "Error: $errstr. File: $errfile:$errline";
-
-//   \TD::fireLog('EXCEPTION: ' . $message);
-
-//   // if(wire('config')->debug === true) throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
-//   // else {
-//   //   wire('log')->save('api-error', $message);
-//   //   throw new \Exception('Error. If you are a system administrator, please check logs', 500);
-//   // }
-// });
-
-// \set_error_handler(function($errno, $errstr, $errfile, $errline, array $errcontext) {
-//   echo "error";
-//   exit();
-// });
+require_once __DIR__ . "/classes/Router.php";
 
 class RestApi extends WireData implements Module {
-
-  	// public function __construct() {
-  	//   echo "construct";
-  	//   set_error_handler(array($this, 'handleErrorCallback'));
-  	//   set_exception_handler(array($this, 'handleErrorCallback'));
-  	// }
 
 	public function init() {
 		$this->addHookBefore('ProcessPageView::execute', $this, 'checkIfApiRequest');
@@ -47,7 +25,8 @@ class RestApi extends WireData implements Module {
 		preg_match($regex, $url, $matches);
 
 		if($matches) {
-			Router::go();
+			$router = new Router();
+			$router->go();
 			$event->replace = true;
 		}
 	}

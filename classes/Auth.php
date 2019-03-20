@@ -1,4 +1,5 @@
-<?php namespace ProcessWire;
+<?php
+namespace ProcessWire;
 
 require_once __DIR__ . "/vendor/autoload.php";
 require_once __DIR__ . "/RestApiHelper.php";
@@ -6,11 +7,7 @@ require_once __DIR__ . "/RestApiHelper.php";
 use \Firebase\JWT\JWT;
 
 class Auth {
-	public static function preflight() {
-		return;
-	}
-
-	public static function createJwt() {
+	protected static function createAccessToken($args = array()) {
 		if(wire('user')->isGuest()) {
 			throw new \Exception('user is not logged in', 401);
 		}
@@ -33,7 +30,9 @@ class Auth {
       		"userId" => wire('user')->id
       	);
 
-		$jwt = JWT::encode($token, wire('modules')->RestApi->jwtSecret);
+      	$token = array_merge($token, $args);
+
+		$jwt = JWT::encode($token, wire('modules')->RestApi->jwtSecret, 'HS256');
 
 		$response = new \StdClass();
 		$response->jwt = $jwt;
@@ -63,5 +62,41 @@ class Auth {
 		$username = wire('user')->name;
 		wire('session')->logout(wire('user'));
 		return "logged out: $username";
+	}
+
+	/**
+	 * Checks, if an access-token is present and restores the browser-session for it.
+	 * @return boolean
+	 */
+	public static function isValidTokenPresent(){
+		$token = self::getBearerToken();
+		if($token === null || !is_string($token) || empty($token)) return false;
+
+
+
+		return true;
+	}
+
+	protected static function getBearerToken(){
+		$authorizationHeader = self::getAuthorizationHeader();
+		if($authorizationHeader === null || !is_string($authorizationHeader) || strlen($authorizationHeader) < 7) return null;
+		if(substr($authorizationHeader, 0, 7) !== "Bearer ") return null;
+		return substr($authorizationHeader, 0, 7);
+	}
+
+	protected static function getAuthorizationHeader() {
+		if(function_exists("apache_request_headers")) {
+			foreach (apache_request_headers() as $key => $value) {
+				if(strtolower($key) === 'authorization') return $value;
+				else if(strtolower($key) === 'http_authorization') return $value;
+			}
+		}
+
+		foreach ($_SERVER as $key => $value) {
+			if(strtolower($key) === 'authorization') return $value;
+			else if(strtolower($key) === 'http_authorization') return $value;
+		}
+
+		return null;
 	}
 }

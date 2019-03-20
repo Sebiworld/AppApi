@@ -1,4 +1,5 @@
-<?php namespace ProcessWire;
+<?php
+namespace ProcessWire;
 
 class RestApiHelper {
 	public static function preflight() {
