@@ -1,0 +1,587 @@
+<?php
+
+namespace ProcessWire;
+
+class Application extends WireData {
+    private $initiated = false;
+    protected $id;
+    protected $title;
+    protected $description;
+    protected $created;
+    protected $createdUser;
+    protected $modified;
+    protected $modifiedUser;
+
+    protected $tokenSecret;
+    protected $accesstokenSecret;
+
+    protected $expiresIn;
+
+    protected $authtype = 0;
+
+    /*
+     * A normal website-application can be used to access public data with only a valid apikey. Protected data will be authorized with classic php-sessions. If you are logged in, you can use protected apipages.
+     */
+    const authtypeSession   = 0;
+
+    /**
+     * A protected website-application shows contents only if you have a valid JWT-token that authorizes you to use an endpoint. A JWT-token should be requested via PHP and has to be transferred to JS on pageload (e.g. as a special data-attribute). It can be limited to only those special endpoints that the api function uses. The JWT-token is linked to the php-session so it has a limited livetime. With protectedWebsite-endpoints we can prevent that api-access via token can be used for general apicalls from other services.
+     */
+    const authtypeSingleJWT = 1;
+
+    /*
+     * A classic app allows users to log in and authenticate via refresh- and access-tokens afterwards. Public contents are available with only a valid apikey.
+     */
+    const authtypeDoubleJWT = 2;
+
+    public static function getAuthtypeLabel($authtype) {
+        if ($authtype === self::authtypeSession) {
+            return __('PHP Session');
+        } elseif ($authtype === self::authtypeSingleJWT) {
+            return __('Single JWT');
+        } elseif ($authtype === self::authtypeDoubleJWT) {
+            return __('Double JWT');
+        }
+        return 'Unknown: ' . $authtype;
+    }
+
+    public function __construct(array $import = []) {
+        $this->id              = null;
+        $this->created         = time();
+        $this->createdUser     = null;
+        $this->modified        = time();
+        $this->modifiedUser    = null;
+        $this->title           = '';
+        $this->description           = '';
+
+        $this->tokenSecret       = '';
+        $this->accesstokenSecret = '';
+
+        $this->expiresIn = 30 * 24 * 60 * 60; // default: 30 days
+
+        if (is_array($import) && wireCount($import) > 0) {
+            $this->import($import);
+        }
+        if ($this->isNew()) {
+            $this->created      = time();
+            $this->createdUser  = $this->wire('user');
+            $this->modified     = time();
+            $this->modifiedUser = $this->wire('user');
+        }
+        $this->initiated = true;
+    }
+
+    protected function import(array $values) {
+        if (!isset($values['id'])) {
+            throw new ApplicationException('You cannot import an application without an id.');
+        }
+        $this->id = (int)$values['id'];
+
+        if (isset($values['created'])) {
+            $this->setCreated($values['created']);
+        }
+        if (isset($values['created_user_id'])) {
+            $this->setCreatedUser($values['created_user_id']);
+        }
+
+        if (isset($values['modified'])) {
+            $this->setModified($values['modified']);
+        }
+        if (isset($values['modified_user_id'])) {
+            $this->setModifiedUser($values['modified_user_id']);
+        }
+
+        if (isset($values['title'])) {
+            $this->setTitle($values['title']);
+        }
+
+        if (isset($values['description'])) {
+            $this->setDescription($values['description']);
+        }
+
+        if (isset($values['token_secret'])) {
+            $this->setTokenSecret($values['token_secret']);
+        }
+
+        if (isset($values['accesstoken_secret'])) {
+            $this->setAccesstokenSecret($values['accesstoken_secret']);
+        }
+
+        if (isset($values['authtype'])) {
+            $this->setAuthtype($values['authtype']);
+        }
+
+        if (isset($values['expires_in'])) {
+            $this->setExpiresIn($values['expires_in']);
+        }
+    }
+
+    public function isSaveable() {
+        if (!$this->isValid()) {
+            return false;
+        }
+        return true;
+    }
+
+    public function isValid() {
+        return $this->isIDValid() && $this->isCreatedValid() && $this->isCreatedUserValid() && $this->isModifiedValid() && $this->isModifiedUserValid() && $this->isTitleValid() && $this->isDescriptionValid() && $this->isTokenSecretValid() && $this->isAccesstokenSecretValid() && $this->isAuthtypeValid() && $this->isExpiresInValid();
+    }
+
+    public function isNew() {
+        return empty($this->id);
+    }
+
+    public function getID() {
+        return $this->id;
+    }
+
+    public function isIDValid($value = false) {
+        if ($value === false) {
+            $value = $this->id;
+        }
+        return $value === null || (is_integer($value) && $value >= 0);
+    }
+
+    public function setCreated($created) {
+        if (is_string($created)) {
+            $created = strtotime($created);
+        }
+
+        if (!$this->isCreatedValid($created)) {
+            throw new ApplicationException('No valid modified date');
+        }
+
+        $this->created = $created;
+        return $this->created;
+    }
+
+    public function isCreatedValid($value = false) {
+        if ($value === false) {
+            $value = $this->created;
+        }
+        return is_integer($value) && $value > 0;
+    }
+
+    public function getCreated() {
+        return $this->created;
+    }
+
+    public function setCreatedUser($createdUser) {
+        if (!$createdUser instanceof User || !$createdUser->id) {
+            $createdUser = wire('users')->get($createdUser);
+        }
+        if (!$this->isCreatedUserValid($createdUser)) {
+            throw new ApplicationException('No valid user');
+        }
+        $this->createdUser = $createdUser;
+        return $this->createdUser;
+    }
+
+    public function isCreatedUserValid($value = false) {
+        if ($value === false) {
+            $value = $this->createdUser;
+        }
+        return $value instanceof User && $value->id;
+    }
+
+    public function getCreatedUser() {
+        if (!$this->isCreatedUserValid()) {
+            return wire('users')->getGuestUser();
+        }
+        return $this->createdUser;
+    }
+
+    public function getCreatedUserLink() {
+        $createdUser       = $this->getCreatedUser();
+        $createdUserString = $createdUser->name . ' (' . $createdUser->id . ')';
+        if ($createdUser->editable()) {
+            $createdUserString =  '<a href="' . $createdUser->editUrl . '" target="_blank">' . $createdUserString . '</a>';
+        }
+        return $createdUserString;
+    }
+
+    public function setModified($modified) {
+        if (is_string($modified)) {
+            $modified = strtotime($modified);
+        }
+
+        if (!$this->isModifiedValid($modified)) {
+            throw new ApplicationException('No valid modified date');
+        }
+
+        $this->modified = $modified;
+        return $this->modified;
+    }
+
+    public function isModifiedValid($value = false) {
+        if ($value === false) {
+            $value = $this->modified;
+        }
+        return is_integer($value) && $value > 0;
+    }
+
+    public function getModified() {
+        return $this->modified;
+    }
+
+    public function setModifiedUser($modifiedUser) {
+        if (!$modifiedUser instanceof User || !$modifiedUser->id) {
+            $modifiedUser = wire('users')->get($modifiedUser);
+        }
+        if (!$this->isModifiedUserValid($modifiedUser)) {
+            throw new ApplicationException('No valid user');
+        }
+        $this->modifiedUser = $modifiedUser;
+        return $this->modifiedUser;
+    }
+
+    public function isModifiedUserValid($value = false) {
+        if ($value === false) {
+            $value = $this->modifiedUser;
+        }
+        return $value instanceof User && $value->id;
+    }
+
+    public function getModifiedUser() {
+        if (!$this->isModifiedUserValid()) {
+            return wire('users')->getGuestUser();
+        }
+        return $this->modifiedUser;
+    }
+
+    public function getModifiedUserLink() {
+        $modifiedUser       = $this->getModifiedUser();
+        $modifiedUserString = $modifiedUser->name . ' (' . $modifiedUser->id . ')';
+        if ($modifiedUser->editable()) {
+            $modifiedUserString =  '<a href="' . $modifiedUser->editUrl . '" target="_blank">' . $modifiedUserString . '</a>';
+        }
+        return $modifiedUserString;
+    }
+
+    public function setTitle($title) {
+        $title = $this->sanitizer->text($title);
+        if (!$this->isTitleValid($title)) {
+            throw new ApplicationException('No valid title');
+        }
+        $this->title = $title;
+        if ($this->initiated) {
+            $this->modified     = time();
+            $this->modifiedUser = $this->wire('user');
+        }
+        return $this->title;
+    }
+
+    public function isTitleValid($value = false) {
+        if ($value === false) {
+            $value = $this->title;
+        }
+        return is_string($value) && strlen($value) > 0;
+    }
+
+    public function getTitle() {
+        return $this->title;
+    }
+
+    public function setDescription($description) {
+        $description = $this->sanitizer->textarea($description);
+        if (!$this->isDescriptionValid($description)) {
+            throw new ApplicationException('No valid description');
+        }
+        $this->description = $description;
+        if ($this->initiated) {
+            $this->modified     = time();
+            $this->modifiedUser = $this->wire('user');
+        }
+        return $this->description;
+    }
+
+    public function isDescriptionValid($value = false) {
+        if ($value === false) {
+            $value = $this->description;
+        }
+        return is_string($value);
+    }
+
+    public function getDescription() {
+        return $this->description;
+    }
+
+    public function setTokenSecret($tokenSecret) {
+        if (!$this->isTokenSecretValid($tokenSecret)) {
+            throw new ApplicationException('No valid token secret');
+        }
+        $this->tokenSecret = $tokenSecret;
+        if ($this->initiated) {
+            $this->modified     = time();
+            $this->modifiedUser = $this->wire('user');
+        }
+        return $this->tokenSecret;
+    }
+
+    public function isTokenSecretValid($value = false) {
+        if ($value === false) {
+            $value = $this->tokenSecret;
+        }
+        return is_string($value) && strlen($value) > 10;
+    }
+
+    public function regenerateTokenSecret($length = 42) {
+        $this->tokenSecret = RestApiHelper::generateRandomString($length, false);
+    }
+
+    public function getTokenSecret() {
+        return $this->tokenSecret;
+    }
+
+    public function setAccesstokenSecret($accesstokenSecret) {
+        if (!$this->isAccesstokenSecretValid($accesstokenSecret)) {
+            throw new ApplicationException('No valid access token secret');
+        }
+        $this->accesstokenSecret = $accesstokenSecret;
+        if ($this->initiated) {
+            $this->modified     = time();
+            $this->modifiedUser = $this->wire('user');
+        }
+        return $this->accesstokenSecret;
+    }
+
+    public function isAccesstokenSecretValid($value = false) {
+        if ($value === false) {
+            $value = $this->accesstokenSecret;
+        }
+        return is_string($value) && strlen($value) > 10;
+    }
+
+    public function regenerateAccesstokenSecret($length = 30) {
+        $this->accesstokenSecret = RestApiHelper::generateRandomString($length, false);
+    }
+
+    public function getAccesstokenSecret() {
+        return $this->accesstokenSecret;
+    }
+
+    public function setExpiresIn($expiresIn) {
+        if (is_string($expiresIn)) {
+            $expiresIn = intval($expiresIn);
+        }
+        if (!$this->isExpiresInValid($expiresIn)) {
+            throw new ApplicationException('No valid expires in value');
+        }
+        $this->expiresIn = $expiresIn;
+        if ($this->initiated) {
+            $this->modified     = time();
+            $this->modifiedUser = $this->wire('user');
+        }
+        return $this->expiresIn;
+    }
+
+    public function isExpiresInValid($value = false) {
+        if ($value === false) {
+            $value = $this->expiresIn;
+        }
+        return is_integer($value) && $value > 0;
+    }
+
+    public function getExpiresIn() {
+        return $this->expiresIn;
+    }
+
+    public function setAuthtype($authtype) {
+        $authtype = $this->sanitizer->int($authtype);
+        if (!$this->isAuthtypeValid($authtype)) {
+            throw new ApplicationException('No valid authtype');
+        }
+        $this->authtype = $authtype;
+        if ($this->initiated) {
+            $this->modified     = time();
+            $this->modifiedUser = $this->wire('user');
+        }
+        return $this->authtype;
+    }
+
+    public function isAuthtypeValid($value = false) {
+        if ($value === false) {
+            $value = $this->authtype;
+        }
+        return $value >= 0 && $value <= 2;
+    }
+
+    public function getAuthtype() {
+        return $this->authtype;
+    }
+
+    public function getApikeys() {
+        if ($this->isNew()) {
+            return new WireArray();
+        }
+
+        $apikeys        = new WireArray();
+        $db             = wire('database');
+        $query          = $db->prepare('SELECT * FROM ' . RestApi::tableApikeys . ' WHERE `application_id`=:application_id;');
+        $query->closeCursor();
+        $query->execute([
+            ':application_id' => $this->getID()
+        ]);
+        $queueRaw    = $query->fetchAll(\PDO::FETCH_ASSOC);
+
+        foreach ($queueRaw as $queueItem) {
+            if (!isset($queueItem['id']) || empty($queueItem['id'])) {
+                continue;
+            }
+
+            try {
+                $apikey = new Apikey($queueItem);
+                if ($apikey->isValid()) {
+                    $apikeys->add($apikey);
+                }
+            } catch (\Exception $e) {
+            }
+        }
+        return $apikeys;
+    }
+
+    public function getApikey($key) {
+        if ($key instanceof Apikey) {
+            $key = $key->getKey();
+        }
+        return $this->getApikeys()->findOne('key=' . $key);
+    }
+
+    public function hasApikey($key) {
+        return $this->getApikey($key) instanceof Apikey;
+    }
+
+    public function removeApikey($key) {
+        if ($key instanceof Apikey) {
+            $key = $key->getKey();
+        }
+        $apikey = $this->getApikey($key);
+        if (!$apikey instanceof Apikey) {
+            return true;
+        }
+
+        return $apikey->delete();
+    }
+
+    public function getApptokens() {
+        if ($this->isNew()) {
+            return new WireArray();
+        }
+
+        $apptokens        = new WireArray();
+        $db               = wire('database');
+        $query            = $db->prepare('SELECT * FROM ' . RestApi::tableApptokens . ' WHERE `application_id`=:application_id;');
+        $query->closeCursor();
+        $query->execute([
+            ':application_id' => $this->getID()
+        ]);
+        $queueRaw    = $query->fetchAll(\PDO::FETCH_ASSOC);
+
+        foreach ($queueRaw as $queueItem) {
+            if (!isset($queueItem['id']) || empty($queueItem['id'])) {
+                continue;
+            }
+
+            try {
+                $apptoken = new Apptoken($queueItem);
+                if ($apptoken->isValid()) {
+                    $apptokens->add($apptoken);
+                }
+            } catch (\Exception $e) {
+            }
+        }
+        return $apptokens;
+    }
+
+    public function getApptoken($tokenID) {
+        try {
+            $db        = wire('database');
+            $query     = $db->prepare('SELECT * FROM ' . RestApi::tableApptokens . ' WHERE `token_id`=:token_id AND `application_id`=:application_id;');
+            $query->closeCursor();
+
+            $query->execute(array(
+                ':token_id'       => $tokenID,
+                ':application_id' => $this->getID()
+            ));
+            $queueRaw      = $query->fetch(\PDO::FETCH_ASSOC);
+            
+            return new Apptoken($queueRaw);
+        } catch (\Exception $e) {
+            throw $e;
+            return false;
+        }
+
+        return false;
+    }
+
+    public function delete() {
+        if ($this->isNew()) {
+            return true;
+        }
+
+        try {
+            $db        = wire('database');
+            $queryVars = array(
+                ':id' => $this->getID()
+            );
+            $preparedQuery = 'DELETE FROM `' . RestApi::tableApplications . '` WHERE `id`=:id;';
+            $query         = $db->prepare($preparedQuery);
+            $query->closeCursor();
+            $query->execute($queryVars);
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function save() {
+        if (!$this->isSaveable()) {
+            return false;
+        }
+
+        $db               = wire('database');
+        $queryVars        = array(
+            ':created_user_id'         => $this->getCreatedUser()->id,
+            ':created'                 => date('Y-m-d G:i:s', $this->getCreated()),
+            ':modified_user_id'        => $this->getModifiedUser()->id,
+            ':modified'                => date('Y-m-d G:i:s', $this->getModified()),
+            ':title'                   => $this->getTitle(),
+            ':description'             => $this->getDescription(),
+            ':token_secret'            => $this->getTokenSecret(),
+            ':accesstoken_secret'      => $this->getAccesstokenSecret(),
+            ':authtype'                => $this->getAuthtype(),
+            ':expires_in'              => $this->getExpiresIn()
+        );
+
+        if (!$this->isNew()) {
+            // This application already exists in db and shall be updated.
+
+            $queryVars[':id']        = $this->getID();
+
+            try {
+                $query = $db->prepare('UPDATE `' . RestApi::tableApplications . '` SET `created_user_id`=:created_user_id, `created`=:created, `modified_user_id`=:modified_user_id, `modified`=:modified, `title`=:title, `description`=:description, `token_secret`=:token_secret, `accesstoken_secret`=:accesstoken_secret, `authtype`=:authtype, `expires_in`=:expires_in WHERE `id`=:id;');
+                $query->closeCursor();
+                $query->execute($queryVars);
+            } catch (\Exception $e) {
+                $this->error('The application [' . $this->getID() . '] could not be saved: ' . $e->getMessage());
+                return false;
+            }
+
+            return true;
+        }
+
+        // New application should be saved into db:
+        try {
+            $query = $db->prepare('INSERT INTO `' . RestApi::tableApplications . '` (`id`, `created_user_id`, `created`,`modified_user_id`, `modified`, `title`, `description`, `token_secret`, `accesstoken_secret`, `authtype`, `expires_in`) VALUES (NULL, :created_user_id, :created, :modified_user_id, :modified, :title, :description, :token_secret, :accesstoken_secret, :authtype, :expires_in);');
+            $query->closeCursor();
+            $query->execute($queryVars);
+            $this->id = $db->lastInsertId();
+        } catch (\Exception $e) {
+            $this->error('The application could not be saved: ' . $e->getMessage());
+            return false;
+        }
+
+        return true;
+    }
+}
