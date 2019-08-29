@@ -273,7 +273,7 @@ if (!$application->isNew() && $application->getAuthtype() === Application::autht
             $row = array(
                 $apptoken->getUserLink(),
                 '<a href="' . $this->wire('page')->url . 'apptoken/edit/' . $apptoken->getID() . '">' . $apptoken->getTokenId() . '</a>',
-                wire('datetime')->date('', $apptoken->getLastUsed()),
+                $apptoken->getLastUsed() !== null ? wire('datetime')->date('', $apptoken->getLastUsed()) : '-',
                 '<a href="' . $this->wire('page')->url . 'apptoken/delete/' . $apptoken->getID() . '"><i class="fa fa-trash"></i></a>'
             );
 

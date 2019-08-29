@@ -206,7 +206,7 @@ $form->prepend($field);
 $field              = $this->modules->get('InputfieldMarkup');
 $field->label       = $this->_('Last used');
 $field->columnWidth = '100%';
-$field->value       = sprintf($this->_('The token was last used on %s'), wire('datetime')->date($this->_('Y-m-d @ H:i:s'), $apptoken->getLastUsed()));
+$field->value       = $apptoken->getLastUsed() ? (sprintf($this->_('The token was last used on %s'), wire('datetime')->date($this->_('Y-m-d @ H:i:s'), $apptoken->getLastUsed()))) : $this->_('The token was never used.');
 $field->collapsed   = Inputfield::collapsedNever;
 $form->insertBefore($field, $button);
 

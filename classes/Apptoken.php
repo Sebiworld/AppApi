@@ -557,7 +557,7 @@ class Apptoken extends WireData {
             ':modified'                             => date('Y-m-d G:i:s', $this->getModified()),
             ':token_id'                             => $this->getTokenID(),
             ':user_id'                              => $this->getUser()->id,
-            ':last_used'                            => date('Y-m-d G:i:s', $this->getLastUsed()),
+            ':last_used'                            => ($this->getLastUsed() !== null ? date('Y-m-d G:i:s', $this->getLastUsed()) : null),
             ':expiration_time'                      => date('Y-m-d G:i:s', $this->getExpirationTime()),
             ':not_before_time'                      => date('Y-m-d G:i:s', $this->getNotBeforeTime())
         );
