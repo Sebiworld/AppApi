@@ -390,7 +390,7 @@ class Auth extends WireData {
             $this->wire('users')->setCurrentUser($user);
         } catch (\Throwable $e) {
             $this->wire('users')->setCurrentUser($this->wire('users')->get('guest'));
-            // throw $e;
+            throw $e;
         }
     }
 

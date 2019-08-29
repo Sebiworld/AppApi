@@ -137,7 +137,9 @@ class Router extends WireData {
         $vars = (object) $routeInfo[2];
 
         // Check for Auth-Tokens and log the user in (if valid):
-        Auth::getInstance()->handleAuthentication();
+        if (!isset($routeParams['handle_authentication']) || $routeParams['handle_authentication']) {
+            Auth::getInstance()->handleAuthentication();
+        }
 
         // Check if the route is only allowed for a specific application-id:
         if (!empty($routeParams['application']) && $routeParams['application'] !== Auth::getInstance()->getApplication()->getID()) {

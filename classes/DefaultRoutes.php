@@ -13,7 +13,8 @@ class DefaultRoutes {
 		
 		'access' => [
 			['OPTIONS', ''],
-			['POST', '', Auth::class, 'access'],
+			// Disable token-checking for the access-endpoint, because it checks for a valid request-token on itself
+			['POST', '', Auth::class, 'access', ['handle_authentication' => false]]
 		],
 	];
 
