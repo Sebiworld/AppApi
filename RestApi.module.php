@@ -117,15 +117,9 @@ class RestApi extends Process implements Module {
     }
 
     public function ___upgrade($fromVersion, $toVersion) {
-        // set authMethod to jwt if it was used before on upgrade to 0.0.3:
-        if (version_compare($fromVersion, '0.0.3') === -1) {
-            if ($this->useJwtAuth) {
-                $data               = $this->modules->getConfig($this->className);
-                $data['authMethod'] = 'jwt';
-                $this->modules->saveConfig($this->className, $data);
-                $this->notices->add(new NoticeMessage("$this->className: Automatically set Auth Method to 'JWT' since you used JWT Auth before"));
-            }
-        } elseif (version_compare($fromVersion, '0.0.6') === -1) {
+        if (version_compare($fromVersion, '0.0.6') === -1) {
+            $this->createDBTables();
+            
             if ($this->authMethod === 'jwt') {
                 // Create a new application and copy the jwt-secret 
                 $application = new Application();
@@ -136,7 +130,6 @@ class RestApi extends Process implements Module {
                 $application->setTitle('My Rest-Application');
                 $application->setDescription('Application was automatically generated with information from an older module-version.');
             }
-            $this->createDBTables();
         }
     }
 
