@@ -2,7 +2,7 @@
 namespace ProcessWire;
 
 require_once wire('config')->paths->RestApi . "vendor/autoload.php";
-require_once wire('config')->paths->RestApi . "RestApiHelper.php";
+require_once wire('config')->paths->RestApi . "classes/RestApiHelper.php";
 
 require_once __DIR__ . "/Example.php";
 

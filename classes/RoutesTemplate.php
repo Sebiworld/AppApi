@@ -2,7 +2,7 @@
 namespace ProcessWire;
 
 require_once wire('config')->paths->RestApi . "vendor/autoload.php";
-require_once wire('config')->paths->RestApi . "RestApiHelper.php";
+require_once wire('config')->paths->RestApi . "classes/RestApiHelper.php";
 
 $routes = function(\FastRoute\RouteCollector $r) {
 	$r->addRoute('GET', '/', RestApiHelper::class . '@noEndpoint');
