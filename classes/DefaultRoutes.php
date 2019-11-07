@@ -6,16 +6,21 @@ class DefaultRoutes {
 		['*', '', RestApiHelper::class, 'noEndPoint', ['auth' => false]],
 
 		'auth' => [
-			['OPTIONS', ''],
+			['OPTIONS', '', ['POST', 'DELETE']],
 			['POST', '', Auth::class, 'login'],
 			['DELETE', '', Auth::class, 'logout', ['auth' => false]]
 		],
 		
 		'access' => [
-			['OPTIONS', ''],
+			['OPTIONS', '', ['POST']],
 			// Disable token-checking for the access-endpoint, because it checks for a valid request-token on itself
 			['POST', '', Auth::class, 'access', ['handle_authentication' => false]]
 		],
+
+		'current_user' => [
+			['OPTIONS', '', ['GET']],
+			['GET', '', Auth::class, 'currentUser'],
+		]
 	];
 
 	public static function get() {

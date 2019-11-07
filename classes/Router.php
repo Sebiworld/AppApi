@@ -30,10 +30,6 @@ class Router extends WireData {
         }
 
         try {
-            if (!Auth::getInstance()->isApikeyValid()) {
-                throw new RestApiException('Apikey not valid.', 401);
-            }
-
             // $routes are coming from this file:
             require_once wire('config')->paths->site . 'api/Routes.php';
 
@@ -109,20 +105,30 @@ class Router extends WireData {
             }
         }
 
+        if (!isset($routeInfo[1]) || !is_array($routeInfo[1])) {
+            throw new RestApiException('Routehandler not set', 500);
+        }
+        $handler         = $routeInfo[1];
+
         if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
             if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])) {
-                header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, HEAD, OPTIONS');
+                $allowedMethods = array('GET', 'POST', 'PUT', 'DELETE');
+                if (isset($handler[0]) && is_array($handler[0])) {
+                    $allowedMethods = $handler[0];
+                }
+                header('Access-Control-Allow-Methods: ' . implode(', ', $allowedMethods) . ', HEAD, OPTIONS');
             }
 
             if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'])) {
                 header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
             }
+
+            return;
         }
 
-        if (!isset($routeInfo[1]) || !is_array($routeInfo[1])) {
-            throw new RestApiException('Routehandler not set', 500);
+        if (!Auth::getInstance()->isApikeyValid()) {
+            throw new RestApiException('Apikey not valid.', 401);
         }
-        $handler         = $routeInfo[1];
 
         if (!isset($handler[0]) || !is_string($handler[0]) || !isset($handler[1]) || !is_string($handler[1]) || !isset($handler[2])) {
             throw new RestApiException('Routehandler not valid', 500);
@@ -200,15 +206,6 @@ class Router extends WireData {
         }
 
         $src = $source ? $source : $_REQUEST;
-
-        //Basic HTTP Authetication
-        // if (isset($_SERVER['PHP_AUTH_USER'])) {
-        // $credentials = [
-        // "uname" => $_SERVER['PHP_AUTH_USER'],
-        // "upass" => $_SERVER['PHP_AUTH_PW']
-        // ];
-        // $src = array_merge($src, $credentials);
-        // }
 
         return Router::fetch_from_array($src, $index, $default);
     }
@@ -335,10 +332,6 @@ class Router extends WireData {
     }
 
     public static function displayError($error, $status = 500) {
-        if (error_reporting() === 0) {
-            return;
-        }
-
         if (is_string($error)) {
             $return        = new \StdClass();
             $return->error = (string) $error;
