@@ -399,7 +399,7 @@ class RestApi extends Process implements Module {
         );
     }
 
-    protected function getApplication($id) {
+    public function getApplication($id) {
         $application   = false;
         $applicationID = $this->sanitizer->int($id);
         if (!empty($id)) {
@@ -417,7 +417,7 @@ class RestApi extends Process implements Module {
         return $application;
     }
 
-    protected function getApplications() {
+    public function getApplications() {
         $applications   = new WireArray();
         try {
             $db             = wire('database');
@@ -490,7 +490,7 @@ class RestApi extends Process implements Module {
     }
 
     public function init() {
-        $this->addHookBefore('ProcessPageView::execute', $this, 'checkIfApiRequest');
+        $this->addHookBefore('ProcessPageView::execute', $this, 'handleApiRequest');
 
         // Let endpoint fall back to 'api' if not set:
         if (!$this->endpoint) {
@@ -498,7 +498,7 @@ class RestApi extends Process implements Module {
         }
     }
 
-    public function checkIfApiRequest(HookEvent $event) {
+    protected function checkIfApiRequest(){
         $url = $this->sanitizer->url($this->input->url);
 
         // support / in endpoint url:
@@ -507,7 +507,11 @@ class RestApi extends Process implements Module {
         $regex = '/^\/' . $endpoint . '\/?.*/m';
         preg_match($regex, $url, $matches);
 
-        if ($matches) {
+        return !!$matches;
+    }
+
+    public function handleApiRequest(HookEvent $event) {
+        if ($this->checkIfApiRequest()) {
             $this->apiCall = true;
             Auth::getInstance()->initApikey();
             $router = new Router();
