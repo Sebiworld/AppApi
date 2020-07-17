@@ -137,7 +137,7 @@ Let us now turn to the request. I will demonstrate it with simple Angular-code e
 // Example with username/pass as a basic-authorisation header (recommended):
 this.httpClient.post('https://my-website.dev/api/auth', undefined, {
   'x-api-key': 'ytaaYCMkUmouZawYMvJN9',
-  authorization: 'Basic ' + btoa(username + ':' + pass),
+  'authorization': 'Basic ' + btoa(username + ':' + pass),
 });
 
 // Alternatively you can send username/pass in the request-body:
@@ -185,8 +185,7 @@ With this functioning token you can now make authenticated requests! You only ha
 ```typescript
 this.httpClient.get('https://my-website.dev/api/auth', {
   'x-api-key': 'ytaaYCMkUmouZawYMvJN9',
-  authorization:
-    'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJteS13ZWJzaXRlLmxvY2FsIiwiYXVkIjo0LCJzdWIiOjQxLCJpYXQiOjE1OTQ3NDk2OTUsIm5iZiI6MTU5NDc0OTY5NSwianRpIjoiSjdjTldsM3J0Q3VRSUN3azA2YW9LIiwiZXhwIjoxNTk3MzQxNjk1LCJzaWQiOiIxNDJhZmVhZG9jOTIybzJzZWJpaDciLCJzaWRfY2hhbGxlbmdlIjoiYmwwMzQyYXNpS0JIVS81a0g0Q0xWWGNzYWlNMTExOCJ9.9y4h0nslg2JHLSPFevOK-JWx2P_RfaaqSHRPi7nnSMk',
+  'authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJteS13ZWJzaXRlLmxvY2FsIiwiYXVkIjo0LCJzdWIiOjQxLCJpYXQiOjE1OTQ3NDk2OTUsIm5iZiI6MTU5NDc0OTY5NSwianRpIjoiSjdjTldsM3J0Q3VRSUN3azA2YW9LIiwiZXhwIjoxNTk3MzQxNjk1LCJzaWQiOiIxNDJhZmVhZG9jOTIybzJzZWJpaDciLCJzaWRfY2hhbGxlbmdlIjoiYmwwMzQyYXNpS0JIVS81a0g0Q0xWWGNzYWlNMTExOCJ9.9y4h0nslg2JHLSPFevOK-JWx2P_RfaaqSHRPi7nnSMk',
 });
 ```
 
@@ -226,7 +225,7 @@ Let us now turn to the request. I will demonstrate it with simple Angular-code e
 // Example with username/pass as a basic-authorisation header (recommended):
 this.httpClient.post('https://my-website.dev/api/auth', undefined, {
   'x-api-key': 'ytaaYCMkUmouZawYMvJN9',
-  authorization: 'Basic ' + btoa(username + ':' + pass),
+  'authorization': 'Basic ' + btoa(username + ':' + pass),
 });
 
 // Alternatively you can send username/pass in the request-body:
@@ -272,8 +271,7 @@ The next step is to get an accesstoken, which you need to legitimize your api-re
 ```typescript
 this.httpClient.get('https://my-website.dev/api/auth/access', {
   'x-api-key': 'ytaaYCMkUmouZawYMvJN9',
-  authorization:
-    'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJteS13ZWJzaXRlLmxvY2FsIiwiYXVkIjo0LCJzdWIiOjQxLCJpYXQiOjE1OTQ3NDk2OTUsIm5iZiI6MTU5NDc0OTY5NSwianRpIjoiSjdjTldsM3J0Q3VRSUN3azA2YW9LIiwiZXhwIjoxNTk3MzQxNjk1LCJzaWQiOiIxNDJhZmVhZG9jOTIybzJzZWJpaDciLCJzaWRfY2hhbGxlbmdlIjoiYmwwMzQyYXNpS0JIVS81a0g0Q0xWWGNzYWlNMTExOCJ9.9y4h0nslg2JHLSPFevOK-JWx2P_RfaaqSHRPi7nnSMk',
+  authorization: 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJteS13ZWJzaXRlLmxvY2FsIiwiYXVkIjo0LCJzdWIiOjQxLCJpYXQiOjE1OTQ3NDk2OTUsIm5iZiI6MTU5NDc0OTY5NSwianRpIjoiSjdjTldsM3J0Q3VRSUN3azA2YW9LIiwiZXhwIjoxNTk3MzQxNjk1LCJzaWQiOiIxNDJhZmVhZG9jOTIybzJzZWJpaDciLCJzaWRfY2hhbGxlbmdlIjoiYmwwMzQyYXNpS0JIVS81a0g0Q0xWWGNzYWlNMTExOCJ9.9y4h0nslg2JHLSPFevOK-JWx2P_RfaaqSHRPi7nnSMk',
 });
 ```
 
@@ -400,12 +398,12 @@ The module automatically runs json_encode on the output data, so your function c
 namespace ProcessWire;
 
 class Example {
-	public static function test () {
-		return [
+  public static function test () {
+    return [
       'message' => 'test successful',
       'status' => 200
     ];
-	}
+  }
 }
 ```
 
@@ -425,9 +423,9 @@ That works very well with all basic datatypes (like string, integer, boolean, ..
 namespace ProcessWire;
 
 class Example {
-	public static function pageOutput () {
-		return AppApi::getAjaxOf(wire('pages')->get('/'));
-	}
+  public static function pageOutput () {
+    return AppApi::getAjaxOf(wire('pages')->get('/'));
+  }
 }
 ```
 
@@ -483,20 +481,20 @@ And I have one last special thing for you that makes the error handling much mor
 
 ```php
 class AppApiException extends WireException {
-    private $additionals = array();
+  private $additionals = array();
 
-    public function __construct(string $message, int $code = 500, array $additionals = array(), \Exception $previous = null) {
-        $this->additionals = array_merge($this->additionals, $additionals);
-        parent::__construct($message, $code, $previous);
-    }
+  public function __construct(string $message, int $code = 500, array $additionals = array(), \Exception $previous = null) {
+    $this->additionals = array_merge($this->additionals, $additionals);
+    parent::__construct($message, $code, $previous);
+  }
 
-    public function __toString() {
-        return "{$this->message}";
-    }
+  public function __toString() {
+    return "{$this->message}";
+  }
 
-    public function getAdditionals() {
-        return $this->additionals;
-    }
+  public function getAdditionals() {
+    return $this->additionals;
+  }
 }
 ```
 
@@ -551,12 +549,12 @@ require_once __DIR__ . "/Example.php";
 
 // The $routes-array will be imported by the module:
 $routes = [
-  	'users' => [
-			['OPTIONS', '', ['GET']], // this is needed for CORS Requests
-			['GET', '', Example::class, 'getAllUsers', ["auth" => true]],
-			['OPTIONS', '{id:\d+}', ['GET']], // this is needed for CORS Requests
-    	['GET', '{id:\d+}', Example::class, 'getUser', ["auth" => true]]
-    ],
+  'users' => [
+    ['OPTIONS', '', ['GET']], // this is needed for CORS Requests
+    ['GET', '', Example::class, 'getAllUsers', ["auth" => true]],
+    ['OPTIONS', '{id:\d+}', ['GET']], // this is needed for CORS Requests
+    ['GET', '{id:\d+}', Example::class, 'getUser', ["auth" => true]]
+  ],
 ];
 ```
 
@@ -578,47 +576,47 @@ class Example {
   /**
    * Returns a list of all users that are available
    */
-	public static function getAllUsers() {
+  public static function getAllUsers() {
     // In our $response-array we collect everythin that should be returned:
-		$response = [
-			'users' => []
-		];
+    $response = [
+      'users' => []
+    ];
 
     // Collect id and username of every user and put it to the users-array:
-		foreach(wire('users') as $user) {
-			array_push($response['users'], [
-				"id" => $user->id,
-				"name" => $user->name
-			]);
-		}
+    foreach(wire('users') as $user) {
+      array_push($response['users'], [
+        "id" => $user->id,
+        "name" => $user->name
+      ]);
+    }
 
-		return $response;
-	}
+    return $response;
+  }
 
   /**
    * Return username and id of one individual user
    */
-	public static function getUser($data) {
+  public static function getUser($data) {
     // $data will contain all GET-params, that were included in the request.
     // For POST-requests it would contain the response-body vars.
 
     // Use this helper-function to check and validate a parameter in one line.
     // An exception will be thrown, if $data['id'] does not exist
-		$data = AppApiHelper::checkAndSanitizeRequiredParameters($data, ['id|int']);
+    $data = AppApiHelper::checkAndSanitizeRequiredParameters($data, ['id|int']);
 
     // We collect our response-data in an empty StdClass. json_encode can handle StdClasses
     // as well, so its no problem.
-		$response = new \StdClass();
-		$user = wire('users')->get($data->id);
+    $response = new \StdClass();
+    $user = wire('users')->get($data->id);
 
     // If the user does not exist, we throw a 404 exception and escape.
-		if(!$user->id) throw new \Exception('User not found', 404);
+    if(!$user->id) throw new \Exception('User not found', 404);
 
-		$response->id = $user->id;
-		$response->name = $user->name;
+    $response->id = $user->id;
+    $response->name = $user->name;
 
-		return $response;
-	}
+    return $response;
+  }
 }
 ```
 
@@ -673,31 +671,31 @@ require_once wire('config')->paths->AppApi . 'classes/AppApiHelper.php';
 require_once __DIR__ . '/TwackAccess.class.php';
 
 $routes = [
-    'page' => [
-        ['OPTIONS', '{id:\d+}', ['GET', 'POST', 'UPDATE', 'DELETE']],
-        ['OPTIONS', '{path:.+}', ['GET', 'POST', 'UPDATE', 'DELETE']],
-        ['OPTIONS', '', ['GET', 'POST', 'UPDATE', 'DELETE']],
-        ['GET', '{id:\d+}', TwackAccess::class, 'pageIDRequest'],
-        ['GET', '{path:.+}', TwackAccess::class, 'pagePathRequest'],
-        ['GET', '', TwackAccess::class, 'dashboardRequest'],
-        ['POST', '{id:\d+}', TwackAccess::class, 'pageIDRequest'],
-        ['POST', '{path:.+}', TwackAccess::class, 'pagePathRequest'],
-        ['POST', '', TwackAccess::class, 'dashboardRequest'],
-        ['UPDATE', '{id:\d+}', TwackAccess::class, 'pageIDRequest'],
-        ['UPDATE', '{path:.+}', TwackAccess::class, 'pagePathRequest'],
-        ['UPDATE', '', TwackAccess::class, 'dashboardRequest'],
-        ['DELETE', '{id:\d+}', TwackAccess::class, 'pageIDRequest'],
-        ['DELETE', '{path:.+}', TwackAccess::class, 'pagePathRequest'],
-        ['DELETE', '', TwackAccess::class, 'dashboardRequest'],
-    ],
-    'file' => [
-        ['OPTIONS', '{id:\d+}', ['GET']],
-        ['OPTIONS', '{path:.+}', ['GET']],
-        ['OPTIONS', '', ['GET']],
-        ['GET', '{id:\d+}', TwackAccess::class, 'pageIDFileRequest'],
-        ['GET', '{path:.+}', TwackAccess::class, 'pagePathFileRequest'],
-        ['GET', '', TwackAccess::class, 'dashboardFileRequest']
-    ]
+  'page' => [
+    ['OPTIONS', '{id:\d+}', ['GET', 'POST', 'UPDATE', 'DELETE']],
+    ['OPTIONS', '{path:.+}', ['GET', 'POST', 'UPDATE', 'DELETE']],
+    ['OPTIONS', '', ['GET', 'POST', 'UPDATE', 'DELETE']],
+    ['GET', '{id:\d+}', TwackAccess::class, 'pageIDRequest'],
+    ['GET', '{path:.+}', TwackAccess::class, 'pagePathRequest'],
+    ['GET', '', TwackAccess::class, 'dashboardRequest'],
+    ['POST', '{id:\d+}', TwackAccess::class, 'pageIDRequest'],
+    ['POST', '{path:.+}', TwackAccess::class, 'pagePathRequest'],
+    ['POST', '', TwackAccess::class, 'dashboardRequest'],
+    ['UPDATE', '{id:\d+}', TwackAccess::class, 'pageIDRequest'],
+    ['UPDATE', '{path:.+}', TwackAccess::class, 'pagePathRequest'],
+    ['UPDATE', '', TwackAccess::class, 'dashboardRequest'],
+    ['DELETE', '{id:\d+}', TwackAccess::class, 'pageIDRequest'],
+    ['DELETE', '{path:.+}', TwackAccess::class, 'pagePathRequest'],
+    ['DELETE', '', TwackAccess::class, 'dashboardRequest'],
+  ],
+  'file' => [
+    ['OPTIONS', '{id:\d+}', ['GET']],
+    ['OPTIONS', '{path:.+}', ['GET']],
+    ['OPTIONS', '', ['GET']],
+    ['GET', '{id:\d+}', TwackAccess::class, 'pageIDFileRequest'],
+    ['GET', '{path:.+}', TwackAccess::class, 'pagePathFileRequest'],
+    ['GET', '', TwackAccess::class, 'dashboardFileRequest']
+  ]
 ];
 
 ```
@@ -729,17 +727,17 @@ namespace ProcessWire;
 
 class TwackAccess {
 
-	/**
-	 * Request for a special page-id.
-	 */
- 	public static function pageIDRequest($data) {
-  	// Sanitize and check ID:
+  /**
+   * Request for a special page-id.
+   */
+  public static function pageIDRequest($data) {
+    // Sanitize and check ID:
     $data = AppApiHelper::checkAndSanitizeRequiredParameters($data, ['id|int']);
 
-   	// Find the page:
+    // Find the page:
     $page = wire('pages')->get('id=' . $data->id);
 
-   	// Call general page-output-function:
+    // Call general page-output-function:
     return self::pageRequest($page);
   }
 
@@ -810,11 +808,11 @@ The file-requests are handled by the following functions:
 namespace ProcessWire;
 
 class TwackAccess {
-	/**
-	 * Request for a special page-id.
-	 */
-	public static function pageIDFileRequest($data) {
-  	$data = AppApiHelper::checkAndSanitizeRequiredParameters($data, ['id|int']);
+  /**
+   * Request for a special page-id.
+   */
+  public static function pageIDFileRequest($data) {
+    $data = AppApiHelper::checkAndSanitizeRequiredParameters($data, ['id|int']);
     $page = wire('pages')->get('id=' . $data->id);
     return self::fileRequest($page);
   }
@@ -823,8 +821,8 @@ class TwackAccess {
    * Request for root-page
    */
   public static function dashboardFileRequest($data) {
-  	$page = wire('pages')->get('/');
-  	return self::fileRequest($page);
+    $page = wire('pages')->get('/');
+    return self::fileRequest($page);
   }
 
   /**
@@ -889,146 +887,146 @@ class TwackAccess {
     }
 
     // Get general information about the file:
-		$filepath = $file->filename;
-		$fileinfo = pathinfo($filepath);
+    $filepath = $file->filename;
+    $fileinfo = pathinfo($filepath);
     $filename = $fileinfo['basename'];
 
     // Should the file be streamed?
-		$isStreamable = !!isset($_REQUEST['stream']);
+    $isStreamable = !!isset($_REQUEST['stream']);
 
-		if (!is_file($filepath)) {
-			throw new NotFoundException('File not found: ' . $filename);
-		}
+    if (!is_file($filepath)) {
+      throw new NotFoundException('File not found: ' . $filename);
+    }
 
     // Start reading the file:
-		$filesize = filesize($filepath);
-		$openfile    = @fopen($filepath, "rb");
+    $filesize = filesize($filepath);
+    $openfile    = @fopen($filepath, "rb");
 
     // Exit with error 500 if cannot read:
-		if (!$openfile) {
-			throw new InternalServererrorException();
-		}
+    if (!$openfile) {
+      throw new InternalServererrorException();
+    }
 
     // Set headers for the file request:
-		header('Date: ' . gmdate("D, d M Y H:i:s", time()) . " GMT");
-		header('Last-Modified: ' . gmdate("D, d M Y H:i:s", filemtime($filepath)) . " GMT");
-		header('ETag: "' . md5_file($filepath) . '"');
-		header('Accept-Encoding: gzip, deflate');
+    header('Date: ' . gmdate("D, d M Y H:i:s", time()) . " GMT");
+    header('Last-Modified: ' . gmdate("D, d M Y H:i:s", filemtime($filepath)) . " GMT");
+    header('ETag: "' . md5_file($filepath) . '"');
+    header('Accept-Encoding: gzip, deflate');
 
     // Is Base64 requested?
-		if (wire('input')->get('format', 'name', '') === 'base64') {
-			$data = file_get_contents($filepath);
-			echo 'data:' . mime_content_type($filepath) . ';base64,' . base64_encode($data);
+    if (wire('input')->get('format', 'name', '') === 'base64') {
+      $data = file_get_contents($filepath);
+      echo 'data:' . mime_content_type($filepath) . ';base64,' . base64_encode($data);
       // We have to exit() to prevent the module to try a json_encode. We want to output base64 data.
-			exit();
-		}
+      exit();
+    }
 
-		header("Pragma: public");
-		header("Expires: -1");
-		// header("Cache-Control: public,max-age=14400,public");
-		header("Cache-Control: public, must-revalidate, post-check=0, pre-check=0");
-		// header("Content-Disposition: attachment; filename=\"$filename\"");
-		header('Content-type: ' . mime_content_type($filepath));
-		header('Content-Transfer-Encoding: binary');
+    header("Pragma: public");
+    header("Expires: -1");
+    // header("Cache-Control: public,max-age=14400,public");
+    header("Cache-Control: public, must-revalidate, post-check=0, pre-check=0");
+    // header("Content-Disposition: attachment; filename=\"$filename\"");
+    header('Content-type: ' . mime_content_type($filepath));
+    header('Content-Transfer-Encoding: binary');
 
     // If the file should be streamable, we can pause and resume the download at any point:
-		if ($isStreamable) {
-			header("Content-Disposition: inline; filename=\"$filename\"");
-		} else {
-			header("Content-Disposition: attachment; filename=\"$filename\"");
-		}
-
-		$range = '';
-		if (isset($_SERVER['HTTP_RANGE']) || isset($_SERVER['HTTP_CONTENT_RANGE'])) {
-			if(isset($_SERVER['HTTP_CONTENT_RANGE'])){
-				$rangeParts = explode(' ', $_SERVER['HTTP_CONTENT_RANGE'], 2);
-			}else{
-				$rangeParts = explode('=', $_SERVER['HTTP_RANGE'], 2);
-			}
-
-			$sizeUnit = false;
-			if (isset($rangeParts[0])) {
-				$sizeUnit = $rangeParts[0];
-			}
-
-			$rangeOrig = false;
-			if (isset($rangeParts[1])) {
-				$rangeOrig = $rangeParts[1];
-			}
-
-			if ($sizeUnit != 'bytes') {
-				throw new RestApiException("Requested Range Not Satisfiable", 416);
-			}
-
-			//multiple ranges could be specified at the same time, but for simplicity only serve the first range
-			//http://tools.ietf.org/id/draft-ietf-http-range-retrieval-00.txt
-			$rangeOrigParts = explode(',', $rangeOrig, 2);
-
-			$range = '';
-			if (isset($rangeOrigParts[0])) {
-				$range = $rangeOrigParts[0];
-			}
-
-			$extraRanges = '';
-			if (isset($rangeOrigParts[1])) {
-				$extraRanges = $rangeOrigParts[1];
-			}
+    if ($isStreamable) {
+      header("Content-Disposition: inline; filename=\"$filename\"");
+    } else {
+      header("Content-Disposition: attachment; filename=\"$filename\"");
     }
 
-		$rangeParts = explode('-', $range, 2);
+    $range = '';
+    if (isset($_SERVER['HTTP_RANGE']) || isset($_SERVER['HTTP_CONTENT_RANGE'])) {
+      if(isset($_SERVER['HTTP_CONTENT_RANGE'])){
+        $rangeParts = explode(' ', $_SERVER['HTTP_CONTENT_RANGE'], 2);
+      }else{
+        $rangeParts = explode('=', $_SERVER['HTTP_RANGE'], 2);
+      }
 
-		$filestart = '';
-		if (isset($rangeParts[0])) {
-			$filestart = $rangeParts[0];
-		}
+      $sizeUnit = false;
+      if (isset($rangeParts[0])) {
+        $sizeUnit = $rangeParts[0];
+      }
 
-		$fileend = '';
-		if (isset($rangeParts[1])) {
-			$fileend = $rangeParts[1];
-		}
+      $rangeOrig = false;
+      if (isset($rangeParts[1])) {
+        $rangeOrig = $rangeParts[1];
+      }
 
-		if (empty($fileend)) {
-			$fileend = $filesize - 1;
-		} else {
-			$fileend = min(abs(intval($fileend)), ($filesize - 1));
-		}
+      if ($sizeUnit != 'bytes') {
+        throw new RestApiException("Requested Range Not Satisfiable", 416);
+      }
 
-		if (empty($filestart) || $fileend < abs(intval($filestart))) {
-			// Default: Output filepart from start (0)
-			$filestart = 0;
-		} else {
-			$filestart = max(abs(intval($filestart)), 0);
-		}
+      //multiple ranges could be specified at the same time, but for simplicity only serve the first range
+      //http://tools.ietf.org/id/draft-ietf-http-range-retrieval-00.txt
+      $rangeOrigParts = explode(',', $rangeOrig, 2);
 
-		if ($filestart > 0 || $fileend < ($filesize - 1)) {
-			// Output part of file
-			header('HTTP/1.1 206 Partial Content');
-			header('Content-Range: bytes ' . $filestart . '-' . $fileend . '/' . $filesize);
-			header('Content-Length: ' . ($fileend - $filestart + 1));
-		} else {
-			// Output full file
-			header('HTTP/1.0 200 OK');
-			header("Content-Length: $filesize");
-		}
+      $range = '';
+      if (isset($rangeOrigParts[0])) {
+        $range = $rangeOrigParts[0];
+      }
 
-		header('Accept-Ranges: bytes');
-		// header('Accept-Ranges: 0-'.$filesize);
-		set_time_limit(0);
-		fseek($openfile, $filestart);
-		ob_start();
-		while (!feof($openfile)) {
-			print(@fread($openfile, (1024 * 8)));
-			ob_flush();
-			flush();
-			if (connection_status() != 0) {
-				@fclose($openfile);
-				exit;
-			}
+      $extraRanges = '';
+      if (isset($rangeOrigParts[1])) {
+        $extraRanges = $rangeOrigParts[1];
+      }
     }
 
-		@fclose($openfile);
-		exit;
-	}
+    $rangeParts = explode('-', $range, 2);
+
+    $filestart = '';
+    if (isset($rangeParts[0])) {
+      $filestart = $rangeParts[0];
+    }
+
+    $fileend = '';
+    if (isset($rangeParts[1])) {
+      $fileend = $rangeParts[1];
+    }
+
+    if (empty($fileend)) {
+      $fileend = $filesize - 1;
+    } else {
+      $fileend = min(abs(intval($fileend)), ($filesize - 1));
+    }
+
+    if (empty($filestart) || $fileend < abs(intval($filestart))) {
+      // Default: Output filepart from start (0)
+      $filestart = 0;
+    } else {
+      $filestart = max(abs(intval($filestart)), 0);
+    }
+
+    if ($filestart > 0 || $fileend < ($filesize - 1)) {
+      // Output part of file
+      header('HTTP/1.1 206 Partial Content');
+      header('Content-Range: bytes ' . $filestart . '-' . $fileend . '/' . $filesize);
+      header('Content-Length: ' . ($fileend - $filestart + 1));
+    } else {
+      // Output full file
+      header('HTTP/1.0 200 OK');
+      header("Content-Length: $filesize");
+    }
+
+    header('Accept-Ranges: bytes');
+    // header('Accept-Ranges: 0-'.$filesize);
+    set_time_limit(0);
+    fseek($openfile, $filestart);
+    ob_start();
+    while (!feof($openfile)) {
+      print(@fread($openfile, (1024 * 8)));
+      ob_flush();
+      flush();
+      if (connection_status() != 0) {
+        @fclose($openfile);
+        exit;
+      }
+    }
+
+    @fclose($openfile);
+    exit;
+  }
 }
 ```
 
