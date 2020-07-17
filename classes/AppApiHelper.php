@@ -1,7 +1,7 @@
 <?php
 namespace ProcessWire;
 
-class RestApiHelper {
+class AppApiHelper {
 	public static function preflight() {
 		return;
 	}
@@ -16,7 +16,7 @@ class RestApiHelper {
 			$name = explode('|', $param)[0];
 
       		// Check if Param exists
-			if (!isset($data->$name)) throw new RestApiException("Required parameter: '$param' missing!", 400);
+			if (!isset($data->$name)) throw new AppApiException("Required parameter: '$param' missing!", 400);
 
 			$sanitizer = explode('|', $param);
 
@@ -25,7 +25,7 @@ class RestApiHelper {
 			if (!isset($sanitizer[1])) $sanitizer = 'text';
 			else $sanitizer = $sanitizer[1];
 
-			if(!method_exists(wire('sanitizer'), $sanitizer)) throw new RestApiException("Sanitizer: '$sanitizer' is no valid sanitizer", 400);
+			if(!method_exists(wire('sanitizer'), $sanitizer)) throw new AppApiException("Sanitizer: '$sanitizer' is no valid sanitizer", 400);
 
 			$data->$name = wire('sanitizer')->$sanitizer($data->$name);
 		}

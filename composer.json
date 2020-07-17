@@ -1,6 +1,6 @@
 {
-    "name": "thomasaull/rest-api",
-    "description": "Module to create a REST API with ProcessWire",
+    "name": "sebi.dev/app-api",
+    "description": "Module to create an App API with ProcessWire",
     "type": "pw-module",
     "keywords": [ "processwire", "module" ],
     "homepage": "http://modules.processwire.com",
@@ -11,6 +11,11 @@
     },
     "license": "MIT",
     "authors": [
+        {
+            "name": "Sebastian Schendel",
+            "email": "hallo@sebi.dev",
+            "homepage": "https://www.sebi.dev"
+        },
         {
             "name": "Thomas Aull",
             "email": "post@thomasaull.de",

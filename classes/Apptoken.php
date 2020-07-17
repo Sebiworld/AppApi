@@ -3,7 +3,7 @@
 namespace ProcessWire;
 
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/RestApiHelper.php';
+require_once __DIR__ . '/AppApiHelper.php';
 
 use \Firebase\JWT\JWT;
 
@@ -200,7 +200,7 @@ class Apptoken extends WireData {
 
     protected function getApplication() {
         $db        = wire('database');
-        $query     = $db->prepare('SELECT * FROM ' . RestApi::tableApplications . ' WHERE `id`=:id;');
+        $query     = $db->prepare('SELECT * FROM ' . AppApi::tableApplications . ' WHERE `id`=:id;');
         $query->closeCursor();
 
         $query->execute(array(
@@ -361,11 +361,11 @@ class Apptoken extends WireData {
             $tokenIDfound = false;
             while (!$tokenIDfound) {
                 // Generate a new tokenid:
-                $tempTokenID = RestApiHelper::generateRandomString($length);
+                $tempTokenID = AppApiHelper::generateRandomString($length);
 
                 // Test, if the tokenid is already in use:
                 $db        = wire('database');
-                $query     = $db->prepare('SELECT * FROM ' . RestApi::tableApptokens . ' WHERE `token_id` = :token_id AND `application_id`=:application_id;');
+                $query     = $db->prepare('SELECT * FROM ' . AppApi::tableApptokens . ' WHERE `token_id` = :token_id AND `application_id`=:application_id;');
                 $query->closeCursor();
 
                 $query->execute(array(
@@ -532,7 +532,7 @@ class Apptoken extends WireData {
             $queryVars = array(
                 ':id' => $this->getID()
             );
-            $preparedQuery = 'DELETE FROM `' . RestApi::tableApptokens . '` WHERE `id`=:id;';
+            $preparedQuery = 'DELETE FROM `' . AppApi::tableApptokens . '` WHERE `id`=:id;';
             $query         = $db->prepare($preparedQuery);
             $query->closeCursor();
             $query->execute($queryVars);
@@ -568,7 +568,7 @@ class Apptoken extends WireData {
             $queryVars[':id']        = $this->getID();
 
             try {
-                $query = $db->prepare('UPDATE `' . RestApi::tableApptokens . '` SET `application_id`=:application_id, `created_user_id`=:created_user_id, `created`=:created, `modified_user_id`=:modified_user_id, `modified`=:modified, `token_id`=:token_id, `user_id`=:user_id, `last_used`=:last_used, `expiration_time`=:expiration_time, `not_before_time`=:not_before_time WHERE `id`=:id;');
+                $query = $db->prepare('UPDATE `' . AppApi::tableApptokens . '` SET `application_id`=:application_id, `created_user_id`=:created_user_id, `created`=:created, `modified_user_id`=:modified_user_id, `modified`=:modified, `token_id`=:token_id, `user_id`=:user_id, `last_used`=:last_used, `expiration_time`=:expiration_time, `not_before_time`=:not_before_time WHERE `id`=:id;');
                 $query->closeCursor();
                 $query->execute($queryVars);
             } catch (\Exception $e) {
@@ -582,7 +582,7 @@ class Apptoken extends WireData {
 
         // New apptoken should be saved into db:
         try {
-            $query = $db->prepare('INSERT INTO `' . RestApi::tableApptokens . '` (`application_id`,`id`, `created_user_id`, `created`,`modified_user_id`, `modified`, `token_id`, `user_id`, `last_used`, `expiration_time`, `not_before_time`) VALUES (:application_id, NULL, :created_user_id, :created, :modified_user_id, :modified, :token_id, :user_id, :last_used, :expiration_time, :not_before_time);');
+            $query = $db->prepare('INSERT INTO `' . AppApi::tableApptokens . '` (`application_id`,`id`, `created_user_id`, `created`,`modified_user_id`, `modified`, `token_id`, `user_id`, `last_used`, `expiration_time`, `not_before_time`) VALUES (:application_id, NULL, :created_user_id, :created, :modified_user_id, :modified, :token_id, :user_id, :last_used, :expiration_time, :not_before_time);');
             $query->closeCursor();
             $query->execute($queryVars);
             $this->id = $db->lastInsertId();

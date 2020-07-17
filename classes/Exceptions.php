@@ -2,7 +2,7 @@
 
 namespace ProcessWire;
 
-class RestApiException extends WireException {
+class AppApiException extends WireException {
     private $additionals = array();
 
     public function __construct(string $message, int $code = 500, array $additionals = array(), \Exception $previous = null) {
@@ -19,7 +19,7 @@ class RestApiException extends WireException {
     }
 }
 
-class BadRequestException extends RestApiException {
+class BadRequestException extends AppApiException {
     public function __construct(string $message = '', int $code = 400, array $additionals = [], \Exception $previous = null) {
         if (strlen($message) < 1) {
             $message = __('Bad Request.');
@@ -30,7 +30,7 @@ class BadRequestException extends RestApiException {
         parent::__construct($message, $code, $additionals, $previous);
     }
 }
-class UnauthorizedException extends RestApiException {
+class UnauthorizedException extends AppApiException {
     public function __construct(string $message = '', int $code = 401, array $additionals = [], \Exception $previous = null) {
         if (strlen($message) < 1) {
             $message = __('Unauthorized.');
@@ -41,7 +41,7 @@ class UnauthorizedException extends RestApiException {
         parent::__construct($message, $code, $additionals, $previous);
     }
 }
-class NotFoundException extends RestApiException {
+class NotFoundException extends AppApiException {
     public function __construct(string $message = '', int $code = 404, array $additionals = [], \Exception $previous = null) {
         if (strlen($message) < 1) {
             $message = __('Not Found.');
@@ -52,7 +52,7 @@ class NotFoundException extends RestApiException {
         parent::__construct($message, $code, $additionals, $previous);
     }
 }
-class MethodNotAllowedException extends RestApiException {
+class MethodNotAllowedException extends AppApiException {
     public function __construct(string $message = '', int $code = 405, array $additionals = [], \Exception $previous = null) {
         if (strlen($message) < 1) {
             $message = __('Method Not Allowed.');
@@ -63,7 +63,7 @@ class MethodNotAllowedException extends RestApiException {
         parent::__construct($message, $code, $additionals, $previous);
     }
 }
-class ForbiddenException extends RestApiException {
+class ForbiddenException extends AppApiException {
     public function __construct(string $message = '', int $code = 403, array $additionals = [], \Exception $previous = null) {
         if (strlen($message) < 1) {
             $message = __('Forbidden.');
@@ -75,7 +75,7 @@ class ForbiddenException extends RestApiException {
     }
 }
 
-class InternalServererrorException extends RestApiException {
+class InternalServererrorException extends AppApiException {
     public function __construct(string $message = '', int $code = 500, array $additionals = [], \Exception $previous = null) {
         if (strlen($message) < 1) {
             $message = __('Internal server error.');
@@ -87,7 +87,7 @@ class InternalServererrorException extends RestApiException {
     }
 }
 
-class ApplicationException extends RestApiException {
+class ApplicationException extends AppApiException {
     public function __construct(string $message = '', int $code = 500, array $additionals = [], \Exception $previous = null) {
         if (strlen($message) < 1) {
             $message = __('An application exception occurred.');
@@ -99,7 +99,7 @@ class ApplicationException extends RestApiException {
     }
 }
 
-class ApikeyException extends RestApiException {
+class ApikeyException extends AppApiException {
     public function __construct(string $message = '', int $code = 500, array $additionals = [], \Exception $previous = null) {
         if (strlen($message) < 1) {
             $message = __('An apikey exception occurred.');
@@ -111,7 +111,7 @@ class ApikeyException extends RestApiException {
     }
 }
 
-class ApptokenException extends RestApiException {
+class ApptokenException extends AppApiException {
     public function __construct(string $message = '', int $code = 500, array $additionals = [], \Exception $previous = null) {
         if (strlen($message) < 1) {
             $message = __('An apptoken exception occurred.');
@@ -123,7 +123,7 @@ class ApptokenException extends RestApiException {
     }
 }
 
-class AuthException extends RestApiException {
+class AuthException extends AppApiException {
     public function __construct(string $message = '', int $code = 401, array $additionals = [], \Exception $previous = null) {
         if (strlen($message) < 1) {
             $message = __('An auth exception occurred.');
@@ -167,7 +167,7 @@ class RefreshtokenNotBeforeException extends AuthException {
                 $message .= 'Please wait until ' . wire('datetime')->date(__('Y-m-d @ H:i:s'), $additionals['nbf']) . ' before you try again.';
             }
         }
-    
+
         if (!isset($additionals['errorcode'])) {
             $additionals['errorcode'] = 'refresh_token_nbf';
         }
@@ -218,7 +218,7 @@ class AccesstokenExpiredException extends AuthException {
     }
 }
 
-class TestException extends RestApiException {
+class TestException extends AppApiException {
     public function __construct(string $message = '', int $code = 402, array $additionals = [], \Exception $previous = null) {
         if (strlen($message) < 1) {
             $message = __('A test exception occurred.');

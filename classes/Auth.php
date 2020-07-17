@@ -3,7 +3,7 @@
 namespace ProcessWire;
 
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/RestApiHelper.php';
+require_once __DIR__ . '/AppApiHelper.php';
 
 use \Firebase\JWT\JWT;
 
@@ -12,14 +12,14 @@ class Auth extends WireData {
     protected $application = false;
 
     public function initApikey() {
-        $headers = RestApiHelper::getRequestHeaders();
+        $headers = AppApiHelper::getRequestHeaders();
 
         if (!empty($headers['X-API-KEY'])) {
             try {
                 // Get apikey-object:
                 $apikeyString = $this->sanitizer->text($headers['X-API-KEY']);
                 $db           = wire('database');
-                $query        = $db->prepare('SELECT * FROM ' . RestApi::tableApikeys . ' WHERE `key`=:key;');
+                $query        = $db->prepare('SELECT * FROM ' . AppApi::tableApikeys . ' WHERE `key`=:key;');
                 $query->closeCursor();
 
                 $query->execute(array(
@@ -29,7 +29,7 @@ class Auth extends WireData {
                 $this->apikey      = new Apikey($queueRaw);
 
                 // Get application from apikey:
-                $query     = $db->prepare('SELECT * FROM ' . RestApi::tableApplications . ' WHERE `id`=:id;');
+                $query     = $db->prepare('SELECT * FROM ' . AppApi::tableApplications . ' WHERE `id`=:id;');
                 $query->closeCursor();
 
                 $query->execute(array(
@@ -82,8 +82,6 @@ class Auth extends WireData {
     }
 
     public function doLogin($data) {
-        // RestApiHelper::checkAndSanitizeRequiredParameters($data, ['username|selectorValue', 'password|string']);
-
         $username   = false;
         $pass       = false;
         if (!empty($_SERVER['PHP_AUTH_USER']) && !empty($_SERVER['PHP_AUTH_PW'])) {
@@ -453,7 +451,8 @@ class Auth extends WireData {
     public static function currentUser() {
         return array(
             'id'   => wire('user')->id,
-            'name' => wire('user')->name
+            'name' => wire('user')->name,
+            'loggedIn' => wire('user')->isLoggedIn()
         );
     }
 }

@@ -6,7 +6,7 @@ if (isset($locked) && $locked === true) {
     echo '<h2>' . $this->_('Access denied') . '</h2>';
     return;
 }
-if (!wire('user')->hasPermission(RestApi::manageApplicationsPermission)) {
+if (!wire('user')->hasPermission(AppApi::manageApplicationsPermission)) {
     echo '<h2>' . $this->_('Access denied') . '</h2>';
     echo '<p>' . $this->_('You don\'t have the needed permissions to access this function. Please contact a Superuser.') . '</p>';
     return;
@@ -40,7 +40,7 @@ if ($applications instanceof WireArray && $applications->count > 0) {
 }
 
 if (empty($tableOutput)) {
-    $tableOutput = '<p><i>' . $this->_('There are no applications that can access the RestAPI.') . '</i><br/><u><a href="' . $this->process_url . '../application/new/">' . $this->_('Create the first application!') . '</a></u></p>';
+    $tableOutput = '<p><i>' . $this->_('There are no applications that can access the AppApi.') . '</i><br/><u><a href="' . $this->process_url . '../application/new/">' . $this->_('Create the first application!') . '</a></u></p>';
 }
 
 echo $tableOutput;

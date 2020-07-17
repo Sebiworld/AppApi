@@ -14,13 +14,13 @@ namespace ProcessWire;
 
 $info = array(
     // Your module's title
-    'title' => 'RestApi',
+    'title' => 'AppApi',
 
     // A 1 sentence description of what your module does
     'summary' => 'Module to create a REST API with ProcessWire',
 
     // Module version number: use 1 for 0.0.1 or 100 for 1.0.0, and so on
-    'version' => '1.0.0',
+    'version' => '1.0.1',
 
     // Name of person who created this module (change to your name)
     'author' => 'Thomas Aull',
@@ -29,7 +29,7 @@ $info = array(
     'icon' => 'terminal',
 
     // URL to more info: change to your full modules.processwire.com URL (if available), or something else if you prefer
-    'href' => 'https://modules.processwire.com/modules/rest-api/',
+    'href' => 'https://modules.processwire.com/modules/app-api/',
 
     'requires'=> [
         'PHP>=7.2.0',
@@ -41,14 +41,14 @@ $info = array(
 
     // permissions that you want automatically installed/uninstalled with this module (name => description)
     'permissions' => array(
-        'restapi_manage_applications' => 'Manage RestApi settings'
+        'appapi_manage_applications' => 'Manage AppApi settings'
     ),
 
     // page that you want created to execute this module
     'page' => array(
-        'name'   => 'restapi',
+        'name'   => 'appapi',
         'parent' => 'setup',
-        'title'  => 'RestApi',
+        'title'  => 'AppApi',
         'icon'   => 'terminal'
     ),
 

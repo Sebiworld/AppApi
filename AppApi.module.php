@@ -8,11 +8,11 @@ require_once __DIR__ . '/classes/Application.php';
 require_once __DIR__ . '/classes/Apikey.php';
 require_once __DIR__ . '/classes/Apptoken.php';
 
-class RestApi extends Process implements Module {
-    const manageApplicationsPermission       = 'restapi_manage_applications';
-    const tableApplications                  = 'restapi_applications';
-    const tableApikeys                       = 'restapi_apikeys';
-    const tableApptokens                     = 'restapi_apptokens';
+class AppApi extends Process implements Module {
+    const manageApplicationsPermission       = 'appapi_manage_applications';
+    const tableApplications                  = 'appapi_applications';
+    const tableApikeys                       = 'appapi_apikeys';
+    const tableApptokens                     = 'appapi_apptokens';
 
     protected $apiCall = false;
 
@@ -119,9 +119,9 @@ class RestApi extends Process implements Module {
     public function ___upgrade($fromVersion, $toVersion) {
         if (version_compare($fromVersion, '0.0.6') === -1) {
             $this->createDBTables();
-            
+
             if ($this->authMethod === 'jwt') {
-                // Create a new application and copy the jwt-secret 
+                // Create a new application and copy the jwt-secret
                 $application = new Application();
                 $application->regenerateTokenSecret();
                 $application->regenerateAccesstokenSecret();
@@ -134,10 +134,10 @@ class RestApi extends Process implements Module {
     }
 
     public function ___execute() {
-        $this->headline('RestApi');
+        $this->headline('AppApi');
 
         $this->config->scripts->add(
-            $this->config->urls->RestApi . 'assets/RestApi.js'
+            $this->config->urls->AppApi . 'assets/AppApi.js'
           );
 
         return array(
@@ -146,10 +146,10 @@ class RestApi extends Process implements Module {
     }
 
     public function ___executeApplications() {
-        $this->headline($this->_('RestApi') . ' ' . $this->_('Applications'));
+        $this->headline($this->_('AppApi') . ' ' . $this->_('Applications'));
 
         $this->config->scripts->add(
-            $this->config->urls->RestApi . 'assets/RestApi.js'
+            $this->config->urls->AppApi . 'assets/AppApi.js'
           );
 
         try {
@@ -166,12 +166,12 @@ class RestApi extends Process implements Module {
     }
 
     public function ___executeApplication() {
-        $this->headline($this->_('RestApi') . ' ' . $this->_('Application'));
-        $this->breadcrumb($this->wire('page')->url, $this->_('RestApi'));
+        $this->headline($this->_('AppApi') . ' ' . $this->_('Application'));
+        $this->breadcrumb($this->wire('page')->url, $this->_('AppApi'));
         $this->breadcrumb($this->wire('page')->url . 'applications/', $this->_('Applications'));
 
         $this->config->scripts->add(
-            $this->config->urls->RestApi . 'assets/RestApi.js'
+            $this->config->urls->AppApi . 'assets/AppApi.js'
           );
 
         $action = $this->sanitizer->text($this->input->urlSegment2);
@@ -228,12 +228,12 @@ class RestApi extends Process implements Module {
     }
 
     public function ___executeApikey() {
-        $this->headline($this->_('RestApi') . ' ' . $this->_('Apikey'));
-        $this->breadcrumb($this->wire('page')->url, $this->_('RestApi'));
+        $this->headline($this->_('AppApi') . ' ' . $this->_('Apikey'));
+        $this->breadcrumb($this->wire('page')->url, $this->_('AppApi'));
         $this->breadcrumb($this->wire('page')->url . 'applications/', $this->_('Applications'));
 
         $this->config->scripts->add(
-            $this->config->urls->RestApi . 'assets/RestApi.js'
+            $this->config->urls->AppApi . 'assets/AppApi.js'
           );
 
         $action = $this->sanitizer->text($this->input->urlSegment2);
@@ -314,12 +314,12 @@ class RestApi extends Process implements Module {
     }
 
     public function ___executeApptoken() {
-        $this->headline($this->_('RestApi') . ' ' . $this->_('Apptoken'));
-        $this->breadcrumb($this->wire('page')->url, $this->_('RestApi'));
+        $this->headline($this->_('AppApi') . ' ' . $this->_('Apptoken'));
+        $this->breadcrumb($this->wire('page')->url, $this->_('AppApi'));
         $this->breadcrumb($this->wire('page')->url . 'applications/', $this->_('Applications'));
 
         $this->config->scripts->add(
-            $this->config->urls->RestApi . 'assets/RestApi.js'
+            $this->config->urls->AppApi . 'assets/AppApi.js'
           );
 
         $action = $this->sanitizer->text($this->input->urlSegment2);
@@ -404,7 +404,7 @@ class RestApi extends Process implements Module {
         $applicationID = $this->sanitizer->int($id);
         if (!empty($id)) {
             $db        = wire('database');
-            $query     = $db->prepare('SELECT * FROM ' . RestApi::tableApplications . ' WHERE `id`=:id;');
+            $query     = $db->prepare('SELECT * FROM ' . AppApi::tableApplications . ' WHERE `id`=:id;');
             $query->closeCursor();
 
             $query->execute(array(
@@ -421,7 +421,7 @@ class RestApi extends Process implements Module {
         $applications   = new WireArray();
         try {
             $db             = wire('database');
-            $query          = $db->prepare('SELECT * FROM ' . RestApi::tableApplications . ';');
+            $query          = $db->prepare('SELECT * FROM ' . AppApi::tableApplications . ';');
             $query->closeCursor();
             $query->execute();
             $queueRaw    = $query->fetchAll(\PDO::FETCH_ASSOC);
@@ -451,7 +451,7 @@ class RestApi extends Process implements Module {
             $apikeyID = $this->sanitizer->int($id);
             if (!empty($id)) {
                 $db        = wire('database');
-                $query     = $db->prepare('SELECT * FROM ' . RestApi::tableApikeys . ' WHERE `id`=:id;');
+                $query     = $db->prepare('SELECT * FROM ' . AppApi::tableApikeys . ' WHERE `id`=:id;');
                 $query->closeCursor();
 
                 $query->execute(array(
@@ -473,7 +473,7 @@ class RestApi extends Process implements Module {
             $apptokenID = $this->sanitizer->int($id);
             if (!empty($id)) {
                 $db        = wire('database');
-                $query     = $db->prepare('SELECT * FROM ' . RestApi::tableApptokens . ' WHERE `id`=:id;');
+                $query     = $db->prepare('SELECT * FROM ' . AppApi::tableApptokens . ' WHERE `id`=:id;');
                 $query->closeCursor();
 
                 $query->execute(array(
@@ -644,5 +644,85 @@ class RestApi extends Process implements Module {
 
         echo $body;
         exit();
+    }
+
+
+    /**
+     * Helper function, to convert common PHP-Objects to arrays which can be output in ajax.
+     * @param  Object $content
+     * @return array
+     */
+    public static function getAjaxOf($content)
+    {
+        $output = array();
+
+        if ($content instanceof PageFiles) {
+            foreach ($content as $file) {
+                $output[] = self::getAjaxOf($file);
+            }
+        } elseif ($content instanceof PageFile) {
+            $output = array(
+                'basename'     => $content->basename,
+                'name'         => $content->name,
+                'description'  => $content->description,
+                'created'      => $content->created,
+                'modified'     => $content->modified,
+                'filesize'     => $content->filesize,
+                'filesizeStr'  => $content->filesizeStr,
+                'page_id'      => $content->page->id,
+                'ext'          => $content->ext
+            );
+
+            if ($content instanceof PageImage) {
+                $output['basename_mini']          = $content->size(600, 0)->basename;
+                $output['width']                  = $content->width;
+                $output['height']                 = $content->height;
+                $output['dimension_ratio']        = round($content->width / $content->height, 2);
+
+                if ($content->original) {
+                    $output['original'] = [
+                        'basename'      => $content->original->basename,
+                        'name'          => $content->original->name,
+                        'filesize'      => $content->original->filesize,
+                        'filesizeStr'   => $content->original->filesizeStr,
+                        'ext'           => $content->original->ext,
+                        'width'         => $content->original->width,
+                        'height'        => $content->original->height,
+                        'dimension_ratio' => round($content->original->width / $content->original->height, 2)
+                    ];
+                }
+            }
+
+            // Output custom filefield-values (since PW 3.0.142)
+            $fieldValues = $content->get('fieldValues');
+            if (!empty($fieldValues) && is_array($fieldValues)) {
+                foreach ($fieldValues as $key => $value) {
+                    $output[$key] = $value;
+                }
+            }
+        } elseif ($content instanceof Template && $content->id) {
+            $output = array(
+                'id'    => $content->id,
+                'name'  => $content->name,
+                'label' => $content->label
+            );
+        } elseif ($content instanceof PageArray) {
+            foreach ($content as $page) {
+                $output[] = self::getAjaxOf($page);
+            }
+        } elseif ($content instanceof Page && $content->id) {
+            $output = array(
+                'id'       => $content->id,
+                'name'     => $content->name,
+                'title'    => $content->title,
+                'created'  => $content->created,
+                'modified' => $content->modified,
+                'url'      => $content->url,
+                'httpUrl'  => $content->httpUrl,
+                'template' => self::getAjaxOf($content->template)
+            );
+        }
+
+        return $output;
     }
 }

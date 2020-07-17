@@ -273,11 +273,11 @@ class Apikey extends WireData {
             $keyFound = false;
             while (!$keyFound) {
                 // Generate a new key:
-                $tempKey = RestApiHelper::generateRandomString($length);
+                $tempKey = AppApiHelper::generateRandomString($length);
 
                 // Test, if the key is already in use:
                 $db        = wire('database');
-                $query     = $db->prepare('SELECT * FROM ' . RestApi::tableApikeys . ' WHERE `key` = :key;');
+                $query     = $db->prepare('SELECT * FROM ' . AppApi::tableApikeys . ' WHERE `key` = :key;');
                 $query->closeCursor();
 
                 $query->execute(array(
@@ -391,7 +391,7 @@ class Apikey extends WireData {
             $queryVars = array(
                 ':id' => $this->getID()
             );
-            $preparedQuery = 'DELETE FROM `' . RestApi::tableApikeys . '` WHERE `id`=:id;';
+            $preparedQuery = 'DELETE FROM `' . AppApi::tableApikeys . '` WHERE `id`=:id;';
             $query         = $db->prepare($preparedQuery);
             $query->closeCursor();
             $query->execute($queryVars);
@@ -426,7 +426,7 @@ class Apikey extends WireData {
             $queryVars[':id']        = $this->getID();
 
             try {
-                $query = $db->prepare('UPDATE `' . RestApi::tableApikeys . '` SET `application_id`=:application_id, `created_user_id`=:created_user_id, `created`=:created, `modified_user_id`=:modified_user_id, `modified`=:modified, `key`=:key, `version`=:version, `description`=:description, `accessable_until`=:accessable_until WHERE `id`=:id;');
+                $query = $db->prepare('UPDATE `' . AppApi::tableApikeys . '` SET `application_id`=:application_id, `created_user_id`=:created_user_id, `created`=:created, `modified_user_id`=:modified_user_id, `modified`=:modified, `key`=:key, `version`=:version, `description`=:description, `accessable_until`=:accessable_until WHERE `id`=:id;');
                 $query->closeCursor();
                 $query->execute($queryVars);
             } catch (\Exception $e) {
@@ -439,7 +439,7 @@ class Apikey extends WireData {
 
         // New apikey should be saved into db:
         try {
-            $query = $db->prepare('INSERT INTO `' . RestApi::tableApikeys . '` (`application_id`,`id`, `created_user_id`, `created`,`modified_user_id`, `modified`, `key`, `version`, `description`, `accessable_until`) VALUES (:application_id, NULL, :created_user_id, :created, :modified_user_id, :modified, :key, :version, :description, :accessable_until);');
+            $query = $db->prepare('INSERT INTO `' . AppApi::tableApikeys . '` (`application_id`,`id`, `created_user_id`, `created`,`modified_user_id`, `modified`, `key`, `version`, `description`, `accessable_until`) VALUES (:application_id, NULL, :created_user_id, :created, :modified_user_id, :modified, :key, :version, :description, :accessable_until);');
             $query->closeCursor();
             $query->execute($queryVars);
             $this->id = $db->lastInsertId();

@@ -326,7 +326,7 @@ class Application extends WireData {
     }
 
     public function regenerateTokenSecret($length = 42) {
-        $this->tokenSecret = RestApiHelper::generateRandomString($length, false);
+        $this->tokenSecret = AppApiHelper::generateRandomString($length, false);
     }
 
     public function getTokenSecret() {
@@ -353,7 +353,7 @@ class Application extends WireData {
     }
 
     public function regenerateAccesstokenSecret($length = 30) {
-        $this->accesstokenSecret = RestApiHelper::generateRandomString($length, false);
+        $this->accesstokenSecret = AppApiHelper::generateRandomString($length, false);
     }
 
     public function getAccesstokenSecret() {
@@ -417,7 +417,7 @@ class Application extends WireData {
 
         $apikeys        = new WireArray();
         $db             = wire('database');
-        $query          = $db->prepare('SELECT * FROM ' . RestApi::tableApikeys . ' WHERE `application_id`=:application_id;');
+        $query          = $db->prepare('SELECT * FROM ' . AppApi::tableApikeys . ' WHERE `application_id`=:application_id;');
         $query->closeCursor();
         $query->execute([
             ':application_id' => $this->getID()
@@ -470,7 +470,7 @@ class Application extends WireData {
 
         $apptokens        = new WireArray();
         $db               = wire('database');
-        $query            = $db->prepare('SELECT * FROM ' . RestApi::tableApptokens . ' WHERE `application_id`=:application_id;');
+        $query            = $db->prepare('SELECT * FROM ' . AppApi::tableApptokens . ' WHERE `application_id`=:application_id;');
         $query->closeCursor();
         $query->execute([
             ':application_id' => $this->getID()
@@ -496,7 +496,7 @@ class Application extends WireData {
     public function getApptoken($tokenID) {
         try {
             $db        = wire('database');
-            $query     = $db->prepare('SELECT * FROM ' . RestApi::tableApptokens . ' WHERE `token_id`=:token_id AND `application_id`=:application_id;');
+            $query     = $db->prepare('SELECT * FROM ' . AppApi::tableApptokens . ' WHERE `token_id`=:token_id AND `application_id`=:application_id;');
             $query->closeCursor();
 
             $query->execute(array(
@@ -504,7 +504,7 @@ class Application extends WireData {
                 ':application_id' => $this->getID()
             ));
             $queueRaw      = $query->fetch(\PDO::FETCH_ASSOC);
-            
+
             return new Apptoken($queueRaw);
         } catch (\Exception $e) {
             throw $e;
@@ -524,7 +524,7 @@ class Application extends WireData {
             $queryVars = array(
                 ':id' => $this->getID()
             );
-            $preparedQuery = 'DELETE FROM `' . RestApi::tableApplications . '` WHERE `id`=:id;';
+            $preparedQuery = 'DELETE FROM `' . AppApi::tableApplications . '` WHERE `id`=:id;';
             $query         = $db->prepare($preparedQuery);
             $query->closeCursor();
             $query->execute($queryVars);
@@ -560,7 +560,7 @@ class Application extends WireData {
             $queryVars[':id']        = $this->getID();
 
             try {
-                $query = $db->prepare('UPDATE `' . RestApi::tableApplications . '` SET `created_user_id`=:created_user_id, `created`=:created, `modified_user_id`=:modified_user_id, `modified`=:modified, `title`=:title, `description`=:description, `token_secret`=:token_secret, `accesstoken_secret`=:accesstoken_secret, `authtype`=:authtype, `expires_in`=:expires_in WHERE `id`=:id;');
+                $query = $db->prepare('UPDATE `' . AppApi::tableApplications . '` SET `created_user_id`=:created_user_id, `created`=:created, `modified_user_id`=:modified_user_id, `modified`=:modified, `title`=:title, `description`=:description, `token_secret`=:token_secret, `accesstoken_secret`=:accesstoken_secret, `authtype`=:authtype, `expires_in`=:expires_in WHERE `id`=:id;');
                 $query->closeCursor();
                 $query->execute($queryVars);
             } catch (\Exception $e) {
@@ -573,7 +573,7 @@ class Application extends WireData {
 
         // New application should be saved into db:
         try {
-            $query = $db->prepare('INSERT INTO `' . RestApi::tableApplications . '` (`id`, `created_user_id`, `created`,`modified_user_id`, `modified`, `title`, `description`, `token_secret`, `accesstoken_secret`, `authtype`, `expires_in`) VALUES (NULL, :created_user_id, :created, :modified_user_id, :modified, :title, :description, :token_secret, :accesstoken_secret, :authtype, :expires_in);');
+            $query = $db->prepare('INSERT INTO `' . AppApi::tableApplications . '` (`id`, `created_user_id`, `created`,`modified_user_id`, `modified`, `title`, `description`, `token_secret`, `accesstoken_secret`, `authtype`, `expires_in`) VALUES (NULL, :created_user_id, :created, :modified_user_id, :modified, :title, :description, :token_secret, :accesstoken_secret, :authtype, :expires_in);');
             $query->closeCursor();
             $query->execute($queryVars);
             $this->id = $db->lastInsertId();

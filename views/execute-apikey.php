@@ -2,7 +2,7 @@
 
 namespace ProcessWire;
 
-if (!wire('user')->hasPermission(RestApi::manageApplicationsPermission)) {
+if (!wire('user')->hasPermission(AppApi::manageApplicationsPermission)) {
     echo '<h2>' . $this->_('Access denied') . '</h2>';
     echo '<p>' . $this->_('You don\'t have the needed permissions to access this function. Please contact a Superuser.') . '</p>';
     return;
@@ -128,7 +128,7 @@ if (wire('input')->post('action-save')) {
             $apikey->setVersion($form->get('form_version')->attr('value'));
             $apikey->setDescription($form->get('form_description')->attr('value'));
             $apikey->setAccessableUntil($form->get('form_accessable_until')->attr('value'));
-            
+
             if (!$apikey->save()) {
                 throw new \Exception('The apikey could not be saved.');
             }

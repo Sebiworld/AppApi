@@ -13,7 +13,7 @@ namespace ProcessWire;
 // $routesPath = "{$this->config->paths->site}api/Routes.php";
 
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/RestApiHelper.php';
+require_once __DIR__ . '/AppApiHelper.php';
 require_once __DIR__ . '/DefaultRoutes.php';
 require_once __DIR__ . '/Auth.php';
 
@@ -69,7 +69,7 @@ class Router extends WireData {
             $url        = $this->wire('sanitizer')->url(wire('input')->url);
 
             // strip /api from request url:
-            $endpoint = $this->wire('modules')->RestApi->endpoint;
+            $endpoint = $this->wire('modules')->AppApi->endpoint;
 
             // support / in endpoint url:
             $endpoint = str_replace('/', "\/", $endpoint);
@@ -87,7 +87,7 @@ class Router extends WireData {
             // Routeinfo and Auth extracted. Router::handle will return the info that should be output
             $return = Router::handle($routeInfo);
 
-            RestApi::sendResponse(200, $return);
+            AppApi::sendResponse(200, $return);
         } catch (\Throwable $e) {
             // Show Exception as json-response and exit.
             self::handleException($e);
@@ -99,14 +99,14 @@ class Router extends WireData {
             // Handle FastRoute-Errors:
             switch ($routeInfo[0]) {
                 case \FastRoute\Dispatcher::NOT_FOUND:
-                throw new RestApiException('Route not found', 404);
+                throw new AppApiException('Route not found', 404);
                 case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
-                throw new RestApiException('Method not allowed', 405);
+                throw new AppApiException('Method not allowed', 405);
             }
         }
 
         if (!isset($routeInfo[1]) || !is_array($routeInfo[1])) {
-            throw new RestApiException('Routehandler not set', 500);
+            throw new AppApiException('Routehandler not set', 500);
         }
         $handler         = $routeInfo[1];
 
@@ -127,18 +127,18 @@ class Router extends WireData {
         }
 
         if (!Auth::getInstance()->isApikeyValid()) {
-            throw new RestApiException('Apikey not valid.', 401);
+            throw new AppApiException('Apikey not valid.', 401);
         }
 
         if (!isset($handler[0]) || !is_string($handler[0]) || !isset($handler[1]) || !is_string($handler[1]) || !isset($handler[2])) {
-            throw new RestApiException('Routehandler not valid', 500);
+            throw new AppApiException('Routehandler not valid', 500);
         }
         $class           = $handler[0];
         $methodName      = strtoupper($handler[1]);
         $routeParams     = $handler[2];
 
         if (!isset($routeInfo[2]) || !is_array($routeInfo[2])) {
-            throw new RestApiException('Routevars not set', 500);
+            throw new AppApiException('Routevars not set', 500);
         }
         $vars = (object) $routeInfo[2];
 
@@ -149,16 +149,16 @@ class Router extends WireData {
 
         // Check if the route is only allowed for a specific application-id:
         if (!empty($routeParams['application']) && $routeParams['application'] !== Auth::getInstance()->getApplication()->getID()) {
-            throw new RestApiException('Route not allowed for this application', 400);
+            throw new AppApiException('Route not allowed for this application', 400);
         }
 
         if (!empty($routeParams['applications']) && is_array($routeParams['applications']) && in_array(Auth::getInstance()->getApplication()->getID(), $routeParams['applications'])) {
-            throw new RestApiException('Route not allowed for this application', 400);
+            throw new AppApiException('Route not allowed for this application', 400);
         }
 
         // Check if particular route does need auth:
         if (isset($routeParams['auth']) && $routeParams['auth'] === true && !$this->wire('user')->isLoggedIn()) {
-            throw new RestApiException('User does not have authorization', 401);
+            throw new AppApiException('User does not have authorization', 401);
         }
 
         // Check if the current user has one of the required roles for this route:
@@ -174,7 +174,7 @@ class Router extends WireData {
                 }
             }
             if(!$roleFound){
-                throw new RestApiException('User does not have one of the required roles for this route.', 403);
+                throw new AppApiException('User does not have one of the required roles for this route.', 403);
             }
         }
 
@@ -280,7 +280,7 @@ class Router extends WireData {
 
     public static function handleException(\Throwable $e) {
         $return        = new \StdClass();
-        if ($e instanceof RestApiException) {
+        if ($e instanceof AppApiException) {
             foreach ($e->getAdditionals() as $key => $value) {
                 $return->{$key} = $value;
             }
@@ -326,7 +326,7 @@ class Router extends WireData {
             } elseif (is_string($error)) {
                 $message = $error;
             }
-            wire('log')->save('restapi-exception', $message);
+            wire('log')->save('appapi-exception', $message);
         }
         self::displayError($error, $status);
     }
@@ -335,13 +335,13 @@ class Router extends WireData {
         if (is_string($error)) {
             $return        = new \StdClass();
             $return->error = (string) $error;
-            RestApi::sendResponse($status, $return);
+            AppApi::sendResponse($status, $return);
         }
 
         if (isset($error->devmessage) && !(wire('user')->isSuperuser() || wire('config')->debug === true)) {
             unset($error->devmessage);
         }
 
-        RestApi::sendResponse($status, $error);
+        AppApi::sendResponse($status, $error);
     }
 }

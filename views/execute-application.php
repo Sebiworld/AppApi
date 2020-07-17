@@ -2,7 +2,7 @@
 
 namespace ProcessWire;
 
-if (!wire('user')->hasPermission(RestApi::manageApplicationsPermission)) {
+if (!wire('user')->hasPermission(AppApi::manageApplicationsPermission)) {
     echo '<h2>' . $this->_('Access denied') . '</h2>';
     echo '<p>' . $this->_('You don\'t have the needed permissions to access this function. Please contact a Superuser.') . '</p>';
     return;
