@@ -25,7 +25,6 @@ This module helps you to create an api, to which an app or an external service c
 
 - [Features](#features)
 - [Installation](#installation)
-- [Quickstart](#quickstart)
 - [Defining Applications](#defining-applications)
   - [Api-Keys](#api-keys)
   - [PHP-Session (Recommended for on-site usage)](#php-session)
@@ -49,10 +48,6 @@ This module helps you to create an api, to which an app or an external service c
 AppApi can be installed like every other module in ProcessWire. Check the following guide for detailed information: [How-To Install or Uninstall Modules](http://modules.processwire.com/install-uninstall/)
 
 The prerequisites are **PHP>=7.2.0** and a **ProcessWire version >=3.93.0**. However, this is also checked during the installation of the module. No further dependencies.
-
-<a name="quickstart"></a>
-
-## Quickstart
 
 <a name="defining-applications"></a>
 
