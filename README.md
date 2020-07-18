@@ -8,9 +8,9 @@ This module helps you to create an api, to which an app or an external service c
 
 **Credits:** go to [Benjamin Milde](https://github.com/LostKobrakai) for his code example on how to use FastRoute with ProcessWire and [Camilo Castro](https://gist.github.com/clsource) for this [Gist](https://gist.github.com/clsource/dc7be74afcbfc5fe752c)
 
-| ProcessWire-Module: | [...]                                                                      |
+| ProcessWire-Module: | [https://modules.processwire.com/modules/app-api/](https://modules.processwire.com/modules/app-api/)                                                                    |
 | ------------------: | -------------------------------------------------------------------------- |
-|      Support-Forum: | [...]                                                                      |
+|      Support-Forum: | [https://processwire.com/talk/topic/24014-new-module-appapi/](https://processwire.com/talk/topic/24014-new-module-appapi/)                                                                      |
 |         Repository: | [https://github.com/Sebiworld/AppApi](https://github.com/Sebiworld/AppApi) |
 
 <a name="features"></a>
