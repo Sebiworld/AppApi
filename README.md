@@ -19,7 +19,8 @@ This module helps you to create an api, to which an app or an external service c
 
 - **Simple routing definition**
 - **Authentication** - Three different authentication-mechanisms are ready to use.
-- **Multiple different Applications** with unique access-rights and authentication-mechanisms can be defined
+- **Access-management via UI**
+- **Multiple different applications** with unique access-rights and authentication-mechanisms can be defined
 
 ## Table Of Contents
 
@@ -29,7 +30,7 @@ This module helps you to create an api, to which an app or an external service c
   - [Api-Keys](#api-keys)
   - [PHP-Session (Recommended for on-site usage)](#php-session)
   - [Single JWT (Recommended for external server-calls)](#single-jwt)
-  - [Double JWT (Recommended for Apps)](#double-jwt)
+  - [Double JWT (Recommended for apps)](#double-jwt)
 - [Creating Endpoints](#creating-endpoints)
   - [Output Formatting](#output-formatting)
   - [Error Handling](#error-handling)
@@ -67,7 +68,7 @@ My module provides three different ways to authenticate to the api:
 
 So, choose wisely!
 
-<img src="https://raw.githubusercontent.com/Sebiworld/AppApi/master/documentation/media/choose.gif" alt="Choose wisely" style="zoom:25%;" />
+<img src="https://raw.githubusercontent.com/Sebiworld/AppApi/master/documentation/media/choose.gif" alt="Choose wisely" style="width:100px;" />
 
 <a name="api-keys"></a>
 
@@ -208,7 +209,7 @@ Without the authorization-header, I would only be a not-authenticated guest:
 
 <a name="double-jwt"></a>
 
-### Double JWT (Recommended for Apps)
+### Double JWT (Recommended for apps)
 
 The best way to connect any kind of app to your endpoint is to enable [double JWT authentication](#double-jwt). Double JWT means, that an authenticated user gets a longer-living refreshtoken and an accesstoken with only a short life. The access-token is used to legitimate any request. The refreshtoken lets you get a new accesstoken, if the old one is expired. So, if anyone manages to intercept one of your requests and snatches a token, he can wreak havoc only temporarily until it expires.
 
