@@ -58,7 +58,7 @@ The prerequisites are **PHP>=7.2.0** and a **ProcessWire version >=3.93.0**. How
 
 You are free to define one, two, three or... Actually, there is no limit. You theoretically have no limit in the amount of different applications that can access data of the api. Each application has its own api-keys that allow a request to show to which app it belongs.
 
-After installing the module you will find "AppApi" as a new item under the "Setup" popup-menu in the headerbar. Click on "Manage applications" and choose "Add", to create a new application.
+After installing the module you will find "AppApi" as a new item under the "Setup" popup-menu in the header bar. Click on "Manage applications" and choose "Add", to create a new application.
 
 My module provides three different ways to authenticate to the api:
 
@@ -68,7 +68,7 @@ My module provides three different ways to authenticate to the api:
 
 So, choose wisely!
 
-<img src="https://raw.githubusercontent.com/Sebiworld/AppApi/master/documentation/media/choose.gif" alt="Choose wisely" style="width:100px;" />
+<img src="https://raw.githubusercontent.com/Sebiworld/AppApi/master/documentation/media/choose.gif" alt="Choose wisely" style="max-width:300px;" />
 
 <a name="api-keys"></a>
 
@@ -80,7 +80,7 @@ Click on "Add new Apikey" on the bottom of the application form. Notice, that yo
 
 ![apikey](https://raw.githubusercontent.com/Sebiworld/AppApi/master/documentation/media/apikey.png)
 
-A new apikey has a prefilled randomly generated key per default, but you can set it to any value you want. I recommend, to generate a new apikey per version of your app. That makes you able to revoke older apikeys. You can easily name your apikey like your version to make it clearer to understand. Additionally you can give your apikey a prefefined expiry date.
+A new apikey has a prefilled randomly generated key per default, but you can set it to any value you want. I recommend, to generate a new apikey per version of your app. That makes you able to revoke older apikeys. You can easily name your apikey like your version to make it clearer to understand. Additionally you can give your apikey a predefined expiry date.
 
 To use an apikey for a request, you have to set it to the `X-API-KEY`-header.
 
@@ -92,7 +92,7 @@ this.httpClient.get('https://my-website.dev/api/auth', {
 });
 ```
 
-> If you dont like that your api is available under /api/, you can change that in the module's settings to a custom path if you want to.
+> If you don't like that your api is available under /api/, you can change that in the module's settings to a custom path if you want to.
 
 _By the way:_ If something goes wrong, you will get an informative error-message. If you are a superuser or your site runs in debug-mode, you will get even more information like this:
 
@@ -109,13 +109,13 @@ _By the way:_ If something goes wrong, you will get an informative error-message
 }
 ```
 
-Generally speaking, you can count on consistant errors and status-codes from the module, which makes interacting with the api much easier. Read more about that in the section [Error Handling](#error-handling).
+Generally speaking, you can count on consistent errors and status-codes from the module, which makes interacting with the api much easier. Read more about that in the section [Error Handling](#error-handling).
 
 <a name="php-session"></a>
 
 ### PHP-Session (Recommended for on-site usage)
 
-For this authentication method is not much explaination needed. Give your newly created application a speaking title and add a description. For a request, all you have to do is add the apikey as `X-API-KEY` header. If you are logged in, for example at your site's backend, you are logged in at your api's endpoints as well.
+For this authentication method is not much explanation needed. Give your newly created application a speaking title and add a description. For a request, all you have to do is add the apikey as `X-API-KEY` header. If you are logged in, for example at your site's backend, you are logged in at your api's endpoints as well.
 
 <a name="single-jwt"></a>
 
@@ -127,7 +127,7 @@ In the configuration-view of your application you have to choose a "Token Secret
 
 A random token secret with a reasonable length of 52 characters will be prefilled in a newly created application. But of course you have the possibility to change it to a custom value.
 
-Let us now turn to the request. I will demonstrate it with simple Angular-code examples, but you shurely can do the same thing in any other programming language as well. To get a jwt-token, that legimitates your further requests, you simply have to login with a valid username/password combination:
+Let us now turn to the request. I will demonstrate it with simple Angular-code examples, but you surely can do the same thing in any other programming language as well. To get a jwt-token, that legitimates your further requests, you simply have to login with a valid username/password combination:
 
 ```typescript
 // Example with username/pass as a basic-authorisation header (recommended):
@@ -211,11 +211,11 @@ Without the authorization-header, I would only be a not-authenticated guest:
 
 ### Double JWT (Recommended for apps)
 
-The best way to connect any kind of app to your endpoint is to enable [double JWT authentication](#double-jwt). Double JWT means, that an authenticated user gets a longer-living refreshtoken and an accesstoken with only a short life. The access-token is used to legitimate any request. The refreshtoken lets you get a new accesstoken, if the old one is expired. So, if anyone manages to intercept one of your requests and snatches a token, he can wreak havoc only temporarily until it expires.
+The best way to connect any kind of app to your endpoint is to enable [double JWT authentication](#double-jwt). Double JWT means, that an authenticated user gets a longer-living refresh-token and an access-token with only a short life. The access-token is used to legitimate any request. The refresh-token lets you get a new access-token, if the old one is expired. So, if anyone manages to intercept one of your requests and snatches a token, he can wreak havoc only temporarily until it expires.
 
-An application with double-JWT authentication needs two different secrets that are configurable in the configuration-screen. The "Token Secret" is used to sign the refreshtokens. The value of "Accesstoken Secret" is used, as you may already suspect, to sign all accesstokens. A random token secret with a reasonable length of 52 characters will be prefilled in a newly created application. But of course you have the possibility to change it to a custom value.
+An application with double-JWT authentication needs two different secrets that are configurable in the configuration-screen. The "Token Secret" is used to sign the refresh-tokens. The value of "Access-token Secret" is used, as you may already suspect, to sign all access-tokens. A random token secret with a reasonable length of 52 characters will be prefilled in a newly created application. But of course you have the possibility to change it to a custom value.
 
-Let us now turn to the request. I will demonstrate it with simple Angular-code examples, but you shurely can do the same thing in any other programming language as well. To get your first refreshtoken you simply have to login with a valid username/password combination:
+Let us now turn to the request. I will demonstrate it with simple Angular-code examples, but you surely can do the same thing in any other programming language as well. To get your first refresh-token you simply have to login with a valid username/password combination:
 
 ```typescript
 // Example with username/pass as a basic-authorisation header (recommended):
@@ -237,7 +237,7 @@ this.httpClient.post(
 );
 ```
 
-The resulting JSON response contains your refreshtoken and the name of the authenticated user:
+The resulting JSON response contains your refresh-token and the name of the authenticated user:
 
 ```jsonc
 {
@@ -262,7 +262,7 @@ If you are interested in the data which is included in the token, you can easily
 
 Every claim of an incoming token will be validated. If anything doesn't match, the token will be revoked.
 
-The next step is to get an accesstoken, which you need to legitimize your api-requests. A refreshtoken is only useful to apply for an accesstoken, nothing more. The target of your next api-request is the /auth/access-endpoint. Attach your refreshtoken as a bearer token like I do in the following Angular-request:
+The next step is to get an access-token, which you need to legitimize your api-requests. A refresh-token is only useful to apply for an access-token, nothing more. The target of your next api-request is the /auth/access-endpoint. Attach your refresh-token as a bearer token like I do in the following Angular-request:
 
 ```typescript
 this.httpClient.get('https://my-website.dev/api/auth/access', {
@@ -271,7 +271,7 @@ this.httpClient.get('https://my-website.dev/api/auth/access', {
 });
 ```
 
-With the response you will get both - an accesstoken and a new refreshtoken:
+With the response you will get both - an access-token and a new refresh-token:
 
 ```jsonc
 {
@@ -280,9 +280,9 @@ With the response you will get both - an accesstoken and a new refreshtoken:
 }
 ```
 
-A refreshtoken expires right after its usage. Because of that, when your accesstoken gets invalid, you have to use this new refreshtoken to ask for a new one.
+A refresh-token expires right after its usage. Because of that, when your access-token gets invalid, you have to use this new refresh-token to ask for a new one.
 
-With your accesstoken you can now make authenticated requests! You only have to add it as a Bearer-authentication header:
+With your access-token you can now make authenticated requests! You only have to add it as a Bearer-authentication header:
 
 ```typescript
 this.httpClient.get('https://my-website.dev/api/auth', {
@@ -312,7 +312,7 @@ Without the authorization-header, I would only be a not-authenticated guest:
 }
 ```
 
-**Yey! It works!**
+**Yay! It works!**
 
 **But wait!** There is one more thing, that I want to mention relating to double JWT authentication. Mostly JWTs are used for authentication if we want to make it possible without storing any information about the user or the session on the server. As you have seen, our token contains all necessary information inside its data-claims. And it is signed with a secret key, which only or server knows. So nobody can manipulate any information of the token.
 
@@ -320,7 +320,7 @@ Although this works really great, I still wanted to have a little more control o
 
 ![jwt-tokens](https://raw.githubusercontent.com/Sebiworld/AppApi/master/documentation/media/double-jwt-tokens.png)
 
-If a user loggs out, the session will automatically disappear from the list. You, as the admin, are able to force logout a user aswell. Simply delete it from the list. With this action, the user is forced to login and create a new session. All tokens, that were created in relation to the old token are immidiately invalid.
+If a user logs out, the session will automatically disappear from the list. You, as the admin, are able to force logout a user as well. Simply delete it from the list. With this action, the user is forced to login and create a new session. All tokens, that were created in relation to the old token are immediately invalid.
 
 <a name="creating-endpoints"></a>
 
@@ -371,7 +371,7 @@ An optional fourth parameter can be set to add some automatic checks to a route:
 | roles                 | array   | ['admin', 'editor'] | If set, one of the roles in the array is required to use the route.                                 |
 | application           | int     | 42                  | If set, the route is only allowed if the requesting apikey belongs to the application with this id. |
 | applications          | array   | [3, 5, 42]          | Only the application-ids in the array are allowed to use the route                                  |
-| handle_authentication | boolan  | false               | If set to false, all authentication-checks (apikey, tokens, ...) are disabled.                      |
+| handle_authentication | boolean  | false               | If set to false, all authentication-checks (apikey, tokens, ...) are disabled.                      |
 
 You are free to combine the parameters in an array:
 
@@ -520,9 +520,9 @@ Throwing this `AppApiException` will result in a response like this:
 }
 ```
 
-So use these powers whisely and write clean code!
+So use these powers wisely and write clean code!
 
-<img src="https://raw.githubusercontent.com/Sebiworld/AppApi/master/documentation/media/clean-code.gif" alt="clean code" style="zoom:25%;" />
+<img src="https://raw.githubusercontent.com/Sebiworld/AppApi/master/documentation/media/clean-code.gif" alt="clean code" style="max-width:100px;" />
 
 <a name="example-listing-users"></a>
 
@@ -562,7 +562,7 @@ throw new AppApiException('User does not have authorization', 401);
 
 As you see, we don't have to bother much about authentication. Our routes are protected against unauthorized access. But keep in mind: You can throw a custom Exception at any point in your functions as well.
 
-So, our next step is to define the Exampe-class which functions are called from our router:
+So, our next step is to define the Example-class which functions are called from our router:
 
 ```php
 <?php
@@ -641,14 +641,14 @@ The second call to, let's say `/api/users/42` will output the following JSON:
 
 ### Example: Universal Twack Api
 
-My second example is very practical, since it is my current best-practise solution for creating a complex ProcessWire-page with external connected applications. It includes my module [Twack](https://modules.processwire.com/modules/twack/) which is a nice way to structure the ProcessWire template-code in handy components. Another nice feature is the built-in support for outputting and merging json instead of html, which is a great advantage in combination with the AppApi module.
+My second example is very practical, since it is my current best-practice solution for creating a complex ProcessWire-page with external connected applications. It includes my module [Twack](https://modules.processwire.com/modules/twack/) which is a nice way to structure the ProcessWire template-code in handy components. Another nice feature is the built-in support for outputting and merging json instead of html, which is a great advantage in combination with the AppApi module.
 
 | ProcessWire-Module: | [https://modules.processwire.com/modules/twack/](https://modules.processwire.com/modules/twack/)   |
 | ------------------: | -------------------------------------------------------------------------------------------------- |
 |      Support-Forum: | [https://processwire.com/talk/topic/23549-twack/](https://processwire.com/talk/topic/23549-twack/) |
 |         Repository: | [https://github.com/Sebiworld/Twack](https://github.com/Sebiworld/Twack)                           |
 
-Our goal is to create a universal api, that makes every page accessable via api. If a page's frontend is limited to specific processwire-roles, it would have the same access-limitations for the api.
+Our goal is to create a universal api, that makes every page accessible via api. If a page's frontend is limited to specific processwire-roles, it would have the same access-limitations for the api.
 
 <a name="example2-routes"></a>
 
@@ -708,7 +708,7 @@ With these routes, every frontend-page should be callable. Via JWT-authenticatio
 
 Additionally I needed to access page-files, which are often protected via `$config->pagefileSecure` on my ProcessWire-instances. This makes it impossible to access the files directly by their original path (i.e. `/site/assets/files/...`), because we are not authenticated via PHP-session. To enable accessing protected page-files, we need to define endpoints for that as well.
 
-The file-endpoints work just like the page-endpoints. If you need a file of the page `/projects/my-project`, you have to call `/api/file/projects/my-project`. The filename is needed, too - it should be present in the GET-Parameter filename. (like `/api/file/projects/my-project?filename=testimage.jpg`). Please make shure, that the AppApi-headers `X-API-KEY` and your optional token must be present, too.
+The file-endpoints work just like the page-endpoints. If you need a file of the page `/projects/my-project`, you have to call `/api/file/projects/my-project`. The filename is needed, too - it should be present in the GET-Parameter filename. (like `/api/file/projects/my-project?filename=testimage.jpg`). Please make sure, that the AppApi-headers `X-API-KEY` and your optional token must be present, too.
 
 <a name="example2-page-handlers"></a>
 
@@ -790,7 +790,7 @@ class TwackAccess {
 }
 ```
 
-Do you want to know, how you can render Twack-components as JSON? I extended the documentation so it now convers ajax-rendering: [https://github.com/Sebiworld/Twack#ajax-output](https://github.com/Sebiworld/Twack#ajax-output)
+Do you want to know, how you can render Twack-components as JSON? I extended the documentation so it now covers ajax-rendering: [https://github.com/Sebiworld/Twack#ajax-output](https://github.com/Sebiworld/Twack#ajax-output)
 
 <a name="example2-file-handlers"></a>
 
