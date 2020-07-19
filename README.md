@@ -24,23 +24,23 @@ This module helps you to create an api, to which an app or an external service c
 
 ## Table Of Contents
 
-- [Features](#features)
-- [Installation](#installation)
-- [Defining Applications](#defining-applications)
-  - [Api-Keys](#api-keys)
-  - [PHP-Session (Recommended for on-site usage)](#php-session)
-  - [Single JWT (Recommended for external server-calls)](#single-jwt)
-  - [Double JWT (Recommended for apps)](#double-jwt)
-- [Creating Endpoints](#creating-endpoints)
-  - [Output Formatting](#output-formatting)
-  - [Error Handling](#error-handling)
-  - [Example: Listing Users](#example-listing-users)
-  - [Example: Universal Twack Api](#example2-universal-twack-api)
-    - [Routes](#example2-routes)
-    - [Page Handlers](#example2-page-handlers)
-    - [File Handlers](#example2-file-handlers)
-- [Versioning](#versioning)
-- [License](#license)
+- [Features](https://github.com/Sebiworld/AppApi#features)
+- [Installation](https://github.com/Sebiworld/AppApi#installation)
+- [Defining Applications](https://github.com/Sebiworld/AppApi#defining-applications)
+  - [Api-Keys](https://github.com/Sebiworld/AppApi#api-keys)
+  - [PHP-Session (Recommended for on-site usage)](https://github.com/Sebiworld/AppApi#php-session)
+  - [Single JWT (Recommended for external server-calls)](https://github.com/Sebiworld/AppApi#single-jwt)
+  - [Double JWT (Recommended for apps)](https://github.com/Sebiworld/AppApi#double-jwt)
+- [Creating Endpoints](https://github.com/Sebiworld/AppApi#creating-endpoints)
+  - [Output Formatting](https://github.com/Sebiworld/AppApi#output-formatting)
+  - [Error Handling](https://github.com/Sebiworld/AppApi#error-handling)
+  - [Example: Listing Users](https://github.com/Sebiworld/AppApi#example-listing-users)
+  - [Example: Universal Twack Api](https://github.com/Sebiworld/AppApi#example2-universal-twack-api)
+    - [Routes](https://github.com/Sebiworld/AppApi#example2-routes)
+    - [Page Handlers](https://github.com/Sebiworld/AppApi#example2-page-handlers)
+    - [File Handlers](https://github.com/Sebiworld/AppApi#example2-file-handlers)
+- [Versioning](https://github.com/Sebiworld/AppApi#versioning)
+- [License](https://github.com/Sebiworld/AppApi#license)
 
 <a name="installation"></a>
 
@@ -62,9 +62,9 @@ After installing the module you will find "AppApi" as a new item under the "Setu
 
 My module provides three different ways to authenticate to the api:
 
-- For scripts that run in your website's frontend, I would recommend to use ProcessWire's default [PHP session authentication](#php-session). If you are logged in, for example at your site's backend, you are logged in at your api's endpoints as well.
-- If you want to access your api from an external server, to which you have full control to, you can use the [single JWT authentication](#single-jwt). It is important to consider, that anyone, that knows an authentication-key, can legitimately authenticate to your endpoints. I would recommend to use this method only, if you can store the key securely and nobody but you can see it.
-- The best way to connect any kind of app to your endpoint is to enable [double JWT authentication](#double-jwt). Double JWT means, that an authenticated user gets a longer-living refresh-token and an access-token with only a short life. The access-token is used to legitimate any request. The request-token lets you get a new access-token, if the old one is expired. So, if anyone manages to intercept one of your requests and snatches a token, he can wreak havoc only temporarily until it expires.
+- For scripts that run in your website's frontend, I would recommend to use ProcessWire's default [PHP session authentication](https://github.com/Sebiworld/AppApi#php-session). If you are logged in, for example at your site's backend, you are logged in at your api's endpoints as well.
+- If you want to access your api from an external server, to which you have full control to, you can use the [single JWT authentication](https://github.com/Sebiworld/AppApi#single-jwt). It is important to consider, that anyone, that knows an authentication-key, can legitimately authenticate to your endpoints. I would recommend to use this method only, if you can store the key securely and nobody but you can see it.
+- The best way to connect any kind of app to your endpoint is to enable [double JWT authentication](https://github.com/Sebiworld/AppApi#double-jwt). Double JWT means, that an authenticated user gets a longer-living refresh-token and an access-token with only a short life. The access-token is used to legitimate any request. The request-token lets you get a new access-token, if the old one is expired. So, if anyone manages to intercept one of your requests and snatches a token, he can wreak havoc only temporarily until it expires.
 
 So, choose wisely!
 
@@ -211,7 +211,7 @@ Without the authorization-header, I would only be a not-authenticated guest:
 
 ### Double JWT (Recommended for apps)
 
-The best way to connect any kind of app to your endpoint is to enable [double JWT authentication](#double-jwt). Double JWT means, that an authenticated user gets a longer-living refresh-token and an access-token with only a short life. The access-token is used to legitimate any request. The refresh-token lets you get a new access-token, if the old one is expired. So, if anyone manages to intercept one of your requests and snatches a token, he can wreak havoc only temporarily until it expires.
+The best way to connect any kind of app to your endpoint is to enable [double JWT authentication](https://github.com/Sebiworld/AppApi#double-jwt). Double JWT means, that an authenticated user gets a longer-living refresh-token and an access-token with only a short life. The access-token is used to legitimate any request. The refresh-token lets you get a new access-token, if the old one is expired. So, if anyone manages to intercept one of your requests and snatches a token, he can wreak havoc only temporarily until it expires.
 
 An application with double-JWT authentication needs two different secrets that are configurable in the configuration-screen. The "Token Secret" is used to sign the refresh-tokens. The value of "Access-token Secret" is used, as you may already suspect, to sign all access-tokens. A random token secret with a reasonable length of 52 characters will be prefilled in a newly created application. But of course you have the possibility to change it to a custom value.
 
