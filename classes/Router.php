@@ -272,7 +272,7 @@ class Router extends WireData {
 
     public static function handleFatalError() {
         $last_error = error_get_last();
-        if ($last_error['type'] === E_ERROR) {
+        if ($last_error && $last_error['type'] === E_ERROR) {
             // fatal error
             self::handleError(E_ERROR, $last_error['message'], $last_error['file'], $last_error['line']);
         }

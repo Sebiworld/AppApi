@@ -20,7 +20,7 @@ $info = array(
     'summary' => 'Module to create a REST API with ProcessWire',
 
     // Module version number: use 1 for 0.0.1 or 100 for 1.0.0, and so on
-    'version' => '1.0.2',
+    'version' => '1.0.3',
 
     // Name of person who created this module (change to your name)
     'author' => 'Sebastian Schendel',

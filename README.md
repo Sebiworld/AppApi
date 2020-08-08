@@ -1055,6 +1055,14 @@ This project is licensed under the Mozilla Public License Version 2.0 - see the 
 
 ## Changelog
 
+### Changes in 1.0.3 (2020-08-08)
+
+- Bugfix in Router.php (Thanks to @thomasaull)
+
+### Changes in 1.0.2 (2020-07-25)
+
+- Documentation improvements
+
 ### Changes in 1.0.1 (2020-07-11)
 
 - Changed all auth-routes to the /auth (or /auth/access) endpoints.
