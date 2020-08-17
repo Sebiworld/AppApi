@@ -31,7 +31,12 @@ class Router extends WireData {
 
         try {
             // $routes are coming from this file:
-            require_once wire('config')->paths->site . 'api/Routes.php';
+            $routesPath = $this->wire('modules')->AppApi->routes_path;
+            if (is_string($routesPath) && !empty($routesPath) && substr($routesPath, -1) !== '/') {
+                require_once wire('config')->paths->root . $routesPath;
+            } else {
+                require_once wire('config')->paths->site . 'api/Routes.php';
+            }
 
             $flatUserRoutes = [];
             self::flattenGroup($flatUserRoutes, $routes);

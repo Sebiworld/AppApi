@@ -343,6 +343,8 @@ Creating individual endpoints is not very complicated. If you have used Thomas's
 
 Instead of my Example-class, you can call any other class as well. You only need to consider that the called function has to be static.
 
+> If you don't like that your `Routes.php` is located under `/site/api/Router.php`, you can change that in the module's settings to a custom path if you want to.
+
 You can also create groups, which makes it a bit easier to create multiple sub-routes for the same endpoint (for example it is a good idea to version your API):
 
 ```php
@@ -530,7 +532,7 @@ So use these powers wisely and write clean code!
 
 Let us get to a concrete example of an endpoint that enables an authenticated user to get a list of all users.
 
-At first we need to define the routes in the file `/site/api/Routes.php`:
+At first we need to define the routes in the file `/site/api/Routes.php` (or a custom file if you changed it in the module's settings):
 
 ```php
 <?php
@@ -1054,6 +1056,12 @@ This project is licensed under the Mozilla Public License Version 2.0 - see the 
 <a name="changelog"></a>
 
 ## Changelog
+
+### Changes in 1.0.4 (2020-08-17)
+
+- Usage of `ProcessPageView::pageNotFound`-hook to allow other modules and functions to initialize before the api renders.
+- The path to `Routes.php` is now configurable via module's settings
+(Thanks to @thomasaull and @spoetnik)
 
 ### Changes in 1.0.3 (2020-08-08)
 
