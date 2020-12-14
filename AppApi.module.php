@@ -614,16 +614,16 @@ class AppApi extends Process implements Module {
      */
     public static function sendResponse(int $status = 200, $body = '', $content_type = false) {
         // Set status header:
-        $protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
-        $statusMessage = '';
+        
         if (function_exists('http_response_code')) {
-            $statusMessage = http_response_code($status);
+            http_response_code($status);
         } else {
             // Fallback to custom method if http_response_code is not supported
+            $protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
             $statusMessage = self::getStatusCodeMessage($status);
+            $status_header = $protocol . ' ' . $status . ' ' . $statusMessage;
+            header($status_header);
         }
-        $status_header = $protocol . ' ' . $status . ' ' . $statusMessage;
-        header($status_header);
 
         // Set content-type header, if its not explicitly set:
         if (!$content_type) {
