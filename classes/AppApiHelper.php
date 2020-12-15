@@ -2,6 +2,16 @@
 namespace ProcessWire;
 
 class AppApiHelper {
+	public static $httpStatus = 200;
+
+    /**
+     * Set HTTP response status code
+     * @param int $status
+     */
+    public static function setHttpStatus(int $status) {
+        self::$httpStatus = $status;
+	}
+	
 	public static function preflight() {
 		return;
 	}
