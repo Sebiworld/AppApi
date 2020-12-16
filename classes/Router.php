@@ -255,8 +255,9 @@ class Router extends WireData {
 
     protected function flattenGroup(&$putInArray, $group, $prefix = '') {
         foreach ($group as $key => $item) {
-            if (is_array($item[0])) {
-                self::flattenGroup($putInArray, $item, '/' . $key);
+            // Check first item in item array to see if it is also an array
+            if (is_array(reset($item))) {
+                self::flattenGroup($putInArray, $item, $prefix . '/' . $key);
             } else {
                 $item[1] = $prefix . '/' . $item[1];
                 array_push($putInArray, $item);
