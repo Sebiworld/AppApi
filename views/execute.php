@@ -42,7 +42,7 @@ namespace ProcessWire;
 	<dd>This module in ProcessWire's official modules-directory</dd>
 
 	<dt>
-		<a style="display: flex; align-items: center;" class="label" target="_blank" href="https://processwire.com/talk/topic/20006-module-restapi/">
+		<a style="display: flex; align-items: center;" class="label" target="_blank" href="https://processwire.com/talk/topic/24014-new-module-appapi/">
 			<i style="margin-right: 10px;" class="fa fa-2x fa-fw fa-commenting-o ui-priority-secondary"></i>
 			Official support-thread
 		</a>

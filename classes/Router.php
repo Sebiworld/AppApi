@@ -31,7 +31,12 @@ class Router extends WireData {
 
         try {
             // $routes are coming from this file:
-            require_once wire('config')->paths->site . 'api/Routes.php';
+            $routesPath = $this->wire('modules')->AppApi->routes_path;
+            if (is_string($routesPath) && !empty($routesPath) && substr($routesPath, -1) !== '/') {
+                require_once wire('config')->paths->root . $routesPath;
+            } else {
+                require_once wire('config')->paths->site . 'api/Routes.php';
+            }
 
             $flatUserRoutes = [];
             self::flattenGroup($flatUserRoutes, $routes);
@@ -272,7 +277,7 @@ class Router extends WireData {
 
     public static function handleFatalError() {
         $last_error = error_get_last();
-        if ($last_error['type'] === E_ERROR) {
+        if ($last_error && $last_error['type'] === E_ERROR) {
             // fatal error
             self::handleError(E_ERROR, $last_error['message'], $last_error['file'], $last_error['line']);
         }

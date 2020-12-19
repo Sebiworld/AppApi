@@ -9,18 +9,18 @@ require_once __DIR__ . '/classes/Apikey.php';
 require_once __DIR__ . '/classes/Apptoken.php';
 
 class AppApi extends Process implements Module {
-    const manageApplicationsPermission       = 'appapi_manage_applications';
-    const tableApplications                  = 'appapi_applications';
-    const tableApikeys                       = 'appapi_apikeys';
-    const tableApptokens                     = 'appapi_apptokens';
+    const manageApplicationsPermission = 'appapi_manage_applications';
+    const tableApplications = 'appapi_applications';
+    const tableApikeys = 'appapi_apikeys';
+    const tableApptokens = 'appapi_apptokens';
 
     protected $apiCall = false;
 
     public function ___install() {
         parent::___install();
 
-        $apiPath      = "{$this->config->paths->site}api";
-        $routesPath   = "{$this->config->paths->site}api/Routes.php";
+        $apiPath = "{$this->config->paths->site}api";
+        $routesPath = "{$this->config->paths->site}api/Routes.php";
         $examplesPath = "{$this->config->paths->site}api/Example.php";
 
         if (!file_exists($apiPath)) {
@@ -41,7 +41,7 @@ class AppApi extends Process implements Module {
         $this->createDBTables();
     }
 
-    private function createDBTables(){
+    private function createDBTables() {
         $statement = 'CREATE TABLE IF NOT EXISTS `' . self::tableApplications . '` (
             `id` int(11) NOT NULL AUTO_INCREMENT,
             `created` datetime NOT NULL,
@@ -138,11 +138,11 @@ class AppApi extends Process implements Module {
 
         $this->config->scripts->add(
             $this->config->urls->AppApi . 'assets/AppApi.js'
-          );
-
-        return array(
-            'module' => $this
         );
+
+        return [
+            'module' => $this
+        ];
     }
 
     public function ___executeApplications() {
@@ -150,19 +150,19 @@ class AppApi extends Process implements Module {
 
         $this->config->scripts->add(
             $this->config->urls->AppApi . 'assets/AppApi.js'
-          );
+        );
 
         try {
-            return array(
+            return [
                 'applications' => $this->getApplications()
-            );
+            ];
         } catch (\Exception $e) {
             echo '<h2>' . $this->_('Access denied') . '</h2>';
             echo "<p>{$e->getMessage()}</p>";
         }
-        return array(
+        return [
             'applications' => new WireArray()
-        );
+        ];
     }
 
     public function ___executeApplication() {
@@ -172,59 +172,59 @@ class AppApi extends Process implements Module {
 
         $this->config->scripts->add(
             $this->config->urls->AppApi . 'assets/AppApi.js'
-          );
+        );
 
         $action = $this->sanitizer->text($this->input->urlSegment2);
 
         $id = $this->sanitizer->int($this->input->urlSegment3);
         if ($action === 'new') {
-            return array(
+            return [
                 'application' => false,
-                'action'      => $action,
-            );
+                'action' => $action,
+            ];
         }
         if ($this->input->urlSegment3 === '' || empty($id)) {
-            return array(
-                'application'  => false,
-                'action'       => $action,
-                'locked'       => true,
-                'message'      => 'Missing ID'
-            );
+            return [
+                'application' => false,
+                'action' => $action,
+                'locked' => true,
+                'message' => 'Missing ID'
+            ];
         }
 
         try {
             $application = $this->getApplication($id);
             if ($action === 'edit') {
-                return array(
-                    'application'  => $application,
-                    'action'       => $action
-                );
+                return [
+                    'application' => $application,
+                    'action' => $action
+                ];
             } elseif ($action === 'delete') {
                 $application->delete();
                 $this->notices->add(new NoticeMessage(sprintf($this->_('The application was successfully deleted: %s'), $id)));
                 $this->session->redirect($this->wire('page')->url . 'applications/');
 
-                return array(
+                return [
                     'application' => false,
-                    'action'      => $action,
-                    'locked'      => true,
-                    'message'     => sprintf($this->_('The application was successfully deleted: %s'), $id)
-                );
+                    'action' => $action,
+                    'locked' => true,
+                    'message' => sprintf($this->_('The application was successfully deleted: %s'), $id)
+                ];
             }
         } catch (\Exception $e) {
-            return array(
+            return [
                 'application' => false,
-                'action'      => $action,
-                'locked'      => true,
-                'message'     => $e->getMessage()
-            );
+                'action' => $action,
+                'locked' => true,
+                'message' => $e->getMessage()
+            ];
         }
 
-        return array(
+        return [
             'application' => false,
-            'action'      => $action,
-            'locked'      => true,
-        );
+            'action' => $action,
+            'locked' => true,
+        ];
     }
 
     public function ___executeApikey() {
@@ -234,83 +234,83 @@ class AppApi extends Process implements Module {
 
         $this->config->scripts->add(
             $this->config->urls->AppApi . 'assets/AppApi.js'
-          );
+        );
 
         $action = $this->sanitizer->text($this->input->urlSegment2);
 
         $id = $this->sanitizer->int($this->input->urlSegment3);
 
         if ($this->input->urlSegment3 === '' || empty($id)) {
-            return array(
-                'apikey'      => false,
+            return [
+                'apikey' => false,
                 'application' => false,
-                'action'      => $action,
-                'locked'      => true,
-                'message'     => 'Missing ID'
-            );
+                'action' => $action,
+                'locked' => true,
+                'message' => 'Missing ID'
+            ];
         }
 
         if ($action === 'new') {
             try {
                 $application = $this->getApplication($id);
                 $this->breadcrumb($this->wire('page')->url . 'application/edit/' . $application->getID(), $application->getTitle());
-                return array(
+                return [
                     'application' => $application,
-                    'apikey'      => false,
-                    'action'      => $action
-                );
+                    'apikey' => false,
+                    'action' => $action
+                ];
             } catch (\Exception $e) {
-                return array(
-                    'apikey'      => false,
+                return [
+                    'apikey' => false,
                     'application' => false,
-                    'action'      => $action,
-                    'locked'      => true,
-                    'message'     => $e->getMessage()
-                );
+                    'action' => $action,
+                    'locked' => true,
+                    'message' => $e->getMessage()
+                ];
             }
         }
 
         try {
-            $apikey      = $this->getApikey($id);
+            $apikey = $this->getApikey($id);
             $application = $this->getApplication($apikey->getApplicationID());
             $this->breadcrumb($this->wire('page')->url . 'application/edit/' . $application->getID(), $application->getTitle());
 
             if ($action === 'edit') {
-                return array(
-                    'apikey'      => $apikey,
+                return [
+                    'apikey' => $apikey,
                     'application' => $application,
-                    'action'      => $action
-                );
+                    'action' => $action
+                ];
             } elseif ($action === 'delete') {
                 $apikey->delete();
 
                 $this->notices->add(new NoticeMessage(sprintf($this->_('The apikey was successfully deleted: %s'), $id)));
                 $this->session->redirect($this->wire('page')->url . 'application/edit/' . $application->getID());
 
-                return array(
-                    'apikey'      => false,
+                return [
+                    'apikey' => false,
                     'application' => false,
-                    'action'      => $action,
-                    'locked'      => true,
-                    'message'     => sprintf($this->_('The apikey was successfully deleted: %s'), $id)
-                );
+                    'action' => $action,
+                    'locked' => true,
+                    'message' => sprintf($this->_('The apikey was successfully deleted: %s'), $id)
+                ];
             }
         } catch (\Exception $e) {
-            return array(
-                'apikey'      => false,
+            return [
+                'apikey' => false,
                 'application' => false,
-                'action'      => $action,
-                'locked'      => true,
-                'message'     => $e->getMessage()
-            );
+                'action' => $action,
+                'locked' => true,
+                'message' => $e->getMessage()
+            ];
         }
 
-        return array(
-            'apikey'      => false,
+        return [
+            'apikey' => false,
             'application' => false,
-            'action'      => $action,
-            'locked'      => true,
-        );
+            'action' => $action,
+            'locked' => true,
+        ];
     }
 
     public function ___executeApptoken() {
@@ -320,97 +320,97 @@ class AppApi extends Process implements Module {
 
         $this->config->scripts->add(
             $this->config->urls->AppApi . 'assets/AppApi.js'
-          );
+        );
 
         $action = $this->sanitizer->text($this->input->urlSegment2);
 
         $id = $this->sanitizer->int($this->input->urlSegment3);
 
         if ($this->input->urlSegment3 === '' || empty($id)) {
-            return array(
-                'apptoken'      => false,
-                'application'   => false,
-                'action'        => $action,
-                'locked'        => true,
-                'message'       => 'Missing ID'
-            );
+            return [
+                'apptoken' => false,
+                'application' => false,
+                'action' => $action,
+                'locked' => true,
+                'message' => 'Missing ID'
+            ];
         }
 
         if ($action === 'new') {
             try {
                 $application = $this->getApplication($id);
                 $this->breadcrumb($this->wire('page')->url . 'application/edit/' . $application->getID(), $application->getTitle());
-                return array(
-                    'application'   => $application,
-                    'apptoken'      => false,
-                    'action'        => $action
-                );
+                return [
+                    'application' => $application,
+                    'apptoken' => false,
+                    'action' => $action
+                ];
             } catch (\Exception $e) {
-                return array(
-                    'apptoken'      => false,
-                    'application'   => false,
-                    'action'        => $action,
-                    'locked'        => true,
-                    'message'       => $e->getMessage()
-                );
+                return [
+                    'apptoken' => false,
+                    'application' => false,
+                    'action' => $action,
+                    'locked' => true,
+                    'message' => $e->getMessage()
+                ];
             }
         }
 
         try {
-            $apptoken      = $this->getApptoken($id);
-            $application   = $this->getApplication($apptoken->getApplicationID());
+            $apptoken = $this->getApptoken($id);
+            $application = $this->getApplication($apptoken->getApplicationID());
             $this->breadcrumb($this->wire('page')->url . 'application/edit/' . $application->getID(), $application->getTitle());
 
             if ($action === 'edit') {
-                return array(
-                    'apptoken'      => $apptoken,
-                    'application'   => $application,
-                    'action'        => $action
-                );
+                return [
+                    'apptoken' => $apptoken,
+                    'application' => $application,
+                    'action' => $action
+                ];
             } elseif ($action === 'delete') {
                 $apptoken->delete();
 
                 $this->notices->add(new NoticeMessage(sprintf($this->_('The apptoken was successfully deleted: %s'), $id)));
                 $this->session->redirect($this->wire('page')->url . 'application/edit/' . $application->getID());
 
-                return array(
-                    'apptoken'      => false,
-                    'application'   => false,
-                    'action'        => $action,
-                    'locked'        => true,
-                    'message'       => sprintf($this->_('The apptoken was successfully deleted: %s'), $id)
-                );
+                return [
+                    'apptoken' => false,
+                    'application' => false,
+                    'action' => $action,
+                    'locked' => true,
+                    'message' => sprintf($this->_('The apptoken was successfully deleted: %s'), $id)
+                ];
             }
         } catch (\Exception $e) {
-            return array(
-                'apptoken'      => false,
-                'application'   => false,
-                'action'        => $action,
-                'locked'        => true,
-                'message'       => $e->getMessage()
-            );
+            return [
+                'apptoken' => false,
+                'application' => false,
+                'action' => $action,
+                'locked' => true,
+                'message' => $e->getMessage()
+            ];
         }
 
-        return array(
-            'apptoken'      => false,
-            'application'   => false,
-            'action'        => $action,
-            'locked'        => true,
-        );
+        return [
+            'apptoken' => false,
+            'application' => false,
+            'action' => $action,
+            'locked' => true,
+        ];
     }
 
     public function getApplication($id) {
-        $application   = false;
+        $application = false;
         $applicationID = $this->sanitizer->int($id);
         if (!empty($id)) {
-            $db        = wire('database');
-            $query     = $db->prepare('SELECT * FROM ' . AppApi::tableApplications . ' WHERE `id`=:id;');
+            $db = wire('database');
+            $query = $db->prepare('SELECT * FROM ' . AppApi::tableApplications . ' WHERE `id`=:id;');
             $query->closeCursor();
 
-            $query->execute(array(
+            $query->execute([
                 ':id' => $applicationID
-            ));
-            $queueRaw    = $query->fetch(\PDO::FETCH_ASSOC);
+            ]);
+            $queueRaw = $query->fetch(\PDO::FETCH_ASSOC);
             $application = new Application($queueRaw);
         }
 
@@ -418,13 +418,13 @@ class AppApi extends Process implements Module {
     }
 
     public function getApplications() {
-        $applications   = new WireArray();
+        $applications = new WireArray();
         try {
-            $db             = wire('database');
-            $query          = $db->prepare('SELECT * FROM ' . AppApi::tableApplications . ';');
+            $db = wire('database');
+            $query = $db->prepare('SELECT * FROM ' . AppApi::tableApplications . ';');
             $query->closeCursor();
             $query->execute();
-            $queueRaw    = $query->fetchAll(\PDO::FETCH_ASSOC);
+            $queueRaw = $query->fetchAll(\PDO::FETCH_ASSOC);
 
             foreach ($queueRaw as $queueItem) {
                 if (!isset($queueItem['id']) || empty($queueItem['id'])) {
@@ -446,19 +446,19 @@ class AppApi extends Process implements Module {
     }
 
     protected function getApikey($id) {
-        $apikey   = false;
+        $apikey = false;
         try {
             $apikeyID = $this->sanitizer->int($id);
             if (!empty($id)) {
-                $db        = wire('database');
-                $query     = $db->prepare('SELECT * FROM ' . AppApi::tableApikeys . ' WHERE `id`=:id;');
+                $db = wire('database');
+                $query = $db->prepare('SELECT * FROM ' . AppApi::tableApikeys . ' WHERE `id`=:id;');
                 $query->closeCursor();
 
-                $query->execute(array(
+                $query->execute([
                     ':id' => $apikeyID
-                ));
-                $queueRaw    = $query->fetch(\PDO::FETCH_ASSOC);
-                $apikey      = new Apikey($queueRaw);
+                ]);
+                $queueRaw = $query->fetch(\PDO::FETCH_ASSOC);
+                $apikey = new Apikey($queueRaw);
             }
         } catch (\Exception $e) {
             return false;
@@ -468,19 +468,19 @@ class AppApi extends Process implements Module {
     }
 
     protected function getApptoken($id) {
-        $apptoken   = false;
+        $apptoken = false;
         try {
             $apptokenID = $this->sanitizer->int($id);
             if (!empty($id)) {
-                $db        = wire('database');
-                $query     = $db->prepare('SELECT * FROM ' . AppApi::tableApptokens . ' WHERE `id`=:id;');
+                $db = wire('database');
+                $query = $db->prepare('SELECT * FROM ' . AppApi::tableApptokens . ' WHERE `id`=:id;');
                 $query->closeCursor();
 
-                $query->execute(array(
+                $query->execute([
                     ':id' => $apptokenID
-                ));
-                $queueRaw      = $query->fetch(\PDO::FETCH_ASSOC);
-                $apptoken      = new Apptoken($queueRaw);
+                ]);
+                $queueRaw = $query->fetch(\PDO::FETCH_ASSOC);
+                $apptoken = new Apptoken($queueRaw);
             }
         } catch (\Exception $e) {
             return false;
@@ -490,7 +490,7 @@ class AppApi extends Process implements Module {
     }
 
     public function init() {
-        $this->addHookBefore('ProcessPageView::execute', $this, 'handleApiRequest');
+        $this->addHookBefore('ProcessPageView::pageNotFound', $this, 'handleApiRequest');
 
         // Let endpoint fall back to 'api' if not set:
         if (!$this->endpoint) {
@@ -498,7 +498,7 @@ class AppApi extends Process implements Module {
         }
     }
 
-    protected function checkIfApiRequest(){
+    protected function checkIfApiRequest() {
         $url = $this->sanitizer->url($this->input->url);
 
         // support / in endpoint url:
@@ -524,7 +524,7 @@ class AppApi extends Process implements Module {
         return !!$this->apiCall;
     }
 
-    public function getCurrentApplication(){
+    public function getCurrentApplication() {
         return $this->apiCall ? Auth::getInstance()->getApplication() : false;
     }
 
@@ -539,7 +539,7 @@ class AppApi extends Process implements Module {
      * @return string 	standardized message for the requested statuscode
      */
     private static function getStatusCodeMessage($status) {
-        $codes = array(
+        $codes = [
             100 => 'Continue',
             101 => 'Switching Protocols',
             200 => 'OK',
@@ -601,7 +601,7 @@ class AppApi extends Process implements Module {
             508 => 'Loop Detected',
             510 => 'Not Extended',
             511 => 'Network Authentication Required'
-        );
+        ];
 
         return (isset($codes[$status])) ? $codes[$status] : '';
     }
@@ -614,7 +614,7 @@ class AppApi extends Process implements Module {
      */
     public static function sendResponse(int $status = 200, $body = '', $content_type = false) {
         // Set status header:
-        $protocol      = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
+        $protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
         $statusMessage = '';
         if (function_exists('http_response_code')) {
             $statusMessage = http_response_code($status);
@@ -646,48 +646,46 @@ class AppApi extends Process implements Module {
         exit();
     }
 
-
     /**
      * Helper function, to convert common PHP-Objects to arrays which can be output in ajax.
      * @param  Object $content
      * @return array
      */
-    public static function getAjaxOf($content)
-    {
-        $output = array();
+    public static function getAjaxOf($content) {
+        $output = [];
 
         if ($content instanceof PageFiles) {
             foreach ($content as $file) {
                 $output[] = self::getAjaxOf($file);
             }
         } elseif ($content instanceof PageFile) {
-            $output = array(
-                'basename'     => $content->basename,
-                'name'         => $content->name,
-                'description'  => $content->description,
-                'created'      => $content->created,
-                'modified'     => $content->modified,
-                'filesize'     => $content->filesize,
-                'filesizeStr'  => $content->filesizeStr,
-                'page_id'      => $content->page->id,
-                'ext'          => $content->ext
-            );
+            $output = [
+                'basename' => $content->basename,
+                'name' => $content->name,
+                'description' => $content->description,
+                'created' => $content->created,
+                'modified' => $content->modified,
+                'filesize' => $content->filesize,
+                'filesizeStr' => $content->filesizeStr,
+                'page_id' => $content->page->id,
+                'ext' => $content->ext
+            ];
 
             if ($content instanceof PageImage) {
-                $output['basename_mini']          = $content->size(600, 0)->basename;
-                $output['width']                  = $content->width;
-                $output['height']                 = $content->height;
-                $output['dimension_ratio']        = round($content->width / $content->height, 2);
+                $output['basename_mini'] = $content->size(600, 0)->basename;
+                $output['width'] = $content->width;
+                $output['height'] = $content->height;
+                $output['dimension_ratio'] = round($content->width / $content->height, 2);
 
                 if ($content->original) {
                     $output['original'] = [
-                        'basename'      => $content->original->basename,
-                        'name'          => $content->original->name,
-                        'filesize'      => $content->original->filesize,
-                        'filesizeStr'   => $content->original->filesizeStr,
-                        'ext'           => $content->original->ext,
-                        'width'         => $content->original->width,
-                        'height'        => $content->original->height,
+                        'basename' => $content->original->basename,
+                        'name' => $content->original->name,
+                        'filesize' => $content->original->filesize,
+                        'filesizeStr' => $content->original->filesizeStr,
+                        'ext' => $content->original->ext,
+                        'width' => $content->original->width,
+                        'height' => $content->original->height,
                         'dimension_ratio' => round($content->original->width / $content->original->height, 2)
                     ];
                 }
@@ -701,26 +699,26 @@ class AppApi extends Process implements Module {
                 }
             }
         } elseif ($content instanceof Template && $content->id) {
-            $output = array(
-                'id'    => $content->id,
-                'name'  => $content->name,
+            $output = [
+                'id' => $content->id,
+                'name' => $content->name,
                 'label' => $content->label
-            );
+            ];
         } elseif ($content instanceof PageArray) {
             foreach ($content as $page) {
                 $output[] = self::getAjaxOf($page);
             }
         } elseif ($content instanceof Page && $content->id) {
-            $output = array(
-                'id'       => $content->id,
-                'name'     => $content->name,
-                'title'    => $content->title,
-                'created'  => $content->created,
+            $output = [
+                'id' => $content->id,
+                'name' => $content->name,
+                'title' => $content->title,
+                'created' => $content->created,
                 'modified' => $content->modified,
-                'url'      => $content->url,
-                'httpUrl'  => $content->httpUrl,
+                'url' => $content->url,
+                'httpUrl' => $content->httpUrl,
                 'template' => self::getAjaxOf($content->template)
-            );
+            ];
         }
 
         return $output;
