@@ -68,10 +68,7 @@ class AppApi extends Process implements Module {
             `version` varchar(100) NOT NULL,
             `description` TEXT,
             `accessable_until` datetime,
-            PRIMARY KEY (`id`),
-            FOREIGN KEY (`application_id`)
-            REFERENCES `' . self::tableApplications . '`(`id`)
-            ON DELETE CASCADE
+            PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;';
 
         $statement .= 'CREATE TABLE IF NOT EXISTS `' . self::tableApptokens . '` (
@@ -86,10 +83,7 @@ class AppApi extends Process implements Module {
             `last_used` datetime,
             `expiration_time` datetime,
             `not_before_time` datetime,
-            PRIMARY KEY (`id`),
-            FOREIGN KEY (`application_id`)
-            REFERENCES `' . self::tableApplications . '`(`id`)
-            ON DELETE CASCADE
+            PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;';
         try {
             $database = wire('database');
@@ -104,8 +98,8 @@ class AppApi extends Process implements Module {
         parent::___uninstall();
         $deleteStatement = '
             DROP TABLE IF EXISTS `' . self::tableApikeys . '`;
-            DROP TABLE IF EXISTS `' . self::tableApplications . '`;
             DROP TABLE IF EXISTS `' . self::tableApptokens . '`;
+            DROP TABLE IF EXISTS `' . self::tableApplications . '`;
             ';
 
         $datenbank = wire('database');
@@ -614,7 +608,7 @@ class AppApi extends Process implements Module {
      */
     public static function sendResponse(int $status = 200, $body = '', $content_type = false) {
         // Set status header:
-        
+
         if (function_exists('http_response_code')) {
             http_response_code($status);
         } else {

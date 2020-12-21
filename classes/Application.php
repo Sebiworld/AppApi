@@ -514,6 +514,11 @@ class Application extends WireData {
         return false;
     }
 
+    /**
+     * Deletes the application and all associated apikeys & tokens
+     *
+     * @return boolean
+     */
     public function delete() {
         if ($this->isNew()) {
             return true;
@@ -524,7 +529,11 @@ class Application extends WireData {
             $queryVars = array(
                 ':id' => $this->getID()
             );
-            $preparedQuery = 'DELETE FROM `' . AppApi::tableApplications . '` WHERE `id`=:id;';
+
+            $preparedQuery = 'DELETE FROM `' . AppApi::tableApikeys . '` WHERE `application_id`=:id;';
+            $preparedQuery .= 'DELETE FROM `' . AppApi::tableApptokens . '` WHERE `application_id`=:id;';
+            $preparedQuery .= 'DELETE FROM `' . AppApi::tableApplications . '` WHERE `id`=:id;';
+
             $query         = $db->prepare($preparedQuery);
             $query->closeCursor();
             $query->execute($queryVars);
