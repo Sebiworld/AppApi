@@ -405,6 +405,10 @@ class AppApi extends Process implements Module {
                 ':id' => $applicationID
             ]);
             $queueRaw = $query->fetch(\PDO::FETCH_ASSOC);
+
+            if(!$queueRaw){
+                throw new Wire404Exception();
+            }
             $application = new Application($queueRaw);
         }
 
