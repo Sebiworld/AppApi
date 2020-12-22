@@ -10,9 +10,25 @@ namespace ProcessWire;
 		<dl class="uk-description-list uk-description-list-divider" style="margin-bottom: 50px;">
 			<h2><small><?= $this->_('What would you like to do?'); ?></small></h2>
 			<dt>
-				<a style="display: flex; align-items: center;" class="label" href="./applications/">
+				<a style="display: flex; align-items: center; text-decoration: none;" class="label" href="./applications/">
 					<i style="margin-right: 10px;" class="fa fa-2x fa-fw fa-plug ui-priority-secondary"></i>
 					<?= $this->_('Manage Applications'); ?>
+				</a>
+			</dt>
+			<dd></dd>
+
+			<dt>
+				<a style="display: flex; align-items: center; text-decoration: none;" class="label" href="<?= $this->wire('page')->url . 'application/new'; ?>">
+					<i style="margin-right: 10px;" class="fa fa-2x fa-fw fa-plus ui-priority-secondary"></i>
+					<?= $this->_('Add a new Application'); ?>
+				</a>
+			</dt>
+			<dd></dd>
+
+			<dt>
+				<a style="display: flex; align-items: center; text-decoration: none;" class="label" href="<?= $configUrl; ?>">
+					<i style="margin-right: 10px;" class="fa fa-2x fa-fw fa-gear ui-priority-secondary"></i>
+					<?= $this->_('Configure Module'); ?>
 				</a>
 			</dt>
 			<dd></dd>
@@ -31,7 +47,7 @@ namespace ProcessWire;
             if (isset($existingLogs['appapi-access']['modified'])) {
               ?>
 								<dt>
-									<a style="display: flex; align-items: center;" class="label" href="<?= wire('config')->urls->admin ?>setup/logs/view/appapi-access/">
+									<a style="display: flex; align-items: center; text-decoration: none;" class="label" href="<?= wire('config')->urls->admin ?>setup/logs/view/appapi-access/">
 										<i style="margin-right: 10px; text-decoration: none;" class="fa fa-2x fa-fw fa-code ui-priority-secondary"></i>
 										<?= $this->_('Access-Log'); ?>
 									</a>
@@ -45,7 +61,7 @@ namespace ProcessWire;
             if (isset($existingLogs['appapi-exception']['modified'])) {
                 ?>
 								<dt>
-									<a style="display: flex; align-items: center;" class="label" href="<?= wire('config')->urls->admin ?>setup/logs/view/appapi-exception/">
+									<a style="display: flex; align-items: center; text-decoration: none;" class="label" href="<?= wire('config')->urls->admin ?>setup/logs/view/appapi-exception/">
 										<i style="margin-right: 10px; text-decoration: none;" class="fa fa-2x fa-fw fa-code ui-priority-secondary"></i>
 										<?= $this->_('Exception-Log'); ?>
 									</a>
@@ -63,7 +79,7 @@ namespace ProcessWire;
 <dl class="uk-description-list uk-description-list-divider">
 	<h2><small><?= $this->_('Links: '); ?></small></h2>
 	<dt>
-		<a style="display: flex; align-items: center;" class="label" target="_blank" href="https://processwire.com/talk/topic/24014-new-module-appapi/">
+		<a style="display: flex; align-items: center; text-decoration: none;" class="label" target="_blank" href="https://processwire.com/talk/topic/24014-new-module-appapi/">
 			<i style="margin-right: 10px;" class="fa fa-2x fa-fw fa-commenting-o ui-priority-secondary"></i>
 			<?= $this->_('Official support-thread'); ?>
 		</a>
@@ -73,7 +89,7 @@ namespace ProcessWire;
 	</dd>
 
 	<dt>
-		<a style="display: flex; align-items: center;" class="label" target="_blank" href="https://modules.processwire.com/modules/app-api/">
+		<a style="display: flex; align-items: center; text-decoration: none;" class="label" target="_blank" href="https://modules.processwire.com/modules/app-api/">
 			<i style="margin-right: 10px;" class="fa fa-2x fa-fw fa-globe ui-priority-secondary"></i>
 			<?= $this->_('AppApi ProcessWire-Module'); ?>
 		</a>
@@ -81,7 +97,7 @@ namespace ProcessWire;
 	<dd style="margin-top: 12px;"><?= $this->_('AppApi in ProcessWire\'s official modules-directory'); ?></dd>
 
 	<dt>
-		<a style="display: flex; align-items: center;" class="label" target="_blank" href="https://github.com/Sebiworld/AppApi
+		<a style="display: flex; align-items: center; text-decoration: none;" class="label" target="_blank" href="https://github.com/Sebiworld/AppApi
 ">
 			<i style="margin-right: 10px;" class="fa fa-2x fa-fw fa-github ui-priority-secondary"></i>
 			<?= $this->_('AppApi on Github'); ?>
