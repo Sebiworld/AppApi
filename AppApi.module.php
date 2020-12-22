@@ -135,7 +135,8 @@ class AppApi extends Process implements Module {
         );
 
         return [
-            'module' => $this
+            'module' => $this,
+            'existingLogs' => wire('log')->getLogs()
         ];
     }
 
