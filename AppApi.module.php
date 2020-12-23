@@ -140,6 +140,7 @@ class AppApi extends Process implements Module {
         return [
             'module' => $this,
             'existingLogs' => $this->wire('log')->getLogs(),
+            'accesslogsActivated' => @$this->wire('modules')->getConfig('AppApi', 'access_logging'),
             'configUrl' => $this->wire('config')->urls->admin . 'module/edit?name=AppApi'
         ];
     }

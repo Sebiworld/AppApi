@@ -53,6 +53,14 @@ namespace ProcessWire;
 									</a>
 								</dt>
 								<dd style="margin-top: 12px;">
+									<?= $this->_('Access-Logging is '); ?>
+									<?php
+									if($accesslogsActivated){
+										echo '<strong style="color: green;">' . $this->_('ENABLED') . '</strong>';
+									}else{
+										echo '<strong style="color: red;">' . $this->_('DISABLED') . '</strong>';
+									}
+									?><br>
 									<i><?= $this->_('Last entry: '); ?><?= wire('datetime')->date($this->_('Y-m-d @ H:i:s'), $existingLogs[AppApi::logAccess]['modified']); ?></i>
 								</dd>
 							<?php
