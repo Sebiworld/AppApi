@@ -92,7 +92,11 @@ class Router extends WireData {
             // Routeinfo and Auth extracted. Router::handle will return the info that should be output
             $return = Router::handle($routeInfo);
 
-            AppApi::sendResponse(200, $return);
+            $responseCode = 200;
+            if(isset($return['responseCode']) && is_numeric($return['responseCode'])){
+                $responseCode = $return['responseCode'];
+            }
+            AppApi::sendResponse($responseCode, $return);
         } catch (\Throwable $e) {
             // Show Exception as json-response and exit.
             self::handleException($e);
