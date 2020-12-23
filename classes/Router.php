@@ -18,7 +18,7 @@ require_once __DIR__ . '/DefaultRoutes.php';
 require_once __DIR__ . '/Auth.php';
 
 class Router extends WireData {
-    public function go() {
+    public function ___go() {
         set_error_handler("ProcessWire\Router::handleError");
         set_exception_handler('ProcessWire\Router::handleException');
         register_shutdown_function('ProcessWire\Router::handleFatalError');
@@ -99,7 +99,7 @@ class Router extends WireData {
         }
     }
 
-    public function handle($routeInfo) {
+    public function ___handle($routeInfo) {
         if (!isset($routeInfo[0]) || $routeInfo[0] !== \FastRoute\Dispatcher::FOUND) {
             // Handle FastRoute-Errors:
             switch ($routeInfo[0]) {
@@ -209,7 +209,7 @@ class Router extends WireData {
         return $data;
     }
 
-    public function params($index = null, $default = null, $source = null) {
+    public function ___params($index = null, $default = null, $source = null) {
         // check for php://input and merge with $_REQUEST
         if ((isset($_SERVER['CONTENT_TYPE']) &&
             stripos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) ||
@@ -226,7 +226,7 @@ class Router extends WireData {
         return Router::fetch_from_array($src, $index, $default);
     }
 
-    public function fetch_from_array(&$array, $index = null, $default = null) {
+    public function ___fetch_from_array(&$array, $index = null, $default = null) {
         if (is_null($index)) {
             return $array;
         } elseif (isset($array[$index])) {

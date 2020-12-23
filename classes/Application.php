@@ -116,18 +116,18 @@ class Application extends WireData {
         }
     }
 
-    public function isSaveable() {
+    public function ___isSaveable() {
         if (!$this->isValid()) {
             return false;
         }
         return true;
     }
 
-    public function isValid() {
+    public function ___isValid() {
         return $this->isIDValid() && $this->isCreatedValid() && $this->isCreatedUserValid() && $this->isModifiedValid() && $this->isModifiedUserValid() && $this->isTitleValid() && $this->isDescriptionValid() && $this->isTokenSecretValid() && $this->isAccesstokenSecretValid() && $this->isAuthtypeValid() && $this->isExpiresInValid();
     }
 
-    public function isNew() {
+    public function ___isNew() {
         return empty($this->id);
     }
 
@@ -142,7 +142,7 @@ class Application extends WireData {
         return $value === null || (is_integer($value) && $value >= 0);
     }
 
-    public function setCreated($created) {
+    public function ___setCreated($created) {
         if (is_string($created)) {
             $created = strtotime($created);
         }
@@ -166,7 +166,7 @@ class Application extends WireData {
         return $this->created;
     }
 
-    public function setCreatedUser($createdUser) {
+    public function ___setCreatedUser($createdUser) {
         if (!$createdUser instanceof User || !$createdUser->id) {
             $createdUser = wire('users')->get($createdUser);
         }
@@ -200,7 +200,7 @@ class Application extends WireData {
         return $createdUserString;
     }
 
-    public function setModified($modified) {
+    public function ___setModified($modified) {
         if (is_string($modified)) {
             $modified = strtotime($modified);
         }
@@ -224,7 +224,7 @@ class Application extends WireData {
         return $this->modified;
     }
 
-    public function setModifiedUser($modifiedUser) {
+    public function ___setModifiedUser($modifiedUser) {
         if (!$modifiedUser instanceof User || !$modifiedUser->id) {
             $modifiedUser = wire('users')->get($modifiedUser);
         }
@@ -258,7 +258,7 @@ class Application extends WireData {
         return $modifiedUserString;
     }
 
-    public function setTitle($title) {
+    public function ___setTitle($title) {
         $title = $this->sanitizer->text($title);
         if (!$this->isTitleValid($title)) {
             throw new ApplicationException('No valid title');
@@ -282,7 +282,7 @@ class Application extends WireData {
         return $this->title;
     }
 
-    public function setDescription($description) {
+    public function ___setDescription($description) {
         $description = $this->sanitizer->textarea($description);
         if (!$this->isDescriptionValid($description)) {
             throw new ApplicationException('No valid description');
@@ -306,7 +306,7 @@ class Application extends WireData {
         return $this->description;
     }
 
-    public function setTokenSecret($tokenSecret) {
+    public function ___setTokenSecret($tokenSecret) {
         if (!$this->isTokenSecretValid($tokenSecret)) {
             throw new ApplicationException('No valid token secret');
         }
@@ -325,7 +325,7 @@ class Application extends WireData {
         return is_string($value) && strlen($value) > 10;
     }
 
-    public function regenerateTokenSecret($length = 42) {
+    public function ___regenerateTokenSecret($length = 42) {
         $this->tokenSecret = AppApiHelper::generateRandomString($length, false);
     }
 
@@ -333,7 +333,7 @@ class Application extends WireData {
         return $this->tokenSecret;
     }
 
-    public function setAccesstokenSecret($accesstokenSecret) {
+    public function ___setAccesstokenSecret($accesstokenSecret) {
         if (!$this->isAccesstokenSecretValid($accesstokenSecret)) {
             throw new ApplicationException('No valid access token secret');
         }
@@ -360,7 +360,7 @@ class Application extends WireData {
         return $this->accesstokenSecret;
     }
 
-    public function setExpiresIn($expiresIn) {
+    public function ___setExpiresIn($expiresIn) {
         if (is_string($expiresIn)) {
             $expiresIn = intval($expiresIn);
         }
@@ -386,7 +386,7 @@ class Application extends WireData {
         return $this->expiresIn;
     }
 
-    public function setAuthtype($authtype) {
+    public function ___setAuthtype($authtype) {
         $authtype = $this->sanitizer->int($authtype);
         if (!$this->isAuthtypeValid($authtype)) {
             throw new ApplicationException('No valid authtype');
@@ -410,7 +410,7 @@ class Application extends WireData {
         return $this->authtype;
     }
 
-    public function getApikeys() {
+    public function ___getApikeys() {
         if ($this->isNew()) {
             return new WireArray();
         }
@@ -440,18 +440,18 @@ class Application extends WireData {
         return $apikeys;
     }
 
-    public function getApikey($key) {
+    public function ___getApikey($key) {
         if ($key instanceof Apikey) {
             $key = $key->getKey();
         }
         return $this->getApikeys()->findOne('key=' . $key);
     }
 
-    public function hasApikey($key) {
+    public function ___hasApikey($key) {
         return $this->getApikey($key) instanceof Apikey;
     }
 
-    public function removeApikey($key) {
+    public function ___removeApikey($key) {
         if ($key instanceof Apikey) {
             $key = $key->getKey();
         }
@@ -463,7 +463,7 @@ class Application extends WireData {
         return $apikey->delete();
     }
 
-    public function getApptokens() {
+    public function ___getApptokens() {
         if ($this->isNew()) {
             return new WireArray();
         }
@@ -493,7 +493,7 @@ class Application extends WireData {
         return $apptokens;
     }
 
-    public function getApptoken($tokenID) {
+    public function ___getApptoken($tokenID) {
         try {
             $db        = wire('database');
             $query     = $db->prepare('SELECT * FROM ' . AppApi::tableApptokens . ' WHERE `token_id`=:token_id AND `application_id`=:application_id;');
@@ -519,7 +519,7 @@ class Application extends WireData {
      *
      * @return boolean
      */
-    public function delete() {
+    public function ___delete() {
         if ($this->isNew()) {
             return true;
         }
@@ -544,7 +544,7 @@ class Application extends WireData {
         return true;
     }
 
-    public function save() {
+    public function ___save() {
         if (!$this->isSaveable()) {
             return false;
         }

@@ -14,7 +14,7 @@ class Auth extends WireData {
     // Only needed for logging:
     protected $tokenId = false;
 
-    public function initApikey() {
+    public function ___initApikey() {
         $headers = AppApiHelper::getRequestHeaders();
 
         if (!empty($headers['X-API-KEY'])) {
@@ -67,7 +67,7 @@ class Auth extends WireData {
         return 'Application-ID: ' . $this->application->getID();
     }
 
-    protected function createSingleJWTToken($args = []) {
+    protected function ___createSingleJWTToken($args = []) {
         if ($this->wire('user')->isGuest()) {
             throw new AuthException('user is not logged in', 401);
         }
@@ -98,7 +98,7 @@ class Auth extends WireData {
         return $jwt;
     }
 
-    public function doLogin($data) {
+    public function ___doLogin($data) {
         $username = false;
         $pass = false;
         if (!empty($_SERVER['PHP_AUTH_USER']) && !empty($_SERVER['PHP_AUTH_PW'])) {
@@ -151,7 +151,7 @@ class Auth extends WireData {
         throw new AuthException('Login not successful', 401);
     }
 
-    protected function createRefreshToken($args = []) {
+    protected function ___createRefreshToken($args = []) {
         if ($this->wire('user')->isGuest()) {
             throw new AuthException('user is not logged in', 401);
         }
@@ -169,7 +169,7 @@ class Auth extends WireData {
         return $jwt;
     }
 
-    public function getAccessToken() {
+    public function ___getAccessToken() {
         if ($this->application->getAuthtype() !== Application::authtypeDoubleJWT) {
             throw new AuthException('Your api-key does not support double-jwt authentication.', 400);
         }
@@ -223,7 +223,7 @@ class Auth extends WireData {
         ];
     }
 
-    protected function createAccessTokenJWT(User $user, $args = []) {
+    protected function ___createAccessTokenJWT(User $user, $args = []) {
         if ($user->isGuest()) {
             throw new AuthException('user is not logged in', 401);
         }
@@ -252,7 +252,7 @@ class Auth extends WireData {
         return $jwt;
     }
 
-    public function doLogout() {
+    public function ___doLogout() {
         // Remove Refresh-Token if Double-JWT:
         try {
             if ($this->application->getAuthtype() === Application::authtypeDoubleJWT) {
@@ -319,7 +319,7 @@ class Auth extends WireData {
     /**
      * Checks for Login-Tokens and authenticates the user in ProcessWire
      */
-    public function handleAuthentication() {
+    public function ___handleAuthentication() {
         if ($this->application->getAuthtype() === Application::authtypeSingleJWT) {
             return $this->handleToken(true);
         } elseif ($this->application->getAuthtype() === Application::authtypeDoubleJWT) {
@@ -327,7 +327,7 @@ class Auth extends WireData {
         }
     }
 
-    protected function handleToken($singleJwt = false) {
+    protected function ___handleToken($singleJwt = false) {
         try {
             $tokenString = $this->getBearerToken();
             if ($tokenString === null || !is_string($tokenString) || empty($tokenString)) {
@@ -423,7 +423,7 @@ class Auth extends WireData {
         return 'Token-ID: ' . $this->tokenId;
     }
 
-    protected function getBearerToken() {
+    protected function ___getBearerToken() {
         $authorizationHeader = $this->getAuthorizationHeader();
         if ($authorizationHeader === null || !is_string($authorizationHeader) || strlen($authorizationHeader) < 7) {
             return null;
@@ -434,7 +434,7 @@ class Auth extends WireData {
         return trim(substr($authorizationHeader, 7));
     }
 
-    protected function getAuthorizationHeader() {
+    protected function ___getAuthorizationHeader() {
         if (function_exists('apache_request_headers')) {
             foreach (apache_request_headers() as $key => $value) {
                 if (strtolower($key) === 'authorization') {

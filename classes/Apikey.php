@@ -92,22 +92,22 @@ class Apikey extends WireData {
         }
     }
 
-    public function isSaveable() {
+    public function ___isSaveable() {
         if (!$this->isValid()) {
             return false;
         }
         return true;
     }
 
-    public function isValid() {
+    public function ___isValid() {
         return $this->isApplicationIDValid() && $this->isIDValid() && $this->isCreatedValid() && $this->isCreatedUserValid() && $this->isModifiedValid() && $this->isModifiedUserValid() && $this->isKeyValid() && $this->isVersionValid() && $this->isDescriptionValid() && $this->isAccessableUntilValid();
     }
 
-    public function isAccessable() {
+    public function ___isAccessable() {
         return $this->isValid() && ($this->getAccessableUntil() === null || $this->getAccessableUntil() > time());
     }
 
-    public function isNew() {
+    public function ___isNew() {
         return empty($this->id);
     }
 
@@ -133,7 +133,7 @@ class Apikey extends WireData {
         return $value === null || (is_integer($value) && $value >= 0);
     }
 
-    public function setCreated($created) {
+    public function ___setCreated($created) {
         if (is_string($created)) {
             $created = strtotime($created);
         }
@@ -157,7 +157,7 @@ class Apikey extends WireData {
         return $this->created;
     }
 
-    public function setCreatedUser($createdUser) {
+    public function ___setCreatedUser($createdUser) {
         if (!$createdUser instanceof User || !$createdUser->id) {
             $createdUser = wire('users')->get($createdUser);
         }
@@ -191,7 +191,7 @@ class Apikey extends WireData {
         return $createdUserString;
     }
 
-    public function setModified($modified) {
+    public function ___setModified($modified) {
         if (is_string($modified)) {
             $modified = strtotime($modified);
         }
@@ -215,7 +215,7 @@ class Apikey extends WireData {
         return $this->modified;
     }
 
-    public function setModifiedUser($modifiedUser) {
+    public function ___setModifiedUser($modifiedUser) {
         if (!$modifiedUser instanceof User || !$modifiedUser->id) {
             $modifiedUser = wire('users')->get($modifiedUser);
         }
@@ -249,7 +249,7 @@ class Apikey extends WireData {
         return $modifiedUserString;
     }
 
-    public function setKey($key) {
+    public function ___setKey($key) {
         if (!$this->isKeyValid($key)) {
             throw new ApikeyException('No valid key');
         }
@@ -268,7 +268,7 @@ class Apikey extends WireData {
         return is_string($value) && strlen($value) > 5;
     }
 
-    public function regenerateKey($length = 21) {
+    public function ___regenerateKey($length = 21) {
         try{
             $keyFound = false;
             while (!$keyFound) {
@@ -303,7 +303,7 @@ class Apikey extends WireData {
         return $this->key;
     }
 
-    public function setVersion($version) {
+    public function ___setVersion($version) {
         if (!$this->isVersionValid($version)) {
             throw new ApikeyException('No valid version');
         }
@@ -326,7 +326,7 @@ class Apikey extends WireData {
         return $this->version;
     }
 
-    public function setDescription($description) {
+    public function ___setDescription($description) {
         if (!$this->isDescriptionValid($description)) {
             throw new ApikeyException('No valid description');
         }
@@ -349,7 +349,7 @@ class Apikey extends WireData {
         return $this->description;
     }
 
-    public function setAccessableUntil($accessableUntil) {
+    public function ___setAccessableUntil($accessableUntil) {
         if (is_string($accessableUntil)) {
             $accessableUntil = strtotime($accessableUntil);
         }
@@ -377,11 +377,11 @@ class Apikey extends WireData {
         return $value === null || (is_integer($value) && $value > 0);
     }
 
-    public function getAccessableUntil() {
+    public function ___getAccessableUntil() {
         return $this->accessableUntil;
     }
 
-    public function delete() {
+    public function ___delete() {
         if ($this->isNew()) {
             return true;
         }
@@ -402,7 +402,7 @@ class Apikey extends WireData {
         return true;
     }
 
-    public function save() {
+    public function ___save() {
         if (!$this->isSaveable()) {
             return false;
         }

@@ -104,18 +104,18 @@ class Apptoken extends WireData {
         }
     }
 
-    public function isSaveable() {
+    public function ___isSaveable() {
         if (!$this->isValid()) {
             return false;
         }
         return true;
     }
 
-    public function isValid() {
+    public function ___isValid() {
         return $this->isApplicationIDValid() && $this->isIDValid() && $this->isCreatedValid() && $this->isCreatedUserValid() && $this->isModifiedValid() && $this->isModifiedUserValid() && $this->isTokenIDValid() && $this->isUserValid() && $this->isLastUsedValid() && $this->isExpirationTimeValid() && $this->isNotBeforeTimeValid();
     }
 
-    public function isAccessable() {
+    public function ___isAccessable() {
         return $this->isValid() && $this->getNotBeforeTime() <= time() && ($this->getExpirationTime() === null || $this->getExpirationTime() > time());
     }
 
@@ -198,7 +198,7 @@ class Apptoken extends WireData {
         return is_integer($value) && $value >= 0;
     }
 
-    protected function getApplication() {
+    protected function ___getApplication() {
         $db        = wire('database');
         $query     = $db->prepare('SELECT * FROM ' . AppApi::tableApplications . ' WHERE `id`=:id;');
         $query->closeCursor();
@@ -221,7 +221,7 @@ class Apptoken extends WireData {
         return $value === null || (is_integer($value) && $value >= 0);
     }
 
-    public function setCreated($created) {
+    public function ___setCreated($created) {
         if (is_string($created)) {
             $created = strtotime($created);
         }
@@ -245,7 +245,7 @@ class Apptoken extends WireData {
         return $this->created;
     }
 
-    public function setCreatedUser($createdUser) {
+    public function ___setCreatedUser($createdUser) {
         if (!$createdUser instanceof User || !$createdUser->id) {
             $createdUser = wire('users')->get($createdUser);
         }
@@ -279,7 +279,7 @@ class Apptoken extends WireData {
         return $createdUserString;
     }
 
-    public function setModified($modified) {
+    public function ___setModified($modified) {
         if (is_string($modified)) {
             $modified = strtotime($modified);
         }
@@ -303,7 +303,7 @@ class Apptoken extends WireData {
         return $this->modified;
     }
 
-    public function setModifiedUser($modifiedUser) {
+    public function ___setModifiedUser($modifiedUser) {
         if (!$modifiedUser instanceof User || !$modifiedUser->id) {
             $modifiedUser = wire('users')->get($modifiedUser);
         }
@@ -337,7 +337,7 @@ class Apptoken extends WireData {
         return $modifiedUserString;
     }
 
-    public function setTokenID($tokenID) {
+    public function ___setTokenID($tokenID) {
         if (!$this->isTokenIDValid($tokenID)) {
             throw new ApptokenException('No valid tokenID');
         }
@@ -392,7 +392,7 @@ class Apptoken extends WireData {
         return $this->tokenID;
     }
 
-    public function setUser($user) {
+    public function ___setUser($user) {
         if (!$user instanceof User || !$user->id) {
             $user = wire('users')->get($user);
         }
@@ -426,7 +426,7 @@ class Apptoken extends WireData {
         return $userString;
     }
 
-    public function setLastUsed($lastUsed) {
+    public function ___setLastUsed($lastUsed) {
         if (is_string($lastUsed)) {
             $lastUsed = strtotime($lastUsed);
         }
@@ -458,7 +458,7 @@ class Apptoken extends WireData {
         return $this->lastUsed;
     }
 
-    public function setExpirationTime($expirationTime) {
+    public function ___setExpirationTime($expirationTime) {
         if (is_string($expirationTime)) {
             $expirationTime = strtotime($expirationTime);
         }
@@ -490,7 +490,7 @@ class Apptoken extends WireData {
         return $this->expirationTime;
     }
 
-    public function setNotBeforeTime($notBeforeTime) {
+    public function ___setNotBeforeTime($notBeforeTime) {
         if (is_string($notBeforeTime)) {
             $notBeforeTime = strtotime($notBeforeTime);
         }
@@ -522,7 +522,7 @@ class Apptoken extends WireData {
         return $this->notBeforeTime;
     }
 
-    public function delete() {
+    public function ___delete() {
         if ($this->isNew()) {
             return true;
         }
@@ -543,7 +543,7 @@ class Apptoken extends WireData {
         return true;
     }
 
-    public function save() {
+    public function ___save() {
         if (!$this->isSaveable()) {
             return false;
         }

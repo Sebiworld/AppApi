@@ -514,7 +514,7 @@ class AppApi extends Process implements Module {
         return !!$matches;
     }
 
-    public function handleApiRequest(HookEvent $event) {
+    public function ___handleApiRequest(HookEvent $event) {
         if ($this->checkIfApiRequest()) {
             $this->apiCall = true;
             Auth::getInstance()->initApikey();
@@ -524,11 +524,11 @@ class AppApi extends Process implements Module {
         }
     }
 
-    public function isApiCall() {
+    public function ___isApiCall() {
         return !!$this->apiCall;
     }
 
-    public function getCurrentApplication() {
+    public function ___getCurrentApplication() {
         return $this->apiCall ? Auth::getInstance()->getApplication() : false;
     }
 
