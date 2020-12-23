@@ -37,37 +37,37 @@ namespace ProcessWire;
     }
 
     if (wire('user')->hasPermission('logs-view') && (
-			isset($existingLogs['appapi-exception']['modified']) ||
-			isset($existingLogs['appapi-access']['modified'])
+			isset($existingLogs[AppApi::logExceptions]['modified']) ||
+			isset($existingLogs[AppApi::logAccess]['modified'])
 		)) {
         ?>
 				<dl class="uk-description-list uk-description-list-divider" style="margin-bottom: 50px;">
 					<h2><small><?= $this->_('Logs: '); ?></small></h2>
 					<?php
-            if (isset($existingLogs['appapi-access']['modified'])) {
+            if (isset($existingLogs[AppApi::logAccess]['modified'])) {
               ?>
 								<dt>
-									<a style="display: flex; align-items: center; text-decoration: none;" class="label" href="<?= wire('config')->urls->admin ?>setup/logs/view/appapi-access/">
+									<a style="display: flex; align-items: center; text-decoration: none;" class="label" href="<?= wire('config')->urls->admin ?>setup/logs/view/<?= AppApi::logAccess; ?>/">
 										<i style="margin-right: 10px; text-decoration: none;" class="fa fa-2x fa-fw fa-code ui-priority-secondary"></i>
 										<?= $this->_('Access-Log'); ?>
 									</a>
 								</dt>
 								<dd style="margin-top: 12px;">
-									<i><?= $this->_('Last entry: '); ?><?= wire('datetime')->date($this->_('Y-m-d @ H:i:s'), $existingLogs['appapi-access']['modified']); ?></i>
+									<i><?= $this->_('Last entry: '); ?><?= wire('datetime')->date($this->_('Y-m-d @ H:i:s'), $existingLogs[AppApi::logAccess]['modified']); ?></i>
 								</dd>
 							<?php
 						}
 
-            if (isset($existingLogs['appapi-exception']['modified'])) {
+            if (isset($existingLogs[AppApi::logExceptions]['modified'])) {
                 ?>
 								<dt>
-									<a style="display: flex; align-items: center; text-decoration: none;" class="label" href="<?= wire('config')->urls->admin ?>setup/logs/view/appapi-exception/">
+									<a style="display: flex; align-items: center; text-decoration: none;" class="label" href="<?= wire('config')->urls->admin ?>setup/logs/view/<?= AppApi::logExceptions; ?>/">
 										<i style="margin-right: 10px; text-decoration: none;" class="fa fa-2x fa-fw fa-code ui-priority-secondary"></i>
 										<?= $this->_('Exception-Log'); ?>
 									</a>
 								</dt>
 								<dd style="margin-top: 12px;">
-									<i><?= $this->_('Last entry: '); ?><?= wire('datetime')->date($this->_('Y-m-d @ H:i:s'), $existingLogs['appapi-exception']['modified']); ?></i>
+									<i><?= $this->_('Last entry: '); ?><?= wire('datetime')->date($this->_('Y-m-d @ H:i:s'), $existingLogs[AppApi::logExceptions]['modified']); ?></i>
 								</dd>
 							<?php
             } ?>

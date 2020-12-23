@@ -8,8 +8,11 @@ require_once __DIR__ . '/AppApiHelper.php';
 use \Firebase\JWT\JWT;
 
 class Auth extends WireData {
-    protected $apikey      = false;
+    protected $apikey = false;
     protected $application = false;
+
+    // Only needed for logging:
+    protected $tokenId = false;
 
     public function initApikey() {
         $headers = AppApiHelper::getRequestHeaders();
@@ -18,24 +21,24 @@ class Auth extends WireData {
             try {
                 // Get apikey-object:
                 $apikeyString = $this->sanitizer->text($headers['X-API-KEY']);
-                $db           = wire('database');
-                $query        = $db->prepare('SELECT * FROM ' . AppApi::tableApikeys . ' WHERE `key`=:key;');
+                $db = wire('database');
+                $query = $db->prepare('SELECT * FROM ' . AppApi::tableApikeys . ' WHERE `key`=:key;');
                 $query->closeCursor();
 
-                $query->execute(array(
+                $query->execute([
                     ':key' => $apikeyString
-                ));
-                $queueRaw          = $query->fetch(\PDO::FETCH_ASSOC);
-                $this->apikey      = new Apikey($queueRaw);
+                ]);
+                $queueRaw = $query->fetch(\PDO::FETCH_ASSOC);
+                $this->apikey = new Apikey($queueRaw);
 
                 // Get application from apikey:
-                $query     = $db->prepare('SELECT * FROM ' . AppApi::tableApplications . ' WHERE `id`=:id;');
+                $query = $db->prepare('SELECT * FROM ' . AppApi::tableApplications . ' WHERE `id`=:id;');
                 $query->closeCursor();
 
-                $query->execute(array(
+                $query->execute([
                     ':id' => $this->apikey->getApplicationID()
-                ));
-                $queueRaw          = $query->fetch(\PDO::FETCH_ASSOC);
+                ]);
+                $queueRaw = $query->fetch(\PDO::FETCH_ASSOC);
                 $this->application = new Application($queueRaw);
             } catch (\Throwable $e) {
             }
@@ -50,7 +53,21 @@ class Auth extends WireData {
         return $this->apikey instanceof Apikey && $this->apikey->isAccessable() && $this->application instanceof Application;
     }
 
-    protected function createSingleJWTToken($args = array()) {
+    public function getApikeyLog() {
+        if (!$this->isApikeyValid()) {
+            return 'Apikey-ID: NONE';
+        }
+        return 'Apikey-ID: ' . $this->apikey->getID();
+    }
+
+    public function getApplicationLog() {
+        if (!$this->application) {
+            return 'Application-ID: NONE';
+        }
+        return 'Application-ID: ' . $this->application->getID();
+    }
+
+    protected function createSingleJWTToken($args = []) {
         if ($this->wire('user')->isGuest()) {
             throw new AuthException('user is not logged in', 401);
         }
@@ -59,10 +76,10 @@ class Auth extends WireData {
         $apptoken->setUser($this->wire('user'));
         $apptoken->setExpirationTime(time() + $this->application->getExpiresIn());
 
-        $tokenArgs = array();
+        $tokenArgs = [];
         session_regenerate_id(true);
         $sessionName = session_name();
-        $sid         = $this->wire('input')->cookie($sessionName);
+        $sid = $this->wire('input')->cookie($sessionName);
         if (is_string($sid) && strlen($sid) > 0) {
             $tokenArgs['sid'] = $sid;
         }
@@ -82,24 +99,24 @@ class Auth extends WireData {
     }
 
     public function doLogin($data) {
-        $username   = false;
-        $pass       = false;
+        $username = false;
+        $pass = false;
         if (!empty($_SERVER['PHP_AUTH_USER']) && !empty($_SERVER['PHP_AUTH_PW'])) {
             // Authentication via Authentication-Header:
             $username = $_SERVER['PHP_AUTH_USER'];
-            $pass     = $_SERVER['PHP_AUTH_PW'];
+            $pass = $_SERVER['PHP_AUTH_PW'];
         } elseif (!empty(wire('input')->post->pageName('username')) && !empty(wire('input')->post->string('password'))) {
             // Authentication via POST-Param:
             $username = wire('input')->post->pageName('username');
-            $pass     = wire('input')->post->string('password');
+            $pass = wire('input')->post->string('password');
         } else {
             header('WWW-Authenticate: Basic realm="Access denied"');
-            throw new AuthException('Login not successful', 401, array(
+            throw new AuthException('Login not successful', 401, [
                 'username' => $this->wire('input')->post->username,
-                'pass'     => $this->wire('input')->post->password,
-                'post'     => $_POST,
-                'test'     => file_get_contents('php://input')
-            ));
+                'pass' => $this->wire('input')->post->password,
+                'post' => $_POST,
+                'test' => file_get_contents('php://input')
+            ]);
         }
 
         $user = $this->wire('users')->get('name=' . $username);
@@ -112,29 +129,29 @@ class Auth extends WireData {
 
         if ($loggedIn) {
             if ($this->application->getAuthtype() === Application::authtypeSession) {
-                return array(
-                    'success'  => true,
+                return [
+                    'success' => true,
                     'username' => wire('user')->name
-                );
+                ];
             }
             if ($this->application->getAuthtype() === Application::authtypeSingleJWT) {
-                return array(
-                    'jwt'      => $this->createSingleJWTToken(),
+                return [
+                    'jwt' => $this->createSingleJWTToken(),
                     'username' => wire('user')->name
-                );
+                ];
             }
             if ($this->application->getAuthtype() === Application::authtypeDoubleJWT) {
-                return array(
+                return [
                     'refresh_token' => $this->createRefreshToken(),
-                    'username'      => wire('user')->name
-                );
+                    'username' => wire('user')->name
+                ];
             }
         }
 
         throw new AuthException('Login not successful', 401);
     }
 
-    protected function createRefreshToken($args = array()) {
+    protected function createRefreshToken($args = []) {
         if ($this->wire('user')->isGuest()) {
             throw new AuthException('user is not logged in', 401);
         }
@@ -163,12 +180,12 @@ class Auth extends WireData {
         }
 
         // throws exception if token is invalid:
-        $token  = JWT::decode($tokenString, $this->application->getTokenSecret(), array('HS256'));
+        $token = JWT::decode($tokenString, $this->application->getTokenSecret(), ['HS256']);
         if (!is_object($token)) {
             throw new AuthException('Invalid Token', 400);
         }
 
-        $user        = $this->wire('users')->get('id=' . $this->wire('sanitizer')->int($token->sub));
+        $user = $this->wire('users')->get('id=' . $this->wire('sanitizer')->int($token->sub));
         if (!($user instanceof User) || !$user->id) {
             throw new AuthException('Invalid User', 400);
         }
@@ -190,9 +207,9 @@ class Auth extends WireData {
             throw new RefreshtokenExpiredException();
         }
 
-        $accesstoken =  $this->createAccessTokenJWT($user, array(
+        $accesstoken = $this->createAccessTokenJWT($user, [
             'rtkn' => $refreshtokenFromDB->getTokenID()
-        ));
+        ]);
 
         $refreshtokenFromDB->setExpirationTime(time() + $this->application->getExpiresIn()); // Refreshtoken is valid for 30 days
         $refreshtokenFromDB->setLastUsed(time());
@@ -200,13 +217,13 @@ class Auth extends WireData {
             throw new InternalServererrorException('Token could not be saved', 500);
         }
 
-        return array(
-            'access_token'  => $accesstoken,
+        return [
+            'access_token' => $accesstoken,
             'refresh_token' => $refreshtokenFromDB->getJWT($this->application->getTokenSecret())
-        );
+        ];
     }
 
-    protected function createAccessTokenJWT(User $user, $args = array()) {
+    protected function createAccessTokenJWT(User $user, $args = []) {
         if ($user->isGuest()) {
             throw new AuthException('user is not logged in', 401);
         }
@@ -215,10 +232,10 @@ class Auth extends WireData {
         $apptoken->setUser($user);
         $apptoken->setExpirationTime(time() + $this->wire('config')->sessionExpireSeconds);
 
-        $tokenArgs = array();
+        $tokenArgs = [];
         session_regenerate_id(true);
         $sessionName = session_name();
-        $wiresWert   = $this->wire('input')->cookie($sessionName);
+        $wiresWert = $this->wire('input')->cookie($sessionName);
         if (is_string($wiresWert) && strlen($wiresWert) > 0) {
             $tokenArgs['sid'] = $wiresWert;
         }
@@ -248,7 +265,7 @@ class Auth extends WireData {
                 try {
                     $secret = $this->application->getAccesstokenSecret();
 
-                    $token  = JWT::decode($tokenString, $secret, array('HS256'));
+                    $token = JWT::decode($tokenString, $secret, ['HS256']);
                 } catch (\Firebase\JWT\ExpiredException $e) {
                     throw new AccesstokenExpiredException();
                 } catch (\Firebase\JWT\BeforeValidException $e) {
@@ -266,7 +283,7 @@ class Auth extends WireData {
                     throw new AccesstokenInvalidException();
                 }
 
-                $user        = wire('users')->get('id=' . $userid);
+                $user = wire('users')->get('id=' . $userid);
                 if (!($user instanceof User) || !$user->id) {
                     throw new AccesstokenInvalidException();
                 }
@@ -294,9 +311,9 @@ class Auth extends WireData {
         }
 
         $this->wire('session')->logout(wire('user'));
-        return array(
+        return [
             'success' => true
-        );
+        ];
     }
 
     /**
@@ -323,7 +340,7 @@ class Auth extends WireData {
                 if (!$singleJwt) {
                     $secret = $this->application->getAccesstokenSecret();
                 }
-                $token  = JWT::decode($tokenString, $secret, array('HS256'));
+                $token = JWT::decode($tokenString, $secret, ['HS256']);
             } catch (\Firebase\JWT\ExpiredException $e) {
                 throw new AccesstokenExpiredException();
             } catch (\Firebase\JWT\BeforeValidException $e) {
@@ -341,7 +358,7 @@ class Auth extends WireData {
                 throw new AccesstokenInvalidException();
             }
 
-            $user        = wire('users')->get('id=' . $userid);
+            $user = wire('users')->get('id=' . $userid);
             if (!($user instanceof User) || !$user->id) {
                 throw new AccesstokenInvalidException();
             }
@@ -369,6 +386,8 @@ class Auth extends WireData {
                 if (!$refreshtokenFromDB->save()) {
                     throw new InternalServererrorException('Token could not be saved', 500);
                 }
+
+                $this->tokenId = $refreshtokenFromDB->getID();
             }
 
             $sessionname = session_name();
@@ -390,6 +409,18 @@ class Auth extends WireData {
             $this->wire('users')->setCurrentUser($this->wire('users')->get('guest'));
             throw $e;
         }
+    }
+
+    /**
+     * Only used for logging the currently used token
+     *
+     * @return void
+     */
+    public function getTokenLog() {
+        if ($this->tokenId === false) {
+            return false;
+        }
+        return 'Token-ID: ' . $this->tokenId;
     }
 
     protected function getBearerToken() {
@@ -449,10 +480,10 @@ class Auth extends WireData {
     }
 
     public static function currentUser() {
-        return array(
-            'id'   => wire('user')->id,
+        return [
+            'id' => wire('user')->id,
             'name' => wire('user')->name,
             'loggedIn' => wire('user')->isLoggedIn()
-        );
+        ];
     }
 }

@@ -14,6 +14,9 @@ class AppApi extends Process implements Module {
     const tableApikeys = 'appapi_apikeys';
     const tableApptokens = 'appapi_apptokens';
 
+    const logExceptions = 'appapi-exceptions';
+    const logAccess = 'appapi-access';
+
     protected $apiCall = false;
 
     public function ___install() {

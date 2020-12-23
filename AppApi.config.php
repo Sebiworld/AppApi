@@ -17,5 +17,10 @@ $config = array(
 		'value'       => 'site/api/Routes.php',
 		'notes'       => 'default: site/api/Routes.php',
 		'description' => 'Location of the Routes.php file, where AppApi will find the $routes definition array. Base of path: ProcessWire-Root (Location of index.php)'
+	),
+	'access_logging' => array(
+		'type'        => 'checkbox',
+		'label'       => 'Activate Access-Logging',
+		'notes' => 'Will write access-data in "appapi-access.txt" log'
 	)
 );
