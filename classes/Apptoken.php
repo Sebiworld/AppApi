@@ -70,37 +70,37 @@ class Apptoken extends WireData {
         $this->id            = (int) $values['id'];
 
         if (isset($values['created'])) {
-            $this->setCreated($values['created']);
+            $this->___setCreated($values['created']);
         }
         if (isset($values['created_user_id'])) {
-            $this->setCreatedUser($values['created_user_id']);
+            $this->___setCreatedUser($values['created_user_id']);
         }
 
         if (isset($values['modified'])) {
-            $this->setModified($values['modified']);
+            $this->___setModified($values['modified']);
         }
         if (isset($values['modified_user_id'])) {
-            $this->setModifiedUser($values['modified_user_id']);
+            $this->___setModifiedUser($values['modified_user_id']);
         }
 
         if (isset($values['token_id'])) {
-            $this->setTokenID($values['token_id']);
+            $this->___setTokenID($values['token_id']);
         }
 
         if (isset($values['user_id'])) {
-            $this->setUser($values['user_id']);
+            $this->___setUser($values['user_id']);
         }
 
         if (isset($values['last_used'])) {
-            $this->setLastUsed($values['last_used']);
+            $this->___setLastUsed($values['last_used']);
         }
 
         if (isset($values['expiration_time'])) {
-            $this->setExpirationTime($values['expiration_time']);
+            $this->___setExpirationTime($values['expiration_time']);
         }
 
         if (isset($values['not_before_time'])) {
-            $this->setNotBeforeTime($values['not_before_time']);
+            $this->___setNotBeforeTime($values['not_before_time']);
         }
     }
 

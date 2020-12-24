@@ -42,6 +42,20 @@ class Auth extends WireData {
                 $this->application = new Application($queueRaw);
             } catch (\Throwable $e) {
             }
+        } else {
+            try {
+                // Get default application that handles requests without an apikey:
+                $db = wire('database');
+                $query = $db->prepare('SELECT * FROM ' . AppApi::tableApplications . ' WHERE `default_application`=true;');
+                $query->closeCursor();
+                $query->execute();
+                $queueRaw = $query->fetch(\PDO::FETCH_ASSOC);
+                if (!$queueRaw || !is_array($queueRaw)) {
+                    throw new \Exception('No default application set.');
+                }
+                $this->application = new Application($queueRaw);
+            } catch (\Throwable $e) {
+            }
         }
     }
 
@@ -50,11 +64,11 @@ class Auth extends WireData {
     }
 
     public function isApikeyValid() {
-        return $this->apikey instanceof Apikey && $this->apikey->isAccessable() && $this->application instanceof Application;
+        return ($this->apikey instanceof Apikey && $this->apikey->isAccessable() && $this->application instanceof Application) || ($this->apikey === false && $this->application instanceof Application);
     }
 
     public function getApikeyLog() {
-        if (!$this->isApikeyValid()) {
+        if (!$this->isApikeyValid() || !($this->apikey instanceof Apikey)) {
             return 'Apikey-ID: NONE';
         }
         return 'Apikey-ID: ' . $this->apikey->getID();

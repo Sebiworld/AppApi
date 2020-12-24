@@ -95,6 +95,7 @@ class Router extends WireData {
             $responseCode = 200;
             if(isset($return['responseCode']) && is_numeric($return['responseCode'])){
                 $responseCode = $return['responseCode'];
+                unset($return['responseCode']);
             }
             AppApi::sendResponse($responseCode, $return);
         } catch (\Throwable $e) {

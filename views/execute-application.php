@@ -132,6 +132,17 @@ $field->value       = $apikeysTableOutput;
 $field->columnWidth = 100;
 $form->add($field);
 
+// Default Application:
+$field = $this->modules->get('InputfieldCheckbox');
+$field->label = $this->_('Default Application');
+$field->attr('id+name', 'form_default_application');
+$field->columnWidth = '100%';
+$field->checked = $application->isDefaultApplication();
+$field->collapsed = Inputfield::collapsedBlank;
+$field->description = $this->_('CAUTION: If checked, requests with no apikey will be allowed and are linked with this application. In most cases it is absolutely recommended to leave this option disabled and work with apikeys. They make api-requests more secure and can be blocked later, if something goes wrong. But if you need to have an endpoint that allows requests without an apikey, feel free to activate this option.');
+$field->notes = $this->_('Only one application can be responsible for requests without an apikey. If you check this, all other applications will be unchecked automatically.');
+$form->add($field);
+
 // Expires In:
 $field              = $this->modules->get('InputfieldInteger');
 $field->label       = $this->_('Expires In');
@@ -211,6 +222,7 @@ if (wire('input')->post('action-save')) {
             $application->setModifiedUser(wire('user'));
             $application->setTitle($form->get('form_title')->attr('value'));
             $application->setDescription($form->get('form_description')->attr('value'));
+            $application->setDefaultApplication($form->get('form_default_application')->attr('value'));
             $application->setTokenSecret($form->get('form_token_secret')->attr('value'));
             $application->setAccesstokenSecret($form->get('form_accesstoken_secret')->attr('value'));
             $application->setExpiresIn($form->get('form_expires_in')->attr('value'));

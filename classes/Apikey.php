@@ -62,33 +62,33 @@ class Apikey extends WireData {
         $this->id            = (int) $values['id'];
 
         if (isset($values['created'])) {
-            $this->setCreated($values['created']);
+            $this->___setCreated($values['created']);
         }
         if (isset($values['created_user_id'])) {
-            $this->setCreatedUser($values['created_user_id']);
+            $this->___setCreatedUser($values['created_user_id']);
         }
 
         if (isset($values['modified'])) {
-            $this->setModified($values['modified']);
+            $this->___setModified($values['modified']);
         }
         if (isset($values['modified_user_id'])) {
-            $this->setModifiedUser($values['modified_user_id']);
+            $this->___setModifiedUser($values['modified_user_id']);
         }
 
         if (isset($values['key'])) {
-            $this->setKey($values['key']);
+            $this->___setKey($values['key']);
         }
 
         if (isset($values['version'])) {
-            $this->setVersion($values['version']);
+            $this->___setVersion($values['version']);
         }
 
         if (isset($values['description'])) {
-            $this->setDescription($values['description']);
+            $this->___setDescription($values['description']);
         }
 
         if (isset($values['accessable_until'])) {
-            $this->setAccessableUntil($values['accessable_until']);
+            $this->___setAccessableUntil($values['accessable_until']);
         }
     }
 
