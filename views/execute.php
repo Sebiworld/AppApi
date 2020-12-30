@@ -112,4 +112,13 @@ namespace ProcessWire;
 		</a>
 	</dt>
 	<dd style="margin-top: 12px;"><?= $this->_('Do you want to help with the development of the module? Then the Github repository is the right place to open issues or submit pull requests. Don\'t be shy! I am happy about every contribution!'); ?></dd>
+
+	<dt>
+		<a style="display: flex; align-items: center; text-decoration: none;" class="label" target="_blank" href="https://github.com/Sebiworld/AppApi/wiki
+">
+			<i style="margin-right: 10px;" class="fa fa-2x fa-fw fa-book ui-priority-secondary"></i>
+			<?= $this->_('AppApi-Wiki'); ?>
+		</a>
+	</dt>
+	<dd style="margin-top: 12px;"><?= $this->_('Official documentation'); ?></dd>
 </dl>
