@@ -20,6 +20,7 @@ $table->headerRow(array(
     $this->_('Auth-Type'),
     $this->_('Created'),
     $this->_('Created by'),
+    $this->_('Default'),
     $this->_('Actions')
 ));
 
@@ -30,6 +31,7 @@ if ($applications instanceof WireArray && $applications->count > 0) {
             Application::getAuthtypeLabel($app->getAuthtype()),
             wire('datetime')->date('', $app->getCreated()),
             $app->getCreatedUserLink(),
+            $app->isDefaultApplication() ? '<i class="fa fa-check-circle"></i>' : '<i class="fa fa-circle-thin"></i>',
             '<a href="' . $this->wire('page')->url . 'application/delete/' . $app->getID() . '"><i class="fa fa-trash"></i></a>',
         );
 
