@@ -57,6 +57,10 @@ The prerequisites are **PHP>=7.2.0** and a **ProcessWire version >=3.93.0**. How
 
 ## Changelog
 
+### Changes in 1.1.1 (2021-01-13)
+
+- Fixes critical issue "incorrect integer value" that happened in some db-configurations
+
 ### Changes in 1.1.0 (2021-01-03)
 
 - Improved AppApi-dashboard

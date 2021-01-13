@@ -57,7 +57,7 @@ class AppApi extends Process implements Module {
             `token_secret` varchar(100) NOT NULL,
             `expires_in` int(11) NOT NULL,
             `accesstoken_secret` varchar(100) NOT NULL,
-            `default_application` BOOLEAN NOT NULL DEFAULT false,
+            `default_application` int(1) NOT NULL DEFAULT 0,
             PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;';
 
@@ -137,7 +137,21 @@ class AppApi extends Process implements Module {
             // Add default_application column to application
             try{
                 $alterStatement = '
-                    ALTER TABLE `' . self::tableApplications . '` ADD COLUMN `default_application` BOOLEAN NOT NULL DEFAULT false;
+                    ALTER TABLE `' . self::tableApplications . '` ADD COLUMN `default_application` int(1) NOT NULL DEFAULT 0;
+                ';
+
+                $datenbank = wire('database');
+                $datenbank->exec($alterStatement);
+
+                $this->notices->add(new NoticeMessage('Successfully Altered Database-Scheme.'));
+            } catch (\Exception $e) {
+                $this->error('Error altering db-tables: ' . $e->getMessage());
+            }
+        }else if (version_compare($fromVersion, '1.1.0', '==') && version_compare($toVersion, '1.1.1', '==')) {
+            // Add default_application column to application
+            try{
+                $alterStatement = '
+                    ALTER TABLE `' . self::tableApplications . '` MODIFY COLUMN `default_application` int(1) NOT NULL DEFAULT 0;
                 ';
 
                 $datenbank = wire('database');

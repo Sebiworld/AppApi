@@ -367,7 +367,7 @@ class Application extends WireData {
     }
 
     public function ___setDefaultApplication($defaultApplication) {
-        $this->defaultApplication = !!$defaultApplication;
+        $this->defaultApplication = !!$defaultApplication && $defaultApplication !== 0;
         if ($this->initiated) {
             $this->modified     = time();
             $this->modifiedUser = $this->wire('user');
@@ -580,7 +580,7 @@ class Application extends WireData {
             ':modified'                => date('Y-m-d G:i:s', $this->getModified()),
             ':title'                   => $this->getTitle(),
             ':description'             => $this->getDescription(),
-            ':default_application'     => $this->isDefaultApplication(),
+            ':default_application'     => $this->isDefaultApplication() ? 1 : 0,
             ':token_secret'            => $this->getTokenSecret(),
             ':accesstoken_secret'      => $this->getAccesstokenSecret(),
             ':authtype'                => $this->getAuthtype(),
@@ -595,7 +595,7 @@ class Application extends WireData {
             try {
                 $updateStatement = 'UPDATE `' . AppApi::tableApplications . '` SET `created_user_id`=:created_user_id, `created`=:created, `modified_user_id`=:modified_user_id, `modified`=:modified, `title`=:title, `description`=:description, `default_application`=:default_application, `token_secret`=:token_secret, `accesstoken_secret`=:accesstoken_secret, `authtype`=:authtype, `expires_in`=:expires_in WHERE `id`=:id;';
                 if($this->isDefaultApplication()){
-                    $updateStatement .= 'UPDATE `' . AppApi::tableApplications . '` SET `default_application`=false WHERE `id`!=:id;';
+                    $updateStatement .= 'UPDATE `' . AppApi::tableApplications . '` SET `default_application`=0 WHERE `id`!=:id;';
                 }
 
                 $query = $db->prepare($updateStatement);
@@ -613,7 +613,7 @@ class Application extends WireData {
         try {
             $createStatement = 'INSERT INTO `' . AppApi::tableApplications . '` (`id`, `created_user_id`, `created`,`modified_user_id`, `modified`, `title`, `description`, `default_application`, `token_secret`, `accesstoken_secret`, `authtype`, `expires_in`) VALUES (NULL, :created_user_id, :created, :modified_user_id, :modified, :title, :description, :default_application, :token_secret, :accesstoken_secret, :authtype, :expires_in);';
             if($this->isDefaultApplication()){
-                $createStatement .= 'UPDATE `' . AppApi::tableApplications . '` SET `default_application`=false WHERE `id`!=:id;';
+                $createStatement .= 'UPDATE `' . AppApi::tableApplications . '` SET `default_application`=0 WHERE `id`!=:id;';
             }
 
             $query = $db->prepare($createStatement);
