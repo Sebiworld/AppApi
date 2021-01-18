@@ -93,10 +93,14 @@ class Router extends WireData {
             $return = Router::handle($routeInfo);
 
             $responseCode = 200;
-            if(isset($return['responseCode']) && is_numeric($return['responseCode'])){
+            if (is_array($return) && isset($return['responseCode']) && is_numeric($return['responseCode'])) {
                 $responseCode = $return['responseCode'];
                 unset($return['responseCode']);
+            } elseif (is_object($return) && isset($return->responseCode) && is_numeric($return->responseCode)) {
+                $responseCode = $return->responseCode;
+                unset($return->responseCode);
             }
+
             AppApi::sendResponse($responseCode, $return);
         } catch (\Throwable $e) {
             // Show Exception as json-response and exit.

@@ -57,6 +57,10 @@ The prerequisites are **PHP>=7.2.0** and a **ProcessWire version >=3.93.0**. How
 
 ## Changelog
 
+### Changes in 1.1.2 (2021-01-18)
+
+- Fixes an error that occurred when something other than an array was to be output as response
+
 ### Changes in 1.1.1 (2021-01-13)
 
 - Fixes critical issue "incorrect integer value" that happened in some db-configurations
