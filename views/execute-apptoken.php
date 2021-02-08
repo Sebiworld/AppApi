@@ -63,7 +63,7 @@ if ($apptoken->isNew()) {
 
     // Not Before Time:
     $field              = $this->modules->get('InputfieldDatetime');
-    $field->label       = $this->_('Date');
+    $field->label       = $this->_('Not Before Date');
     $field->attr('id+name', 'form_not_before_time');
     $field->columnWidth     = '50%';
     $field->required        = 0;
@@ -77,7 +77,7 @@ if ($apptoken->isNew()) {
 
     // Expiration Time:
     $field              = $this->modules->get('InputfieldDatetime');
-    $field->label       = $this->_('Date');
+    $field->label       = $this->_('Expiration Date');
     $field->attr('id+name', 'form_expiration_time');
     $field->columnWidth     = '50%';
     $field->required        = 0;

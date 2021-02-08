@@ -18,7 +18,7 @@ require_once __DIR__ . '/DefaultRoutes.php';
 require_once __DIR__ . '/Auth.php';
 
 class Router extends WireData {
-    public function go() {
+    public function ___go() {
         set_error_handler("ProcessWire\Router::handleError");
         set_exception_handler('ProcessWire\Router::handleException');
         register_shutdown_function('ProcessWire\Router::handleFatalError');
@@ -53,15 +53,15 @@ class Router extends WireData {
                         continue;
                     }
                     $method = $route[0];
-                    $url    = $route[1];
+                    $url = $route[1];
 
                     // add trailing slash if not present:
                     if (substr($url, -1) !== '/') {
                         $url .= '/';
                     }
 
-                    $class       = isset($route[2]) ? $route[2] : false;
-                    $function    = isset($route[3]) ? $route[3] : false;
+                    $class = isset($route[2]) ? $route[2] : false;
+                    $function = isset($route[3]) ? $route[3] : false;
                     $routeParams = isset($route[4]) ? $route[4] : [];
 
                     $r->addRoute($method, $url, [$class, $function, $routeParams]);
@@ -71,7 +71,7 @@ class Router extends WireData {
             $dispatcher = \FastRoute\simpleDispatcher($router);
 
             $httpMethod = $_SERVER['REQUEST_METHOD'];
-            $url        = $this->wire('sanitizer')->url(wire('input')->url);
+            $url = $this->wire('sanitizer')->url(wire('input')->url);
 
             // strip /api from request url:
             $endpoint = $this->wire('modules')->AppApi->endpoint;
@@ -80,7 +80,7 @@ class Router extends WireData {
             $endpoint = str_replace('/', "\/", $endpoint);
 
             $regex = '/\/' . $endpoint . '\/?/';
-            $url   = preg_replace($regex, '/', $url);
+            $url = preg_replace($regex, '/', $url);
 
             // add trailing slash if not present:
             if (substr($url, -1) !== '/') {
@@ -92,14 +92,23 @@ class Router extends WireData {
             // Routeinfo and Auth extracted. Router::handle will return the info that should be output
             $return = Router::handle($routeInfo);
 
-            AppApi::sendResponse(200, $return);
+            $responseCode = 200;
+            if (is_array($return) && isset($return['responseCode']) && is_numeric($return['responseCode'])) {
+                $responseCode = $return['responseCode'];
+                unset($return['responseCode']);
+            } elseif (is_object($return) && isset($return->responseCode) && is_numeric($return->responseCode)) {
+                $responseCode = $return->responseCode;
+                unset($return->responseCode);
+            }
+
+            AppApi::sendResponse($responseCode, $return);
         } catch (\Throwable $e) {
             // Show Exception as json-response and exit.
             self::handleException($e);
         }
     }
 
-    public function handle($routeInfo) {
+    public function ___handle($routeInfo) {
         if (!isset($routeInfo[0]) || $routeInfo[0] !== \FastRoute\Dispatcher::FOUND) {
             // Handle FastRoute-Errors:
             switch ($routeInfo[0]) {
@@ -113,11 +122,11 @@ class Router extends WireData {
         if (!isset($routeInfo[1]) || !is_array($routeInfo[1])) {
             throw new AppApiException('Routehandler not set', 500);
         }
-        $handler         = $routeInfo[1];
+        $handler = $routeInfo[1];
 
         if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
             if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])) {
-                $allowedMethods = array('GET', 'POST', 'PUT', 'DELETE');
+                $allowedMethods = ['GET', 'POST', 'PUT', 'DELETE'];
                 if (isset($handler[0]) && is_array($handler[0])) {
                     $allowedMethods = $handler[0];
                 }
@@ -138,9 +147,9 @@ class Router extends WireData {
         if (!isset($handler[0]) || !is_string($handler[0]) || !isset($handler[1]) || !is_string($handler[1]) || !isset($handler[2])) {
             throw new AppApiException('Routehandler not valid', 500);
         }
-        $class           = $handler[0];
-        $methodName      = strtoupper($handler[1]);
-        $routeParams     = $handler[2];
+        $class = $handler[0];
+        $methodName = strtoupper($handler[1]);
+        $routeParams = $handler[2];
 
         if (!isset($routeInfo[2]) || !is_array($routeInfo[2])) {
             throw new AppApiException('Routevars not set', 500);
@@ -167,24 +176,35 @@ class Router extends WireData {
         }
 
         // Check if the current user has one of the required roles for this route:
-        if(isset($routeParams['roles']) && (is_array($routeParams['roles']) || $routeParams['roles'] instanceof WireArray)){
+        if (isset($routeParams['roles']) && (is_array($routeParams['roles']) || $routeParams['roles'] instanceof WireArray)) {
             $roleFound = false;
-            foreach($routeParams['roles'] as $role){
-                if($role instanceof Role && $this->wire('user')->hasRole($role->id)){
+            foreach ($routeParams['roles'] as $role) {
+                if ($role instanceof Role && $this->wire('user')->hasRole($role->id)) {
                     $roleFound = true;
                     break;
-                }else if((is_string($role) || is_integer($role)) && $this->wire('user')->hasRole($role)){
+                } elseif ((is_string($role) || is_integer($role)) && $this->wire('user')->hasRole($role)) {
                     $roleFound = true;
                     break;
                 }
             }
-            if(!$roleFound){
+            if (!$roleFound) {
                 throw new AppApiException('User does not have one of the required roles for this route.', 403);
             }
         }
 
         // If the code runs until here, the request is authenticated
         // or the request does not need authentication
+
+        if (@$this->wire('modules')->getConfig('AppApi', 'access_logging')) {
+            $logdata = [];
+            $logdata[] = Auth::getInstance()->getApplicationLog();
+            $logdata[] = Auth::getInstance()->getApikeyLog();
+            if (Auth::getInstance()->getTokenLog()) {
+                $logdata[] = Auth::getInstance()->getTokenLog();
+            }
+
+            wire('log')->save(AppApi::logAccess, 'Successful request with: ' . implode(', ', $logdata));
+        }
 
         // merge url $vars with params
         $vars = array_merge((array) Router::params(), (array) $vars);
@@ -198,7 +218,7 @@ class Router extends WireData {
         return $data;
     }
 
-    public function params($index=null, $default = null, $source = null) {
+    public function ___params($index = null, $default = null, $source = null) {
         // check for php://input and merge with $_REQUEST
         if ((isset($_SERVER['CONTENT_TYPE']) &&
             stripos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) ||
@@ -215,7 +235,7 @@ class Router extends WireData {
         return Router::fetch_from_array($src, $index, $default);
     }
 
-    public function fetch_from_array(&$array, $index=null, $default = null) {
+    public function ___fetch_from_array(&$array, $index = null, $default = null) {
         if (is_null($index)) {
             return $array;
         } elseif (isset($array[$index])) {
@@ -255,8 +275,9 @@ class Router extends WireData {
 
     protected function flattenGroup(&$putInArray, $group, $prefix = '') {
         foreach ($group as $key => $item) {
-            if (is_array($item[0])) {
-                self::flattenGroup($putInArray, $item, '/' . $key);
+            // Check first item in item array to see if it is also an array
+            if (is_array(reset($item))) {
+                self::flattenGroup($putInArray, $item, $prefix . '/' . $key);
             } else {
                 $item[1] = $prefix . '/' . $item[1];
                 array_push($putInArray, $item);
@@ -265,13 +286,13 @@ class Router extends WireData {
     }
 
     public static function handleError($errNo, $errStr, $errFile, $errLine) {
-        $return             = new \StdClass();
-        $return->error      = 'Internal Server Error';
-        $return->devmessage = array(
-            'message'  => $errStr,
+        $return = new \StdClass();
+        $return->error = 'Internal Server Error';
+        $return->devmessage = [
+            'message' => $errStr,
             'location' => $errFile,
-            'line'     => $errLine
-        );
+            'line' => $errLine
+        ];
         self::displayOrLogError($return, 500);
     }
 
@@ -284,7 +305,7 @@ class Router extends WireData {
     }
 
     public static function handleException(\Throwable $e) {
-        $return        = new \StdClass();
+        $return = new \StdClass();
         if ($e instanceof AppApiException) {
             foreach ($e->getAdditionals() as $key => $value) {
                 $return->{$key} = $value;
@@ -293,13 +314,13 @@ class Router extends WireData {
 
         $return->error = $e->getMessage();
 
-        $return->devmessage = array(
-            'class'    => get_class($e),
-            'code'     => $e->getCode(),
-            'message'  => $e->getMessage(),
+        $return->devmessage = [
+            'class' => get_class($e),
+            'code' => $e->getCode(),
+            'message' => $e->getMessage(),
             'location' => $e->getFile(),
-            'line'     => $e->getLine()
-        );
+            'line' => $e->getLine()
+        ];
 
         $responseCode = 404;
         if ($e->getCode()) {
@@ -331,14 +352,14 @@ class Router extends WireData {
             } elseif (is_string($error)) {
                 $message = $error;
             }
-            wire('log')->save('appapi-exception', $message);
+            wire('log')->save(AppApi::logExceptions, $message);
         }
         self::displayError($error, $status);
     }
 
     public static function displayError($error, $status = 500) {
         if (is_string($error)) {
-            $return        = new \StdClass();
+            $return = new \StdClass();
             $return->error = (string) $error;
             AppApi::sendResponse($status, $return);
         }

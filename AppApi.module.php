@@ -14,6 +14,9 @@ class AppApi extends Process implements Module {
     const tableApikeys = 'appapi_apikeys';
     const tableApptokens = 'appapi_apptokens';
 
+    const logExceptions = 'appapi-exceptions';
+    const logAccess = 'appapi-access';
+
     protected $apiCall = false;
 
     public function ___install() {
@@ -54,6 +57,7 @@ class AppApi extends Process implements Module {
             `token_secret` varchar(100) NOT NULL,
             `expires_in` int(11) NOT NULL,
             `accesstoken_secret` varchar(100) NOT NULL,
+            `default_application` int(1) NOT NULL DEFAULT 0,
             PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;';
 
@@ -68,10 +72,7 @@ class AppApi extends Process implements Module {
             `version` varchar(100) NOT NULL,
             `description` TEXT,
             `accessable_until` datetime,
-            PRIMARY KEY (`id`),
-            FOREIGN KEY (`application_id`)
-            REFERENCES `' . self::tableApplications . '`(`id`)
-            ON DELETE CASCADE
+            PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;';
 
         $statement .= 'CREATE TABLE IF NOT EXISTS `' . self::tableApptokens . '` (
@@ -86,10 +87,7 @@ class AppApi extends Process implements Module {
             `last_used` datetime,
             `expiration_time` datetime,
             `not_before_time` datetime,
-            PRIMARY KEY (`id`),
-            FOREIGN KEY (`application_id`)
-            REFERENCES `' . self::tableApplications . '`(`id`)
-            ON DELETE CASCADE
+            PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;';
         try {
             $database = wire('database');
@@ -102,22 +100,27 @@ class AppApi extends Process implements Module {
 
     public function ___uninstall() {
         parent::___uninstall();
-        $deleteStatement = '
-            DROP TABLE IF EXISTS `' . self::tableApikeys . '`;
-            DROP TABLE IF EXISTS `' . self::tableApplications . '`;
-            DROP TABLE IF EXISTS `' . self::tableApptokens . '`;
-            ';
 
-        $datenbank = wire('database');
-        $datenbank->exec($deleteStatement);
+        try{
+            $deleteStatement = '
+                DROP TABLE IF EXISTS `' . self::tableApikeys . '`;
+                DROP TABLE IF EXISTS `' . self::tableApptokens . '`;
+                DROP TABLE IF EXISTS `' . self::tableApplications . '`;
+                ';
 
-        $this->notices->add(new NoticeMessage('Removed db-tables.'));
+            $datenbank = wire('database');
+            $datenbank->exec($deleteStatement);
 
-        $this->notices->add(new NoticeMessage("$this->className: You need to remove the site/api folder yourself if you're not planning on using it anymore"));
+            $this->notices->add(new NoticeMessage('Removed db-tables.'));
+
+            $this->notices->add(new NoticeMessage("$this->className: You need to remove the site/api folder yourself if you're not planning on using it anymore"));
+        } catch (\Exception $e) {
+            $this->error('Error dropping db-tables: ' . $e->getMessage());
+        }
     }
 
     public function ___upgrade($fromVersion, $toVersion) {
-        if (version_compare($fromVersion, '0.0.6') === -1) {
+        if (version_compare($fromVersion, '1.0.0', '<') ) {
             $this->createDBTables();
 
             if ($this->authMethod === 'jwt') {
@@ -130,6 +133,34 @@ class AppApi extends Process implements Module {
                 $application->setTitle('My Rest-Application');
                 $application->setDescription('Application was automatically generated with information from an older module-version.');
             }
+        }else if (version_compare($fromVersion, '1.1.0', '<')) {
+            // Add default_application column to application
+            try{
+                $alterStatement = '
+                    ALTER TABLE `' . self::tableApplications . '` ADD COLUMN `default_application` int(1) NOT NULL DEFAULT 0;
+                ';
+
+                $datenbank = wire('database');
+                $datenbank->exec($alterStatement);
+
+                $this->notices->add(new NoticeMessage('Successfully Altered Database-Scheme.'));
+            } catch (\Exception $e) {
+                $this->error('Error altering db-tables: ' . $e->getMessage());
+            }
+        }else if (version_compare($fromVersion, '1.1.0', '==') && version_compare($toVersion, '1.1.1', '==')) {
+            // Add default_application column to application
+            try{
+                $alterStatement = '
+                    ALTER TABLE `' . self::tableApplications . '` MODIFY COLUMN `default_application` int(1) NOT NULL DEFAULT 0;
+                ';
+
+                $datenbank = wire('database');
+                $datenbank->exec($alterStatement);
+
+                $this->notices->add(new NoticeMessage('Successfully Altered Database-Scheme.'));
+            } catch (\Exception $e) {
+                $this->error('Error altering db-tables: ' . $e->getMessage());
+            }
         }
     }
 
@@ -141,7 +172,10 @@ class AppApi extends Process implements Module {
         );
 
         return [
-            'module' => $this
+            'module' => $this,
+            'existingLogs' => $this->wire('log')->getLogs(),
+            'accesslogsActivated' => @$this->wire('modules')->getConfig('AppApi', 'access_logging'),
+            'configUrl' => $this->wire('config')->urls->admin . 'module/edit?name=AppApi'
         ];
     }
 
@@ -411,6 +445,10 @@ class AppApi extends Process implements Module {
                 ':id' => $applicationID
             ]);
             $queueRaw = $query->fetch(\PDO::FETCH_ASSOC);
+
+            if(!$queueRaw){
+                throw new Wire404Exception();
+            }
             $application = new Application($queueRaw);
         }
 
@@ -510,7 +548,7 @@ class AppApi extends Process implements Module {
         return !!$matches;
     }
 
-    public function handleApiRequest(HookEvent $event) {
+    public function ___handleApiRequest(HookEvent $event) {
         if ($this->checkIfApiRequest()) {
             $this->apiCall = true;
             Auth::getInstance()->initApikey();
@@ -520,11 +558,11 @@ class AppApi extends Process implements Module {
         }
     }
 
-    public function isApiCall() {
+    public function ___isApiCall() {
         return !!$this->apiCall;
     }
 
-    public function getCurrentApplication() {
+    public function ___getCurrentApplication() {
         return $this->apiCall ? Auth::getInstance()->getApplication() : false;
     }
 
@@ -614,7 +652,7 @@ class AppApi extends Process implements Module {
      */
     public static function sendResponse(int $status = 200, $body = '', $content_type = false) {
         // Set status header:
-        
+
         if (function_exists('http_response_code')) {
             http_response_code($status);
         } else {
