@@ -71,7 +71,7 @@ class Router extends WireData {
             $dispatcher = \FastRoute\simpleDispatcher($router);
 
             $httpMethod = $_SERVER['REQUEST_METHOD'];
-            $url = $this->wire('sanitizer')->url(wire('input')->url);
+            $url = $this->wire('sanitizer')->url($_SERVER['REQUEST_URI']);
 
             // strip /api from request url:
             $endpoint = $this->wire('modules')->AppApi->endpoint;
