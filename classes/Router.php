@@ -73,6 +73,9 @@ class Router extends WireData {
             $httpMethod = $_SERVER['REQUEST_METHOD'];
             $url = $this->wire('sanitizer')->url($_SERVER['REQUEST_URI']);
 
+            //strip query parameters from url
+            $url = preg_replace('/[?].+$/i', '', $url);
+
             // strip /api from request url:
             $endpoint = $this->wire('modules')->AppApi->endpoint;
 
