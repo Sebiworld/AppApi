@@ -71,7 +71,7 @@ class Router extends WireData {
             $dispatcher = \FastRoute\simpleDispatcher($router);
 
             $httpMethod = $_SERVER['REQUEST_METHOD'];
-            $url = $this->wire('sanitizer')->url(wire('input')->url);
+            $url = $this->wire('sanitizer')->url($_SERVER['REQUEST_URI']);
 
             // strip /api from request url:
             $endpoint = $this->wire('modules')->AppApi->endpoint;
@@ -286,14 +286,16 @@ class Router extends WireData {
     }
 
     public static function handleError($errNo, $errStr, $errFile, $errLine) {
-        $return = new \StdClass();
-        $return->error = 'Internal Server Error';
-        $return->devmessage = [
-            'message' => $errStr,
-            'location' => $errFile,
-            'line' => $errLine
-        ];
-        self::displayOrLogError($return, 500);
+        if (error_reporting()) {
+            $return = new \StdClass();
+            $return->error = 'Internal Server Error';
+            $return->devmessage = [
+                'message' => $errStr,
+                'location' => $errFile,
+                'line' => $errLine
+            ];
+            self::displayOrLogError($return, 500);
+        }
     }
 
     public static function handleFatalError() {

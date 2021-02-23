@@ -57,6 +57,12 @@ The prerequisites are **PHP>=7.2.0** and a **ProcessWire version >=3.93.0**. How
 
 ## Changelog
 
+### Changes in 1.1.3 (2021-02-09)
+
+- Fixes an issue with the constructor signature of the modules AppApiException class (by @twinklebob, thanks for PR 🤗)
+- Fixes an issue with the error-handler, which made it mistakenly catch errors that should have been ignored via @ operator (Thanks to @eelke)
+- Switched from `wire('input')->url` to `$_SERVER['REQUEST_URI']` for reading the base-url, because ProcessWire's internal function transferred everything to lowercase (Thanks to @pauldro)
+
 ### Changes in 1.1.2 (2021-01-18)
 
 - Fixes an error that occurred when something other than an array was to be output as response

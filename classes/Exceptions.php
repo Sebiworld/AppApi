@@ -2,10 +2,12 @@
 
 namespace ProcessWire;
 
+use Throwable;
+
 class AppApiException extends WireException {
     private $additionals = array();
 
-    public function __construct(string $message, int $code = 500, array $additionals = array(), \Exception $previous = null) {
+    public function __construct(string $message, int $code = 500, array $additionals = array(), Throwable $previous = null) {
         $this->additionals = array_merge($this->additionals, $additionals);
         parent::__construct($message, $code, $previous);
     }
@@ -20,7 +22,7 @@ class AppApiException extends WireException {
 }
 
 class BadRequestException extends AppApiException {
-    public function __construct(string $message = '', int $code = 400, array $additionals = [], \Exception $previous = null) {
+    public function __construct(string $message = '', int $code = 400, array $additionals = [], Throwable $previous = null) {
         if (strlen($message) < 1) {
             $message = __('Bad Request.');
         }
@@ -31,7 +33,7 @@ class BadRequestException extends AppApiException {
     }
 }
 class UnauthorizedException extends AppApiException {
-    public function __construct(string $message = '', int $code = 401, array $additionals = [], \Exception $previous = null) {
+    public function __construct(string $message = '', int $code = 401, array $additionals = [], Throwable $previous = null) {
         if (strlen($message) < 1) {
             $message = __('Unauthorized.');
         }
@@ -42,7 +44,7 @@ class UnauthorizedException extends AppApiException {
     }
 }
 class NotFoundException extends AppApiException {
-    public function __construct(string $message = '', int $code = 404, array $additionals = [], \Exception $previous = null) {
+    public function __construct(string $message = '', int $code = 404, array $additionals = [], Throwable $previous = null) {
         if (strlen($message) < 1) {
             $message = __('Not Found.');
         }
@@ -53,7 +55,7 @@ class NotFoundException extends AppApiException {
     }
 }
 class MethodNotAllowedException extends AppApiException {
-    public function __construct(string $message = '', int $code = 405, array $additionals = [], \Exception $previous = null) {
+    public function __construct(string $message = '', int $code = 405, array $additionals = [], Throwable $previous = null) {
         if (strlen($message) < 1) {
             $message = __('Method Not Allowed.');
         }
@@ -64,7 +66,7 @@ class MethodNotAllowedException extends AppApiException {
     }
 }
 class ForbiddenException extends AppApiException {
-    public function __construct(string $message = '', int $code = 403, array $additionals = [], \Exception $previous = null) {
+    public function __construct(string $message = '', int $code = 403, array $additionals = [], Throwable $previous = null) {
         if (strlen($message) < 1) {
             $message = __('Forbidden.');
         }
@@ -76,7 +78,7 @@ class ForbiddenException extends AppApiException {
 }
 
 class InternalServererrorException extends AppApiException {
-    public function __construct(string $message = '', int $code = 500, array $additionals = [], \Exception $previous = null) {
+    public function __construct(string $message = '', int $code = 500, array $additionals = [], Throwable $previous = null) {
         if (strlen($message) < 1) {
             $message = __('Internal server error.');
         }
@@ -88,7 +90,7 @@ class InternalServererrorException extends AppApiException {
 }
 
 class ApplicationException extends AppApiException {
-    public function __construct(string $message = '', int $code = 500, array $additionals = [], \Exception $previous = null) {
+    public function __construct(string $message = '', int $code = 500, array $additionals = [], Throwable $previous = null) {
         if (strlen($message) < 1) {
             $message = __('An application exception occurred.');
         }
@@ -100,7 +102,7 @@ class ApplicationException extends AppApiException {
 }
 
 class ApikeyException extends AppApiException {
-    public function __construct(string $message = '', int $code = 500, array $additionals = [], \Exception $previous = null) {
+    public function __construct(string $message = '', int $code = 500, array $additionals = [], Throwable $previous = null) {
         if (strlen($message) < 1) {
             $message = __('An apikey exception occurred.');
         }
@@ -112,7 +114,7 @@ class ApikeyException extends AppApiException {
 }
 
 class ApptokenException extends AppApiException {
-    public function __construct(string $message = '', int $code = 500, array $additionals = [], \Exception $previous = null) {
+    public function __construct(string $message = '', int $code = 500, array $additionals = [], Throwable $previous = null) {
         if (strlen($message) < 1) {
             $message = __('An apptoken exception occurred.');
         }
@@ -124,7 +126,7 @@ class ApptokenException extends AppApiException {
 }
 
 class AuthException extends AppApiException {
-    public function __construct(string $message = '', int $code = 401, array $additionals = [], \Exception $previous = null) {
+    public function __construct(string $message = '', int $code = 401, array $additionals = [], Throwable $previous = null) {
         if (strlen($message) < 1) {
             $message = __('An auth exception occurred.');
         }
@@ -136,7 +138,7 @@ class AuthException extends AppApiException {
 }
 
 class RefreshtokenInvalidException extends AuthException {
-    public function __construct(string $message = '', int $code = 400, array $additionals = [], \Exception $previous = null) {
+    public function __construct(string $message = '', int $code = 400, array $additionals = [], Throwable $previous = null) {
         if (strlen($message) < 1) {
             $message = __('Refresh Token invalid.');
         }
@@ -148,7 +150,7 @@ class RefreshtokenInvalidException extends AuthException {
 }
 
 class AccesstokenInvalidException extends AuthException {
-    public function __construct(string $message = '', int $code = 400, array $additionals = [], \Exception $previous = null) {
+    public function __construct(string $message = '', int $code = 400, array $additionals = [], Throwable $previous = null) {
         if (strlen($message) < 1) {
             $message = __('Access Token invalid.');
         }
@@ -160,7 +162,7 @@ class AccesstokenInvalidException extends AuthException {
 }
 
 class RefreshtokenNotBeforeException extends AuthException {
-    public function __construct(string $message = '', int $code = 400, array $additionals = [], \Exception $previous = null) {
+    public function __construct(string $message = '', int $code = 400, array $additionals = [], Throwable $previous = null) {
         if (strlen($message) < 1) {
             $message = __('Refresh Token is not yet valid. ');
             if(!empty($additionals['nbf'])){
@@ -176,7 +178,7 @@ class RefreshtokenNotBeforeException extends AuthException {
 }
 
 class AccesstokenNotBeforeException extends AuthException {
-    public function __construct(string $message = '', int $code = 400, array $additionals = [], \Exception $previous = null) {
+    public function __construct(string $message = '', int $code = 400, array $additionals = [], Throwable $previous = null) {
         if (strlen($message) < 1) {
             $message = __('Access Token is not yet valid.');
             if(!empty($additionals['nbf'])){
@@ -192,7 +194,7 @@ class AccesstokenNotBeforeException extends AuthException {
 }
 
 class RefreshtokenExpiredException extends AuthException {
-    public function __construct(string $message = '', int $code = 400, array $additionals = [], \Exception $previous = null) {
+    public function __construct(string $message = '', int $code = 400, array $additionals = [], Throwable $previous = null) {
         if (strlen($message) < 1) {
             $message = __('Refresh Token expired. Please log in to start a new session.');
         }
@@ -204,7 +206,7 @@ class RefreshtokenExpiredException extends AuthException {
 }
 
 class AccesstokenExpiredException extends AuthException {
-    public function __construct(string $message = '', int $code = 401, array $additionals = [], \Exception $previous = null) {
+    public function __construct(string $message = '', int $code = 401, array $additionals = [], Throwable $previous = null) {
         if (strlen($message) < 1) {
             $message = __('Access Token expired.');
         }
@@ -219,7 +221,7 @@ class AccesstokenExpiredException extends AuthException {
 }
 
 class TestException extends AppApiException {
-    public function __construct(string $message = '', int $code = 402, array $additionals = [], \Exception $previous = null) {
+    public function __construct(string $message = '', int $code = 402, array $additionals = [], Throwable $previous = null) {
         if (strlen($message) < 1) {
             $message = __('A test exception occurred.');
         }
