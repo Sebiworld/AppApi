@@ -71,23 +71,8 @@ class Router extends WireData {
             $dispatcher = \FastRoute\simpleDispatcher($router);
 
             $httpMethod = $_SERVER['REQUEST_METHOD'];
-            $url = $this->wire('sanitizer')->url($_SERVER['REQUEST_URI']);
 
-            // strip /api from request url:
-            $endpoint = $this->wire('modules')->AppApi->endpoint;
-
-            // support / in endpoint url:
-            $endpoint = str_replace('/', "\/", $endpoint);
-
-            $regex = '/\/' . $endpoint . '\/?/';
-            $url = preg_replace($regex, '/', $url);
-
-            // add trailing slash if not present:
-            if (substr($url, -1) !== '/') {
-                $url .= '/';
-            }
-
-            $routeInfo = $dispatcher->dispatch($httpMethod, $url);
+            $routeInfo = $dispatcher->dispatch($httpMethod, $this->getCurrentUrl());
 
             // Routeinfo and Auth extracted. Router::handle will return the info that should be output
             $return = Router::handle($routeInfo);
@@ -106,6 +91,33 @@ class Router extends WireData {
             // Show Exception as json-response and exit.
             self::handleException($e);
         }
+    }
+
+    /**
+     * Returns the current url (will be used by fastroute's dispatcher)
+     * @return string url
+     */
+    protected function ___getCurrentUrl(){
+        $url = $this->wire('sanitizer')->url($_SERVER['REQUEST_URI']);
+
+        //strip query parameters from url
+        $url = preg_replace('/[?].+$/i', '', $url);
+
+        // strip /api from request url:
+        $endpoint = $this->wire('modules')->AppApi->endpoint;
+
+        // support / in endpoint url:
+        $endpoint = str_replace('/', "\/", $endpoint);
+
+        $regex = '/\/' . $endpoint . '\/?/';
+        $url = preg_replace($regex, '/', $url);
+
+        // add trailing slash if not present:
+        if (substr($url, -1) !== '/') {
+            $url .= '/';
+        }
+
+        return $url;
     }
 
     public function ___handle($routeInfo) {

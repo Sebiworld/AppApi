@@ -57,6 +57,9 @@ The prerequisites are **PHP>=7.2.0** and a **ProcessWire version >=3.93.0**. How
 
 ## Changelog
 
+### Changes in 1.1.4 (2021-02-28)
+- Fixes an issue with routes including query-parameters (by @twinklebob, thanks for PR 🤗)
+
 ### Changes in 1.1.3 (2021-02-09)
 
 - Fixes an issue with the constructor signature of the modules AppApiException class (by @twinklebob, thanks for PR 🤗)
