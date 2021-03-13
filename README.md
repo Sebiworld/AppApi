@@ -57,6 +57,9 @@ The prerequisites are **PHP>=7.2.0** and a **ProcessWire version >=3.93.0**. How
 
 ## Changelog
 
+### Changes in 1.1.5 (2021-03-13)
+- Fixes a critical error that occured with ProcessWire versions >= 1.0.173 (thank you @csaggo.com and @psy for reporting it 🤗)
+
 ### Changes in 1.1.4 (2021-02-28)
 - Fixes an issue with routes including query-parameters (by @twinklebob, thanks for PR 🤗)
 
