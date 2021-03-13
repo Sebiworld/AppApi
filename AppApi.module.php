@@ -101,7 +101,7 @@ class AppApi extends Process implements Module {
     public function ___uninstall() {
         parent::___uninstall();
 
-        try{
+        try {
             $deleteStatement = '
                 DROP TABLE IF EXISTS `' . self::tableApikeys . '`;
                 DROP TABLE IF EXISTS `' . self::tableApptokens . '`;
@@ -120,7 +120,7 @@ class AppApi extends Process implements Module {
     }
 
     public function ___upgrade($fromVersion, $toVersion) {
-        if (version_compare($fromVersion, '1.0.0', '<') ) {
+        if (version_compare($fromVersion, '1.0.0', '<')) {
             $this->createDBTables();
 
             if ($this->authMethod === 'jwt') {
@@ -133,9 +133,9 @@ class AppApi extends Process implements Module {
                 $application->setTitle('My Rest-Application');
                 $application->setDescription('Application was automatically generated with information from an older module-version.');
             }
-        }else if (version_compare($fromVersion, '1.1.0', '<')) {
+        } elseif (version_compare($fromVersion, '1.1.0', '<')) {
             // Add default_application column to application
-            try{
+            try {
                 $alterStatement = '
                     ALTER TABLE `' . self::tableApplications . '` ADD COLUMN `default_application` int(1) NOT NULL DEFAULT 0;
                 ';
@@ -147,9 +147,9 @@ class AppApi extends Process implements Module {
             } catch (\Exception $e) {
                 $this->error('Error altering db-tables: ' . $e->getMessage());
             }
-        }else if (version_compare($fromVersion, '1.1.0', '==') && version_compare($toVersion, '1.1.1', '==')) {
+        } elseif (version_compare($fromVersion, '1.1.0', '==') && version_compare($toVersion, '1.1.1', '==')) {
             // Add default_application column to application
-            try{
+            try {
                 $alterStatement = '
                     ALTER TABLE `' . self::tableApplications . '` MODIFY COLUMN `default_application` int(1) NOT NULL DEFAULT 0;
                 ';
@@ -446,7 +446,7 @@ class AppApi extends Process implements Module {
             ]);
             $queueRaw = $query->fetch(\PDO::FETCH_ASSOC);
 
-            if(!$queueRaw){
+            if (!$queueRaw) {
                 throw new Wire404Exception();
             }
             $application = new Application($queueRaw);
@@ -537,7 +537,7 @@ class AppApi extends Process implements Module {
     }
 
     protected function checkIfApiRequest() {
-        $url = $this->sanitizer->url($this->input->url);
+        $url = $this->sanitizer->url($_SERVER['REQUEST_URI']);
 
         // support / in endpoint url:
         $endpoint = str_replace('/', "\/", $this->endpoint);
