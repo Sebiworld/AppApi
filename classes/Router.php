@@ -119,7 +119,7 @@ class Router extends WireData {
 
         return $url;
     }
-
+    
     public function ___handle($routeInfo) {
         if (!isset($routeInfo[0]) || $routeInfo[0] !== \FastRoute\Dispatcher::FOUND) {
             // Handle FastRoute-Errors:
@@ -298,7 +298,6 @@ class Router extends WireData {
     }
 
     public static function handleError($errNo, $errStr, $errFile, $errLine) {
-        if (error_reporting()) {
             $return = new \StdClass();
             $return->error = 'Internal Server Error';
             $return->devmessage = [
@@ -306,6 +305,12 @@ class Router extends WireData {
                 'location' => $errFile,
                 'line' => $errLine
             ];
+
+        if ($errNo & E_WARNING) {
+            // Only log warnings, don't stop execution
+            self::logError(AppApi::logExceptions, $return);
+        } elseif (error_reporting() & $errNo) {
+            // Only react to the defined log levels
             self::displayOrLogError($return, 500);
         }
     }
@@ -350,6 +355,12 @@ class Router extends WireData {
 
     public static function displayOrLogError($error, $status = 500) {
         if (wire('config')->debug !== true) {
+            self::logError(AppApi::logExceptions, $error);
+        }
+        self::displayError($error, $status);
+    }
+
+    public static function logError($log, $error) {
             $message = 'An Error occurred.';
             if ($error instanceof \Throwable) {
                 $message = $error->getMessage();
@@ -366,9 +377,7 @@ class Router extends WireData {
             } elseif (is_string($error)) {
                 $message = $error;
             }
-            wire('log')->save(AppApi::logExceptions, $message);
-        }
-        self::displayError($error, $status);
+        wire('log')->save($log, $message);
     }
 
     public static function displayError($error, $status = 500) {
