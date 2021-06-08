@@ -346,7 +346,9 @@ class Auth extends WireData {
 	protected function ___handleToken($singleJwt = false) {
 		try {
 			$tokenString = $this->getBearerToken();
+
 			if ($tokenString === null || !is_string($tokenString) || empty($tokenString)) {
+				$this->clearSession();
 				return false;
 			}
 
@@ -422,9 +424,13 @@ class Auth extends WireData {
 			}
 			$this->wire('users')->setCurrentUser($user);
 		} catch (\Throwable $e) {
-			$this->wire('users')->setCurrentUser($this->wire('users')->get('guest'));
+			$this->clearSession();
 			throw $e;
 		}
+	}
+
+	public function ___clearSession() {
+		$this->wire('users')->setCurrentUser($this->wire('users')->get('guest'));
 	}
 
 	/**
