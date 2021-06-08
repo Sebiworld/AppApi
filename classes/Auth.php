@@ -16,11 +16,13 @@ class Auth extends WireData {
 
 	public function ___initApikey() {
 		$headers = AppApiHelper::getRequestHeaders();
+		$tokenFromGet = $_GET && isset($_GET['api_key']) ? $_GET['api_key'] : '';
 
-		if (!empty($headers['X-API-KEY'])) {
+		if (!empty($headers['X-API-KEY']) || !empty($tokenFromGet)) {
+			$apikey = !empty($headers['X-API-KEY']) ? $headers['X-API-KEY'] : $tokenFromGet;
 			try {
 				// Get apikey-object:
-				$apikeyString = $this->sanitizer->text($headers['X-API-KEY']);
+				$apikeyString = $this->sanitizer->text($apikey);
 				$db = wire('database');
 				$query = $db->prepare('SELECT * FROM ' . AppApi::tableApikeys . ' WHERE `key`=:key;');
 				$query->closeCursor();
