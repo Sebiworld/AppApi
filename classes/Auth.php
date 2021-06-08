@@ -442,7 +442,14 @@ class Auth extends WireData {
 	protected function ___getBearerToken() {
 		$authorizationHeader = $this->getAuthorizationHeader();
 		if ($authorizationHeader === null || !is_string($authorizationHeader) || strlen($authorizationHeader) < 7) {
-			return null;
+			if ($_GET && isset($_GET['authorization'])) {
+				$authorizationHeader = $_GET['authorization'];
+				if ($authorizationHeader === null || !is_string($authorizationHeader) || strlen($authorizationHeader) < 7) {
+					return null;
+				}
+			} else {
+				return null;
+			}
 		}
 		if (substr($authorizationHeader, 0, 7) !== 'Bearer ') {
 			return null;
