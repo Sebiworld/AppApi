@@ -1,8 +1,9 @@
 <?php
+
 namespace ProcessWire;
 
 class Example {
-	public static function test () {
+	public static function test() {
 		return 'test successful';
 	}
 
@@ -11,10 +12,10 @@ class Example {
 			'users' => []
 		];
 
-		foreach(wire('users') as $user) {
+		foreach (wire('users') as $user) {
 			array_push($response['users'], [
-				"id" => $user->id,
-				"name" => $user->name
+				'id' => $user->id,
+				'name' => $user->name
 			]);
 		}
 
@@ -27,7 +28,9 @@ class Example {
 		$response = new \StdClass();
 		$user = wire('users')->get($data->id);
 
-		if(!$user->id) throw new \Exception('User not found', 404);
+		if (!$user->id) {
+			throw new \Exception('User not found', 404);
+		}
 
 		$response->id = $user->id;
 		$response->name = $user->name;
