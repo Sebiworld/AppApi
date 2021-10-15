@@ -121,18 +121,13 @@ class Auth extends WireData {
 			// Authentication via Authentication-Header:
 			$username = $_SERVER['PHP_AUTH_USER'];
 			$pass = $_SERVER['PHP_AUTH_PW'];
-		} elseif (!empty(wire('input')->post->pageName('username')) && !empty(wire('input')->post->string('password'))) {
+		} elseif (isset($data->username) && !empty(wire('sanitizer')->pageName($data->username)) && isset($data->password) && !empty(''.$data->password)) {
 			// Authentication via POST-Param:
-			$username = wire('input')->post->pageName('username');
-			$pass = wire('input')->post->string('password');
+			$username = wire('sanitizer')->pageName($data->username);
+			$pass = '' . $data->password;
 		} else {
 			header('WWW-Authenticate: Basic realm="Access denied"');
-			throw new AuthException('Login not successful', 401, [
-				'username' => $this->wire('input')->post->username,
-				'pass' => $this->wire('input')->post->password,
-				'post' => $_POST,
-				'test' => file_get_contents('php://input')
-			]);
+			throw new AuthException('Login not successful', 401);
 		}
 
 		$user = $this->wire('users')->get('name=' . $username);
