@@ -57,6 +57,9 @@ The prerequisites are **PHP>=7.2.0** and a **ProcessWire version >=3.93.0**. How
 
 ## Changelog
 
+### Changes in 1.1.7 (2021-10-17)
+- Auth-Api: Allow login credentials in different formats (e.g. POST Body in JSON, Form-URL-Encoded, Multipart) (thank you @csaggo.com for reporting it 🤗)
+
 ### Changes in 1.1.6 (2021-06-15)
 - Adds `Router->registerErrorHandlers()` Hook, that should allow you to overwrite the general error- and warning handlers of the module.
 - Allows Apikey & Auth-token to be set as GET-params
