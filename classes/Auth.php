@@ -23,7 +23,7 @@ class Auth extends WireData {
 			try {
 				// Get apikey-object:
 				$apikeyString = $this->sanitizer->text($apikey);
-				$db = wire('database');
+				$db = $this->wire('database');
 				$query = $db->prepare('SELECT * FROM ' . AppApi::tableApikeys . ' WHERE `key`=:key;');
 				$query->closeCursor();
 
@@ -47,7 +47,7 @@ class Auth extends WireData {
 		} else {
 			try {
 				// Get default application that handles requests without an apikey:
-				$db = wire('database');
+				$db = $this->wire('database');
 				$query = $db->prepare('SELECT * FROM ' . AppApi::tableApplications . ' WHERE `default_application`=true;');
 				$query->closeCursor();
 				$query->execute();
@@ -121,18 +121,13 @@ class Auth extends WireData {
 			// Authentication via Authentication-Header:
 			$username = $_SERVER['PHP_AUTH_USER'];
 			$pass = $_SERVER['PHP_AUTH_PW'];
-		} elseif (!empty(wire('input')->post->pageName('username')) && !empty(wire('input')->post->string('password'))) {
+		} elseif (isset($data->username) && !empty($this->wire('sanitizer')->pageName($data->username)) && isset($data->password) && !empty(''.$data->password)) {
 			// Authentication via POST-Param:
-			$username = wire('input')->post->pageName('username');
-			$pass = wire('input')->post->string('password');
+			$username = $this->wire('sanitizer')->pageName($data->username);
+			$pass = '' . $data->password;
 		} else {
 			header('WWW-Authenticate: Basic realm="Access denied"');
-			throw new AuthException('Login not successful', 401, [
-				'username' => $this->wire('input')->post->username,
-				'pass' => $this->wire('input')->post->password,
-				'post' => $_POST,
-				'test' => file_get_contents('php://input')
-			]);
+			throw new AuthException('Login not successful', 401);
 		}
 
 		$user = $this->wire('users')->get('name=' . $username);
@@ -147,19 +142,19 @@ class Auth extends WireData {
 			if ($this->application->getAuthtype() === Application::authtypeSession) {
 				return [
 					'success' => true,
-					'username' => wire('user')->name
+					'username' => $this->wire('user')->name
 				];
 			}
 			if ($this->application->getAuthtype() === Application::authtypeSingleJWT) {
 				return [
 					'jwt' => $this->createSingleJWTToken(),
-					'username' => wire('user')->name
+					'username' => $this->wire('user')->name
 				];
 			}
 			if ($this->application->getAuthtype() === Application::authtypeDoubleJWT) {
 				return [
 					'refresh_token' => $this->createRefreshToken(),
-					'username' => wire('user')->name
+					'username' => $this->wire('user')->name
 				];
 			}
 		}
@@ -299,7 +294,7 @@ class Auth extends WireData {
 					throw new AccesstokenInvalidException();
 				}
 
-				$user = wire('users')->get('id=' . $userid);
+				$user = $this->wire('users')->get('id=' . $userid);
 				if (!($user instanceof User) || !$user->id) {
 					throw new AccesstokenInvalidException();
 				}
@@ -326,7 +321,7 @@ class Auth extends WireData {
 			// todo log
 		}
 
-		$this->wire('session')->logout(wire('user'));
+		$this->wire('session')->logout($this->wire('user'));
 		return [
 			'success' => true
 		];
@@ -376,7 +371,7 @@ class Auth extends WireData {
 				throw new AccesstokenInvalidException();
 			}
 
-			$user = wire('users')->get('id=' . $userid);
+			$user = $this->wire('users')->get('id=' . $userid);
 			if (!($user instanceof User) || !$user->id) {
 				throw new AccesstokenInvalidException();
 			}
