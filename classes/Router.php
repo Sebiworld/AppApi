@@ -258,30 +258,30 @@ class Router extends WireData {
 			$keys = explode('/', $index);
 
 			switch (count($keys)) {
-								case 1:
-								if (isset($array[$keys[0]])) {
-									return $array[$keys[0]];
-								}
-								break;
+				case 1:
+				if (isset($array[$keys[0]])) {
+					return $array[$keys[0]];
+				}
+				break;
 
-								case 2:
-								if (isset($array[$keys[0]][$keys[1]])) {
-									return $array[$keys[0]][$keys[1]];
-								}
-								break;
+				case 2:
+				if (isset($array[$keys[0]][$keys[1]])) {
+					return $array[$keys[0]][$keys[1]];
+				}
+				break;
 
-								case 3:
-								if (isset($array[$keys[0]][$keys[1]][$keys[2]])) {
-									return $array[$keys[0]][$keys[1]][$keys[2]];
-								}
-								break;
+				case 3:
+				if (isset($array[$keys[0]][$keys[1]][$keys[2]])) {
+					return $array[$keys[0]][$keys[1]][$keys[2]];
+				}
+				break;
 
-								case 4:
-								if (isset($array[$keys[0]][$keys[1]][$keys[2]][$keys[3]])) {
-									return $array[$keys[0]][$keys[1]][$keys[2]][$keys[3]];
-								}
-								break;
-						}
+				case 4:
+				if (isset($array[$keys[0]][$keys[1]][$keys[2]][$keys[3]])) {
+					return $array[$keys[0]][$keys[1]][$keys[2]][$keys[3]];
+				}
+				break;
+			}
 		}
 
 		return $default;
