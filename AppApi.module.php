@@ -19,6 +19,8 @@ class AppApi extends Process implements Module {
 
 	protected $apiCall = false;
 
+	protected $registeredRoutes = [];
+
 	public function ___install() {
 		parent::___install();
 
@@ -554,7 +556,7 @@ class AppApi extends Process implements Module {
 			$this->apiCall = true;
 			Auth::getInstance()->initApikey();
 			$router = new Router();
-			$router->go();
+			$router->go($this->registeredRoutes);
 			$event->replace = true;
 		}
 	}
@@ -761,5 +763,22 @@ class AppApi extends Process implements Module {
 		}
 
 		return $output;
+	}
+
+	/**
+	 * Allows an external module to register custom routes
+	 *
+	 * @param string $endpoint
+	 * @param array $routeDefinition
+	 * @return void
+	 */
+	public function registerRoute($endpoint, $routeDefinition) {
+		if (!is_string($endpoint) || empty($endpoint) || !is_array($routeDefinition)) {
+			return false;
+		}
+
+		$this->registeredRoutes[$endpoint] = $routeDefinition;
+
+		return true;
 	}
 }

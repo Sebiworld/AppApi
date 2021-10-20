@@ -5,7 +5,7 @@ namespace ProcessWire;
 $info = [
 	'title' => 'AppApi',
 	'summary' => 'Module to create a REST API with ProcessWire',
-	'version' => '1.1.7',
+	'version' => '1.2.0',
 	'author' => 'Sebastian Schendel',
 	'icon' => 'terminal',
 	'href' => 'https://modules.processwire.com/modules/app-api/',
@@ -15,6 +15,7 @@ $info = [
 	],
 
 	'autoload' => true,
+	'singular' => true,
 	'permissions' => [
 		'appapi_manage_applications' => 'Manage AppApi settings'
 	],
