@@ -185,7 +185,7 @@ class Router extends WireData {
 			throw new AppApiException('Route not allowed for this application', 400);
 		}
 
-		if (!empty($routeParams['applications']) && is_array($routeParams['applications']) && in_array(Auth::getInstance()->getApplication()->getID(), $routeParams['applications'])) {
+		if (!empty($routeParams['applications']) && is_array($routeParams['applications']) && !in_array(Auth::getInstance()->getApplication()->getID(), $routeParams['applications'])) {
 			throw new AppApiException('Route not allowed for this application', 400);
 		}
 
