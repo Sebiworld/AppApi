@@ -8,7 +8,7 @@ class AppApiHelper {
 	}
 
 	public static function noEndPoint() {
-		return 'no endpoint defined';
+		throw new BadRequestException('No endpoint defined');
 	}
 
 	public static function checkAndSanitizeRequiredParameters($data, $params) {
