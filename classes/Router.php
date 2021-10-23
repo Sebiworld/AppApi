@@ -26,7 +26,7 @@ class Router extends WireData {
 		}
 	}
 
-	public function ___go() {
+	public function ___go($registeredRoutes) {
 		$this->registerErrorHandlers();
 		$this->setCorsHeaders();
 
@@ -39,13 +39,19 @@ class Router extends WireData {
 				require_once wire('config')->paths->site . 'api/Routes.php';
 			}
 
-			$flatUserRoutes = [];
-			self::flattenGroup($flatUserRoutes, $routes);
-
 			$flatDefaultRoutes = [];
 			self::flattenGroup($flatDefaultRoutes, DefaultRoutes::get());
 
-			$allRoutes = array_merge($flatUserRoutes, $flatDefaultRoutes);
+			$flatRegisteredRoutes = [];
+			if(is_array($registeredRoutes) && !empty($registeredRoutes)){
+				self::flattenGroup($flatRegisteredRoutes, $registeredRoutes);
+			}
+
+			$flatUserRoutes = [];
+			self::flattenGroup($flatUserRoutes, $routes);
+
+			// Registered Routes can overwrite default routes, user-defined routes in Routes.php can overwrite external routes:
+			$allRoutes = array_merge($flatDefaultRoutes, $flatRegisteredRoutes, $flatUserRoutes);
 
 			// create FastRoute Dispatcher:
 			$router = function (\FastRoute\RouteCollector $r) use ($allRoutes) {
@@ -125,11 +131,11 @@ class Router extends WireData {
 		if (!isset($routeInfo[0]) || $routeInfo[0] !== \FastRoute\Dispatcher::FOUND) {
 			// Handle FastRoute-Errors:
 			switch ($routeInfo[0]) {
-								case \FastRoute\Dispatcher::NOT_FOUND:
-								throw new AppApiException('Route not found', 404);
-								case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
-								throw new AppApiException('Method not allowed', 405);
-						}
+				case \FastRoute\Dispatcher::NOT_FOUND:
+				throw new AppApiException('Route not found', 404);
+				case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
+				throw new AppApiException('Method not allowed', 405);
+			}
 		}
 
 		if (!isset($routeInfo[1]) || !is_array($routeInfo[1])) {
@@ -179,7 +185,7 @@ class Router extends WireData {
 			throw new AppApiException('Route not allowed for this application', 400);
 		}
 
-		if (!empty($routeParams['applications']) && is_array($routeParams['applications']) && in_array(Auth::getInstance()->getApplication()->getID(), $routeParams['applications'])) {
+		if (!empty($routeParams['applications']) && is_array($routeParams['applications']) && !in_array(Auth::getInstance()->getApplication()->getID(), $routeParams['applications'])) {
 			throw new AppApiException('Route not allowed for this application', 400);
 		}
 
@@ -258,30 +264,30 @@ class Router extends WireData {
 			$keys = explode('/', $index);
 
 			switch (count($keys)) {
-								case 1:
-								if (isset($array[$keys[0]])) {
-									return $array[$keys[0]];
-								}
-								break;
+				case 1:
+				if (isset($array[$keys[0]])) {
+					return $array[$keys[0]];
+				}
+				break;
 
-								case 2:
-								if (isset($array[$keys[0]][$keys[1]])) {
-									return $array[$keys[0]][$keys[1]];
-								}
-								break;
+				case 2:
+				if (isset($array[$keys[0]][$keys[1]])) {
+					return $array[$keys[0]][$keys[1]];
+				}
+				break;
 
-								case 3:
-								if (isset($array[$keys[0]][$keys[1]][$keys[2]])) {
-									return $array[$keys[0]][$keys[1]][$keys[2]];
-								}
-								break;
+				case 3:
+				if (isset($array[$keys[0]][$keys[1]][$keys[2]])) {
+					return $array[$keys[0]][$keys[1]][$keys[2]];
+				}
+				break;
 
-								case 4:
-								if (isset($array[$keys[0]][$keys[1]][$keys[2]][$keys[3]])) {
-									return $array[$keys[0]][$keys[1]][$keys[2]][$keys[3]];
-								}
-								break;
-						}
+				case 4:
+				if (isset($array[$keys[0]][$keys[1]][$keys[2]][$keys[3]])) {
+					return $array[$keys[0]][$keys[1]][$keys[2]][$keys[3]];
+				}
+				break;
+			}
 		}
 
 		return $default;

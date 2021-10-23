@@ -19,6 +19,35 @@ class AppApi extends Process implements Module {
 
 	protected $apiCall = false;
 
+	protected $registeredRoutes = [];
+
+	public static function getModuleInfo() {
+		return [
+			'title' => 'AppApi',
+			'summary' => 'Module to create a REST API with ProcessWire',
+			'version' => '1.2.0',
+			'author' => 'Sebastian Schendel',
+			'icon' => 'terminal',
+			'href' => 'https://modules.processwire.com/modules/app-api/',
+			'requires' => [
+				'PHP>=7.2.0',
+				'ProcessWire>=3.0.98'
+			],
+
+			'autoload' => true,
+			'singular' => true,
+			'permissions' => [
+				'appapi_manage_applications' => 'Manage AppApi settings'
+			],
+			'page' => [
+				'name' => 'appapi',
+				'parent' => 'setup',
+				'title' => 'AppApi',
+				'icon' => 'terminal'
+			],
+		];
+	}
+
 	public function ___install() {
 		parent::___install();
 
@@ -554,7 +583,7 @@ class AppApi extends Process implements Module {
 			$this->apiCall = true;
 			Auth::getInstance()->initApikey();
 			$router = new Router();
-			$router->go();
+			$router->go($this->registeredRoutes);
 			$event->replace = true;
 		}
 	}
@@ -761,5 +790,22 @@ class AppApi extends Process implements Module {
 		}
 
 		return $output;
+	}
+
+	/**
+	 * Allows an external module to register custom routes
+	 *
+	 * @param string $endpoint
+	 * @param array $routeDefinition
+	 * @return void
+	 */
+	public function registerRoute($endpoint, $routeDefinition) {
+		if (!is_string($endpoint) || empty($endpoint) || !is_array($routeDefinition)) {
+			return false;
+		}
+
+		$this->registeredRoutes[$endpoint] = $routeDefinition;
+
+		return true;
 	}
 }

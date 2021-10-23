@@ -121,7 +121,7 @@ class Auth extends WireData {
 			// Authentication via Authentication-Header:
 			$username = $_SERVER['PHP_AUTH_USER'];
 			$pass = $_SERVER['PHP_AUTH_PW'];
-		} elseif (isset($data->username) && !empty($this->wire('sanitizer')->pageName($data->username)) && isset($data->password) && !empty(''.$data->password)) {
+		} elseif (isset($data->username) && !empty($this->wire('sanitizer')->pageName($data->username)) && isset($data->password) && !empty('' . $data->password)) {
 			// Authentication via POST-Param:
 			$username = $this->wire('sanitizer')->pageName($data->username);
 			$pass = '' . $data->password;
