@@ -21,6 +21,33 @@ class AppApi extends Process implements Module {
 
 	protected $registeredRoutes = [];
 
+	public static function getModuleInfo() {
+		return [
+			'title' => 'AppApi',
+			'summary' => 'Module to create a REST API with ProcessWire',
+			'version' => '1.2.0',
+			'author' => 'Sebastian Schendel',
+			'icon' => 'terminal',
+			'href' => 'https://modules.processwire.com/modules/app-api/',
+			'requires' => [
+				'PHP>=7.2.0',
+				'ProcessWire>=3.0.98'
+			],
+
+			'autoload' => true,
+			'singular' => true,
+			'permissions' => [
+				'appapi_manage_applications' => 'Manage AppApi settings'
+			],
+			'page' => [
+				'name' => 'appapi',
+				'parent' => 'setup',
+				'title' => 'AppApi',
+				'icon' => 'terminal'
+			],
+		];
+	}
+
 	public function ___install() {
 		parent::___install();
 

@@ -64,7 +64,7 @@ Are you having problems or just don't know what to do? Take a look at the [frequ
 
 Since version 1.2.0 it is possible to install AppApi modules that provide their own route handlers without having to change anything in Routes.php.
 
-[Here](https://github.com/Sebiworld/AppApi/wiki/AppApi-Modules) is a list of the currently available AppApi modules.
+[Here](https://github.com/Sebiworld/AppApi/wiki/4.0:-AppApi-Modules) is a list of the currently available AppApi modules.
 
 <a name="changelog"></a>
 
