@@ -52,76 +52,25 @@ AppApi can be installed like every other module in ProcessWire. Check the follow
 
 The prerequisites are **PHP>=7.2.0** and a **ProcessWire version >=3.93.0**. However, this is also checked during the installation of the module. No further dependencies.
 
+<a name="faq"></a>
+
+## FAQ
+
+Are you having problems or just don't know what to do? Take a look at the [frequently asked questions](https://github.com/Sebiworld/AppApi/wiki/FAQ)! Many questions have already been answered in the ProcessWire forum, and of course someone there is always happy to help.
+
+<a name="app-api-modules"></a>
+
+## AppApi Modules
+
+Since version 1.2.0 it is possible to install AppApi modules that provide their own route handlers without having to change anything in Routes.php.
+
+[Here](https://github.com/Sebiworld/AppApi/wiki/AppApi-Modules) is a list of the currently available AppApi modules.
 
 <a name="changelog"></a>
 
 ## Changelog
 
-### Changes in 1.1.7 (2021-10-17)
-- Auth-Api: Allow login credentials in different formats (e.g. POST Body in JSON, Form-URL-Encoded, Multipart) (thank you @csaggo.com for reporting it 🤗)
-
-### Changes in 1.1.6 (2021-06-15)
-- Adds `Router->registerErrorHandlers()` Hook, that should allow you to overwrite the general error- and warning handlers of the module.
-- Allows Apikey & Auth-token to be set as GET-params
-- Fixes a bug that made it possible to authenticate with the PHP session (cookie) even though token-auth was enabled.
-- Adds `Router->setCorsHeaders()` Hook
-- Updated Composer & Firebase dependencies
-
-### Changes in 1.1.5 (2021-03-13)
-- Fixes a critical error that occured with ProcessWire versions >= 1.0.173 (thank you @csaggo.com and @psy for reporting it 🤗)
-
-### Changes in 1.1.4 (2021-02-28)
-- Fixes an issue with routes including query-parameters (by @twinklebob, thanks for PR 🤗)
-
-### Changes in 1.1.3 (2021-02-09)
-
-- Fixes an issue with the constructor signature of the modules AppApiException class (by @twinklebob, thanks for PR 🤗)
-- Fixes an issue with the error-handler, which made it mistakenly catch errors that should have been ignored via @ operator (Thanks to @eelke)
-- Switched from `wire('input')->url` to `$_SERVER['REQUEST_URI']` for reading the base-url, because ProcessWire's internal function transferred everything to lowercase (Thanks to @pauldro)
-
-### Changes in 1.1.2 (2021-01-18)
-
-- Fixes an error that occurred when something other than an array was to be output as response
-
-### Changes in 1.1.1 (2021-01-13)
-
-- Fixes critical issue "incorrect integer value" that happened in some db-configurations
-
-### Changes in 1.1.0 (2021-01-03)
-
-- Improved AppApi-dashboard
-- Allow multiple levels to routing config (by @twinklebob, thanks for PR 🤗)
-- Allow requests without an api-key: You can now mark an application as "default application". If you did so, every request without an apikey will be linked with that application.
-- You can now set a custom response-code in case of success. Simply include your response-code number on key "responseCode" in your result-array.
-- Optional access-logging: You can enable access-logging in the module's configuration. After that, every successful request will be logged with it's application-id, apikey-id and token-id.
-- Added hooks to all essential functions - that should enable you to customize the module's behavior even more. E.g. you could add custom logging on a hook, if you need that
-- Database-scheme does not need foreign-key constraints any more. That should fix @thomasaull 's issue with db-backups. After the update, you must remove the constraint manually because I did not find a way to remove the foreign key safely in all database-environments.
-- Multiple other bugfixes
-
-### Changes in 1.0.4 (2020-08-17)
-
-- Usage of `ProcessPageView::pageNotFound`-hook to allow other modules and functions to initialize before the api renders.
-- The path to `Routes.php` is now configurable via module's settings
-(Thanks to @thomasaull and @spoetnik)
-
-### Changes in 1.0.3 (2020-08-08)
-
-- Bugfix in Router.php (Thanks to @thomasaull)
-
-### Changes in 1.0.2 (2020-07-25)
-
-- Documentation improvements
-
-### Changes in 1.0.1 (2020-07-11)
-
-- Changed all auth-routes to the /auth (or /auth/access) endpoints.
-- Updated readme and examples
-
-### Changes in 1.0.0 (2019-08-19)
-
-- Rewritten most of the code
-- Setup application management ui
-- New authentication methods
+A detailed description of the changes per version can be found here: [**Changelog**](https://github.com/Sebiworld/AppApi/wiki/Changelog)
 
 <a name="versioning"></a>
 
