@@ -552,14 +552,14 @@ class Apptoken extends WireData {
 		$queryVars = [
 			':application_id' => $this->getApplicationID(),
 			':created_user_id' => $this->getCreatedUser()->id,
-			':created' => date('Y-m-d G:i:s', $this->getCreated()),
+			':created' => date('Y-m-d G:i:s', $this->getCreated() === null ? 0 : $this->getCreated()),
 			':modified_user_id' => $this->getModifiedUser()->id,
-			':modified' => date('Y-m-d G:i:s', $this->getModified()),
+			':modified' => date('Y-m-d G:i:s', $this->getModified() === null ? 0 : $this->getModified()),
 			':token_id' => $this->getTokenID(),
 			':user_id' => $this->getUser()->id,
-			':last_used' => ($this->getLastUsed() !== null ? date('Y-m-d G:i:s', $this->getLastUsed()) : null),
-			':expiration_time' => date('Y-m-d G:i:s', $this->getExpirationTime()),
-			':not_before_time' => date('Y-m-d G:i:s', $this->getNotBeforeTime())
+			':last_used' => $this->getLastUsed() === null ? null : date('Y-m-d G:i:s', $this->getLastUsed()),
+			':expiration_time' => $this->getExpirationTime() === null ? null : date('Y-m-d G:i:s', $this->getExpirationTime()),
+			':not_before_time' => $this->getNotBeforeTime() === null ? null : date('Y-m-d G:i:s', $this->getNotBeforeTime())
 		];
 
 		if (!$this->isNew()) {

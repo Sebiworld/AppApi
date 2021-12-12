@@ -411,13 +411,13 @@ class Apikey extends WireData {
 		$queryVars = [
 			':application_id' => $this->getApplicationID(),
 			':created_user_id' => $this->getCreatedUser()->id,
-			':created' => date('Y-m-d G:i:s', $this->getCreated()),
+			':created' => date('Y-m-d G:i:s', $this->getCreated() === null ? 0 : $this->getCreated()),
 			':modified_user_id' => $this->getModifiedUser()->id,
-			':modified' => date('Y-m-d G:i:s', $this->getModified()),
+			':modified' => date('Y-m-d G:i:s', $this->getModified() === null ? 0 : $this->getModified()),
 			':key' => $this->getKey(),
 			':version' => $this->getVersion(),
 			':description' => $this->getDescription(),
-			':accessable_until' => date('Y-m-d G:i:s', $this->getAccessableUntil())
+			':accessable_until' => $this->getAccessableUntil() === null ? null : date('Y-m-d G:i:s', $this->getAccessableUntil())
 		];
 
 		if (!$this->isNew()) {
