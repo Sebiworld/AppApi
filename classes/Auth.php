@@ -117,15 +117,33 @@ class Auth extends WireData {
 	public function ___doLogin($data) {
 		$username = false;
 		$pass = false;
-		if (!empty($_SERVER['PHP_AUTH_USER']) && !empty($_SERVER['PHP_AUTH_PW'])) {
+		$headers = AppApiHelper::getRequestHeaders();
+
+		if (!empty($headers['PHP_AUTH_USER']) && !empty($headers['PHP_AUTH_PW'])) {
 			// Authentication via Authentication-Header:
-			$username = $_SERVER['PHP_AUTH_USER'];
-			$pass = $_SERVER['PHP_AUTH_PW'];
+			$username = $headers['PHP_AUTH_USER'];
+			$pass = $headers['PHP_AUTH_PW'];
 		} elseif (isset($data->username) && !empty($this->wire('sanitizer')->pageName($data->username)) && isset($data->password) && !empty('' . $data->password)) {
 			// Authentication via POST-Param:
 			$username = $this->wire('sanitizer')->pageName($data->username);
 			$pass = '' . $data->password;
-		} else {
+		}
+
+		if (!$username || !$pass) {
+			if (!empty($headers['AUTHORIZATION']) && substr($headers['AUTHORIZATION'], 0, 6) === 'Basic ') {
+				// Try manually extracting basic auth:
+				$authString = base64_decode(substr($headers['AUTHORIZATION'], 6)) ;
+				if ($authString) {
+					$authParts = explode(':', $authString, 2);
+					if (2 === count($authParts)) {
+						$username = $authParts[0];
+						$pass = $authParts[1];
+					}
+				}
+			}
+		}
+
+		if (!$username || !$pass) {
 			header('WWW-Authenticate: Basic realm="Access denied"');
 			throw new AuthException('Login not successful', 401);
 		}
@@ -442,6 +460,7 @@ class Auth extends WireData {
 
 	protected function ___getBearerToken() {
 		$authorizationHeader = $this->getAuthorizationHeader();
+
 		if ($authorizationHeader === null || !is_string($authorizationHeader) || strlen($authorizationHeader) < 7) {
 			if ($_GET && isset($_GET['authorization'])) {
 				$authorizationHeader = $_GET['authorization'];
@@ -459,22 +478,13 @@ class Auth extends WireData {
 	}
 
 	protected function ___getAuthorizationHeader() {
-		if (function_exists('apache_request_headers')) {
-			foreach (apache_request_headers() as $key => $value) {
-				if (strtolower($key) === 'authorization') {
-					return $value;
-				} elseif (strtolower($key) === 'http_authorization') {
-					return $value;
-				}
-			}
-		}
-
-		foreach ($_SERVER as $key => $value) {
-			if (strtolower($key) === 'authorization') {
-				return $value;
-			} elseif (strtolower($key) === 'http_authorization') {
-				return $value;
-			}
+		$headers = AppApiHelper::getRequestHeaders();
+		if (!empty($headers['AUTHORIZATION'])) {
+			return $headers['AUTHORIZATION'];
+		} elseif (!empty($headers['HTTP_AUTHORIZATION'])) {
+			return $headers['HTTP_AUTHORIZATION'];
+		} elseif (!empty($headers['REDIRECT_HTTP_AUTHORIZATION'])) {
+			return $headers['REDIRECT_HTTP_AUTHORIZATION'];
 		}
 
 		return null;
