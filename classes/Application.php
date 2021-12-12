@@ -575,9 +575,9 @@ class Application extends WireData {
 		$db = wire('database');
 		$queryVars = [
 			':created_user_id' => $this->getCreatedUser()->id,
-			':created' => date('Y-m-d G:i:s', $this->getCreated()),
+			':created' => date('Y-m-d G:i:s', $this->getCreated() === null ? 0 : $this->getCreated()),
 			':modified_user_id' => $this->getModifiedUser()->id,
-			':modified' => date('Y-m-d G:i:s', $this->getModified()),
+			':modified' => date('Y-m-d G:i:s', $this->getModified() === null ? 0 : $this->getModified()),
 			':title' => $this->getTitle(),
 			':description' => $this->getDescription(),
 			':default_application' => $this->isDefaultApplication() ? 1 : 0,
