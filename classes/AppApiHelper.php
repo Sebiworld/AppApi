@@ -66,17 +66,24 @@ class AppApiHelper {
 	}
 
 	public static function getRequestHeaders() {
-		if (function_exists('apache_request_headers')) {
-			if ($headers = apache_request_headers()) {
-				return array_change_key_case($headers, CASE_UPPER);
+		$headers = [];
+
+		foreach (array_keys($_SERVER) as $skey) {
+			$headername = str_replace(' ', '-', strtoupper($skey));
+			if (substr($headername, 0, 9) === 'REDIRECT_') {
+				$headername = substr($skey, 9);
 			}
+
+			if (substr($headername, 0, 5) === 'HTTP_') {
+				$headername = substr($headername, 5);
+			}
+
+			$headers[$headername] = $_SERVER[$skey];
 		}
 
-		$headers = [];
-		foreach (array_keys($_SERVER) as $skey) {
-			if (substr($skey, 0, 5) == 'HTTP_') {
-				$headername = str_replace(' ', '-', ucwords(strtoupper(str_replace('_', '', substr($skey, 5)))));
-				$headers[$headername] = $_SERVER[$skey];
+		if (function_exists('apache_request_headers')) {
+			if (apache_request_headers()) {
+				$headers = array_merge($headers, array_change_key_case(apache_request_headers(), CASE_UPPER));
 			}
 		}
 
