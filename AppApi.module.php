@@ -1,5 +1,4 @@
 <?php
-
 namespace ProcessWire;
 
 require_once __DIR__ . '/classes/Router.php';
@@ -558,12 +557,15 @@ class AppApi extends Process implements Module {
 	}
 
 	public function init() {
-		$this->addHookBefore('ProcessPageView::pageNotFound', $this, 'handleApiRequest');
 
 		// Let endpoint fall back to 'api' if not set:
 		if (!$this->endpoint) {
 			$this->endpoint = 'api';
 		}
+		$endpoint = $endpoint = str_replace('/', "\/", $this->endpoint);
+
+		$this->addHook('/' . $endpoint . '\/?.*', $this, 'handleApiRequest');
+		$this->addHookBefore('ProcessPageView::pageNotFound', $this, 'handleApiRequest');
 	}
 
 	protected function checkIfApiRequest() {
