@@ -1,5 +1,4 @@
 <?php
-
 namespace ProcessWire;
 
 /**
@@ -43,7 +42,7 @@ class Router extends WireData {
 			self::flattenGroup($flatDefaultRoutes, DefaultRoutes::get());
 
 			$flatRegisteredRoutes = [];
-			if(is_array($registeredRoutes) && !empty($registeredRoutes)){
+			if (is_array($registeredRoutes) && !empty($registeredRoutes)) {
 				self::flattenGroup($flatRegisteredRoutes, $registeredRoutes);
 			}
 
@@ -79,7 +78,7 @@ class Router extends WireData {
 
 			$httpMethod = $_SERVER['REQUEST_METHOD'];
 
-			$routeInfo = $dispatcher->dispatch($httpMethod, $this->getCurrentUrl());
+			$routeInfo = $dispatcher->dispatch($httpMethod, SELF::getCurrentUrl());
 
 			// Routeinfo and Auth extracted. Router::handle will return the info that should be output
 			$return = Router::handle($routeInfo);
@@ -104,14 +103,14 @@ class Router extends WireData {
 	 * Returns the current url (will be used by fastroute's dispatcher)
 	 * @return string url
 	 */
-	protected function ___getCurrentUrl() {
-		$url = $this->wire('sanitizer')->url($_SERVER['REQUEST_URI']);
+	protected static function getCurrentUrl() {
+		$url = wire('sanitizer')->url($_SERVER['REQUEST_URI']);
 
 		//strip query parameters from url
 		$url = preg_replace('/[?].+$/i', '', $url);
 
 		// strip /api from request url:
-		$endpoint = $this->wire('modules')->AppApi->endpoint;
+		$endpoint = wire('modules')->AppApi->endpoint;
 
 		// support / in endpoint url:
 		$endpoint = str_replace('/', "\/", $endpoint);
@@ -132,9 +131,9 @@ class Router extends WireData {
 			// Handle FastRoute-Errors:
 			switch ($routeInfo[0]) {
 				case \FastRoute\Dispatcher::NOT_FOUND:
-				throw new AppApiException('Route not found', 404);
+					throw new AppApiException('Route not found', 404);
 				case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
-				throw new AppApiException('Method not allowed', 405);
+					throw new AppApiException('Method not allowed', 405);
 			}
 		}
 
@@ -214,17 +213,6 @@ class Router extends WireData {
 		// If the code runs until here, the request is authenticated
 		// or the request does not need authentication
 
-		if (@$this->wire('modules')->getConfig('AppApi', 'access_logging')) {
-			$logdata = [];
-			$logdata[] = Auth::getInstance()->getApplicationLog();
-			$logdata[] = Auth::getInstance()->getApikeyLog();
-			if (Auth::getInstance()->getTokenLog()) {
-				$logdata[] = Auth::getInstance()->getTokenLog();
-			}
-
-			wire('log')->save(AppApi::logAccess, 'Successful request with: ' . implode(', ', $logdata));
-		}
-
 		// merge url $vars with params
 		$vars = array_merge((array) Router::params(), (array) $vars);
 		// $vars['auth'] = Auth::getInstance();
@@ -234,17 +222,43 @@ class Router extends WireData {
 
 		$data = $class::$methodName($vars);
 
+		if (@$this->wire('modules')->getConfig('AppApi', 'access_logging')) {
+			$logdata = [];
+			$logdata[] = Auth::getInstance()->getApplicationLog();
+			$logdata[] = Auth::getInstance()->getApikeyLog();
+			if (Auth::getInstance()->getTokenLog()) {
+				$logdata[] = Auth::getInstance()->getTokenLog();
+			}
+
+			$url = $this->wire('modules')->AppApi->endpoint;
+			if (empty($url)) {
+				$url = '/api';
+			} else {
+				$url = '/' . trim($url, '/');
+			}
+			$url .= SELF::getCurrentUrl();
+
+			wire('log')->save(
+				AppApi::logAccess,
+				'Successful request with: ' . implode(', ', $logdata),
+				[
+					'url' => $url
+				]
+			);
+		}
+
+
 		return $data;
 	}
 
 	public function ___params($index = null, $default = null, $source = null) {
 		// check for php://input and merge with $_REQUEST
 		if (
-						(isset($_SERVER['CONTENT_TYPE']) &&
-						stripos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) ||
-						(isset($_SERVER['HTTP_CONTENT_TYPE']) &&
-						stripos($_SERVER['HTTP_CONTENT_TYPE'], 'application/json') !== false) // PHP build in Webserver !?
-				) {
+			(isset($_SERVER['CONTENT_TYPE']) &&
+			stripos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) ||
+			(isset($_SERVER['HTTP_CONTENT_TYPE']) &&
+			stripos($_SERVER['HTTP_CONTENT_TYPE'], 'application/json') !== false) // PHP build in Webserver !?
+		) {
 			if ($json = json_decode(@file_get_contents('php://input'), true)) {
 				$_REQUEST = array_merge($_REQUEST, $json);
 			}
@@ -265,28 +279,28 @@ class Router extends WireData {
 
 			switch (count($keys)) {
 				case 1:
-				if (isset($array[$keys[0]])) {
-					return $array[$keys[0]];
-				}
-				break;
+					if (isset($array[$keys[0]])) {
+						return $array[$keys[0]];
+					}
+					break;
 
 				case 2:
-				if (isset($array[$keys[0]][$keys[1]])) {
-					return $array[$keys[0]][$keys[1]];
-				}
-				break;
+					if (isset($array[$keys[0]][$keys[1]])) {
+						return $array[$keys[0]][$keys[1]];
+					}
+					break;
 
 				case 3:
-				if (isset($array[$keys[0]][$keys[1]][$keys[2]])) {
-					return $array[$keys[0]][$keys[1]][$keys[2]];
-				}
-				break;
+					if (isset($array[$keys[0]][$keys[1]][$keys[2]])) {
+						return $array[$keys[0]][$keys[1]][$keys[2]];
+					}
+					break;
 
 				case 4:
-				if (isset($array[$keys[0]][$keys[1]][$keys[2]][$keys[3]])) {
-					return $array[$keys[0]][$keys[1]][$keys[2]][$keys[3]];
-				}
-				break;
+					if (isset($array[$keys[0]][$keys[1]][$keys[2]][$keys[3]])) {
+						return $array[$keys[0]][$keys[1]][$keys[2]][$keys[3]];
+					}
+					break;
 			}
 		}
 
@@ -380,7 +394,22 @@ class Router extends WireData {
 			} elseif (is_string($error)) {
 				$message = $error;
 			}
-			wire('log')->save(AppApi::logExceptions, $message);
+
+			$url = wire('modules')->AppApi->endpoint;
+			if (empty($url)) {
+				$url = '/api';
+			} else {
+				$url = '/' . trim($url, '/');
+			}
+			$url .= SELF::getCurrentUrl();
+
+			wire('log')->save(
+				AppApi::logExceptions,
+				$message,
+				[
+					'url' => $url
+				]
+			);
 		}
 		self::displayError($error, $status);
 	}
