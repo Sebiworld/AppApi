@@ -24,7 +24,7 @@ class AppApi extends Process implements Module {
 		return [
 			'title' => 'AppApi',
 			'summary' => 'Module to create a REST API with ProcessWire',
-			'version' => '1.2.4',
+			'version' => '1.2.5',
 			'author' => 'Sebastian Schendel',
 			'icon' => 'terminal',
 			'href' => 'https://modules.processwire.com/modules/app-api/',
@@ -564,7 +564,9 @@ class AppApi extends Process implements Module {
 		}
 		$endpoint = $endpoint = str_replace('/', "\/", $this->endpoint);
 
-		$this->addHook('/' . $endpoint . '\/?.*', $this, 'handleApiRequest');
+		if (!@$this->wire('modules')->getConfig('AppApi', 'deactivate_url_hook')) {
+			$this->addHook('/' . $endpoint . '\/?.*', $this, 'handleApiRequest');
+		}
 		$this->addHookBefore('ProcessPageView::pageNotFound', $this, 'handleApiRequest');
 	}
 
