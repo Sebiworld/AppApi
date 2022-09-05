@@ -22,5 +22,10 @@ $config = [
 		'type' => 'checkbox',
 		'label' => 'Activate Access-Logging',
 		'notes' => 'Will write access-data in "appapi-access.txt" log'
-	]
+	],
+	'deactivate_url_hook' => [
+		'type' => 'checkbox',
+		'label' => 'Deactivate URL Hook',
+		'notes' => 'Will deactivate route-handling by ProcessWire URL hook and fallback to ProcessPageView::pageNotFound hook.'
+	],
 ];
