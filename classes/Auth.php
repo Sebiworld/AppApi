@@ -115,46 +115,47 @@ class Auth extends WireData {
 	}
 
 	public function ___doLogin($data) {
-		$username = false;
-		$pass = false;
-		$headers = AppApiHelper::getRequestHeaders();
 
-		if (!empty($headers['PHP_AUTH_USER']) && !empty($headers['PHP_AUTH_PW'])) {
-			// Authentication via Authentication-Header:
-			$username = $headers['PHP_AUTH_USER'];
-			$pass = $headers['PHP_AUTH_PW'];
-		} elseif (isset($data->username) && !empty($this->wire('sanitizer')->pageName($data->username)) && isset($data->password) && !empty('' . $data->password)) {
-			// Authentication via POST-Param:
-			$username = $this->wire('sanitizer')->pageName($data->username);
-			$pass = '' . $data->password;
-		}
+    $access = $this->getLogintype($data);
 
-		if (!$username || !$pass) {
-			if (!empty($headers['AUTHORIZATION']) && substr($headers['AUTHORIZATION'], 0, 6) === 'Basic ') {
-				// Try manually extracting basic auth:
-				$authString = base64_decode(substr($headers['AUTHORIZATION'], 6)) ;
-				if ($authString) {
-					$authParts = explode(':', $authString, 2);
-					if (2 === count($authParts)) {
-						$username = $authParts[0];
-						$pass = $authParts[1];
-					}
-				}
-			}
-		}
+    $accessMethod = $access['method'];
+    $allowedLoginTypes = $this->application->getLogintype();
+    $params = (object)$access['params'];
+    if (
+      $accessMethod == 'username-password' &&
+      in_array('logintypeUsernamePassword', $allowedLoginTypes)
+    ) {
+      // Get login params
+      $username = $params->username;
+      $password = $params->password;
 
-		if (!$username || !$pass) {
-			header('WWW-Authenticate: Basic realm="Access denied"');
-			throw new AuthException('Login not successful', 401);
-		}
+      $user = $this->wire('users')->get('name=' . $username);
+  
+      // prevent username sniffing by just throwing a general exception:
+      if (!$user->id) {
+        throw new AuthException('Login not successful', 401);
+      }
 
-		$user = $this->wire('users')->get('name=' . $username);
+      $loggedIn = $this->wire('session')->login($user->name, $password);
+    }
 
-		// prevent username sniffing by just throwing a general exception:
-		if (!$user->id) {
-			throw new AuthException('Login not successful', 401);
-		}
-		$loggedIn = $this->wire('session')->login($username, $pass);
+    if (
+      $accessMethod == 'email-password' &&
+      in_array('logintypeEmailPassword', $allowedLoginTypes)
+    ) {
+      // Get login params
+      $email = $params->email;
+      $password = $params->password;
+
+      $user = $this->wire('users')->get('email=' . $email);
+  
+      // prevent username sniffing by just throwing a general exception:
+      if (!$user->id) {
+        throw new AuthException('Login not successful', 401);
+      }
+
+      $loggedIn = $this->wire('session')->login($user->name, $password);
+    }
 
 		if ($loggedIn) {
 			if ($this->application->getAuthtype() === Application::authtypeSession) {
@@ -177,7 +178,7 @@ class Auth extends WireData {
 			}
 		}
 
-		throw new AuthException('Login not successful', 401);
+		throw new AuthException('Login not successfull', 401);
 	}
 
 	protected function ___createRefreshToken($args = []) {
@@ -344,6 +345,110 @@ class Auth extends WireData {
 			'success' => true
 		];
 	}
+
+  /*------------------------------------*\
+    Login types
+  \*------------------------------------*/
+  public function getLogintype($data) {
+    $headers = AppApiHelper::getRequestHeaders();
+
+    if (
+      isset($data->username) && 
+      !empty($this->wire('sanitizer')->pageName($data->username)) && 
+      isset($data->password) && 
+      !empty('' . $data->password)
+    ) {
+			// Authentication via POST-Param:
+      return [
+        'method' => 'username-password',
+        'params' => [
+          'username' => $data->username,
+          'password' => $data->password
+        ],
+      ];
+		}
+    
+    if (
+      isset($data->email) && 
+      !empty($this->wire('sanitizer')->email($data->email)) && 
+      isset($data->password) && 
+      !empty('' . $data->password)) {
+			// Authentication via POST-Param with email:
+      return [
+        'method' => 'email-password',
+        'params' => [
+          'email' => $data->email,
+          'password' => $data->password
+        ],
+      ];
+    }
+
+    // Extract params from headers
+    $headersParams = NULL;
+    if (
+      !empty($headers['PHP_AUTH_USER']) && 
+      !empty($headers['PHP_AUTH_PW'])
+    ) {
+			// Authentication via Authentication-Header:
+      $headersParams = (object)[
+        'username' => $headers['PHP_AUTH_USER'],
+        'password' => $headers['PHP_AUTH_PW']
+      ];
+
+		}
+    
+    if (
+      !empty($headers['AUTHORIZATION']) && 
+      substr($headers['AUTHORIZATION'], 0, 6) === 'Basic '
+    ) {
+      // Try manually extracting basic auth:
+      $authString = base64_decode(substr($headers['AUTHORIZATION'], 6)) ;
+      if ($authString) {
+        $authParts = explode(':', $authString, 2);
+        if (2 === count($authParts)) {
+          $headersParams = (object)[
+            'username' => $authParts[0],
+            'password' => $authParts[1]
+          ];
+        }
+      }
+    }
+
+    if (
+      isset($headersParams->username) && 
+      !empty($this->wire('sanitizer')->pageName($headersParams->username)) && 
+      isset($headersParams->password) && 
+      !empty('' . $headersParams->password)
+    ) {
+      return [
+        'method' => 'username-password',
+        'params' => [
+          'username' => $headersParams->username,
+          'password' => $headersParams->password
+        ],
+      ];
+    }
+
+    if (
+      isset($headersParams->username) && 
+      !empty($this->wire('sanitizer')->email($headersParams->username)) && 
+      isset($headersParams->password) && 
+      !empty('' . $headersParams->password)
+    ) {
+      return [
+        'method' => 'username-password',
+        'params' => [
+          'username' => $headersParams->username,
+          'password' => $headersParams->password
+        ],
+      ];
+    }
+    
+
+    header('WWW-Authenticate: Basic realm="Access denied"');
+    throw new AuthException('Login not successful wa', 401);
+
+  }
 
 	/**
 	 * Checks for Login-Tokens and authenticates the user in ProcessWire

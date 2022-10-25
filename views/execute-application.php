@@ -124,6 +124,35 @@ $field->textFormat = Inputfield::textFormatBasic;
 $field->skipLabel = Inputfield::skipLabelHeader;
 $form->add($field);
 
+// Logintype
+$field = $this->modules->get('InputfieldCheckboxes');
+$field->label = $this->_('Login-Type');
+$field->attr('id+name', 'form_logintype');
+$field->columnWidth = 20;
+$field->required = 1;
+$loginTypeOptions = [];
+foreach (Application::logintypeOptions as $key => $loginTypeOption) {
+  $field->addOptions([$loginTypeOption => Application::getLogintypeLabel($loginTypeOption)]);
+}
+$field->value = $application->getLogintype();
+$field->collapsed = Inputfield::collapsedNever;
+$form->add($field);
+
+$descriptionString = '';
+$descriptionString .= '<p><strong>' . Application::getLogintypeLabel('logintypeUsernamePassword') . ':</strong><br/>' . $this->_('Users are prompted to provide their username and password.') . '</p>';
+$descriptionString .= '<p><strong>' . Application::getLogintypeLabel('logintypeEmailPassword') . ':</strong><br/>' . $this->_('Users are prompted to provide their email and password.') . '</p>';
+$descriptionString .= '<p>*' . $this->_('For username or/and email login type, params can be sent as a basic-authorization header with username/email:password in Base64 encoding (recommended), or in the request-body') . '</p>';
+
+$field = $this->modules->get('InputfieldMarkup');
+$field->attr('id+name', 'form_descriptions');
+$field->label = 'Description';
+$field->columnWidth = 80;
+$field->value = $descriptionString;
+$field->collapsed = Inputfield::collapsedNever;
+$field->textFormat = Inputfield::textFormatBasic;
+$field->skipLabel = Inputfield::skipLabelHeader;
+$form->add($field);
+
 // Apikeys:
 $field = $this->modules->get('InputfieldMarkup');
 $field->attr('id+name', 'form_apikeys');
@@ -227,6 +256,7 @@ if (wire('input')->post('action-save')) {
 			$application->setAccesstokenSecret($form->get('form_accesstoken_secret')->attr('value'));
 			$application->setExpiresIn($form->get('form_expires_in')->attr('value'));
 			$application->setAuthtype($form->get('form_authtype')->attr('value'));
+      $application->setLogintype($form->get('form_logintype')->attr('value'));
 
 			if (!$application->save()) {
 				throw new \Exception('The application could not be saved.');
