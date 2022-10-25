@@ -135,7 +135,7 @@ class Application extends WireData {
 			$this->___setAuthtype($values['authtype']);
 		}
 
-    if (isset($values['logintype'])) {
+    if (isset($values['logintype']) && !!json_decode($values['logintype'])) {
 			$this->___setLogintype(json_decode($values['logintype']));
 		}
 
