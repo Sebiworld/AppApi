@@ -1,5 +1,4 @@
 <?php
-
 namespace ProcessWire;
 
 if (!wire('user')->hasPermission(AppApi::manageApplicationsPermission)) {
@@ -132,7 +131,7 @@ $field->columnWidth = 20;
 $field->required = 1;
 $loginTypeOptions = [];
 foreach (Application::logintypeOptions as $key => $loginTypeOption) {
-  $field->addOptions([$loginTypeOption => Application::getLogintypeLabel($loginTypeOption)]);
+	$field->addOptions([$loginTypeOption => Application::getLogintypeLabel($loginTypeOption)]);
 }
 $field->value = $application->getLogintype();
 $field->collapsed = Inputfield::collapsedNever;
@@ -256,7 +255,7 @@ if (wire('input')->post('action-save')) {
 			$application->setAccesstokenSecret($form->get('form_accesstoken_secret')->attr('value'));
 			$application->setExpiresIn($form->get('form_expires_in')->attr('value'));
 			$application->setAuthtype($form->get('form_authtype')->attr('value'));
-      $application->setLogintype($form->get('form_logintype')->attr('value'));
+			$application->setLogintype($form->get('form_logintype')->attr('value'));
 
 			if (!$application->save()) {
 				throw new \Exception('The application could not be saved.');
@@ -369,6 +368,7 @@ if (isset($messages['errors']) && is_array($messages['errors'])) {
 <p style='padding-top: 20px;'>
 	<a
 		href='<?= $this->wire('page')->url . 'applications/'; ?>'>
-		<i class="fa fa-arrow-left"></i>&nbsp;<?= $this->_('Go Back'); ?>
+		<i
+			class="fa fa-arrow-left"></i>&nbsp;<?= $this->_('Go Back'); ?>
 	</a>
 </p>

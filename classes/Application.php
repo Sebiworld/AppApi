@@ -1,5 +1,4 @@
 <?php
-
 namespace ProcessWire;
 
 class Application extends WireData {
@@ -35,7 +34,7 @@ class Application extends WireData {
 	 */
 	const authtypeDoubleJWT = 2;
 
-  public static function getAuthtypeLabel($authtype) {
+	public static function getAuthtypeLabel($authtype) {
 		if ($authtype === self::authtypeSession) {
 			return __('PHP Session');
 		} elseif ($authtype === self::authtypeSingleJWT) {
@@ -46,15 +45,15 @@ class Application extends WireData {
 		return 'Unknown: ' . $authtype;
 	}
 
-  const logintypeOptions = [
-    'logintypeUsernamePassword',
-    'logintypeEmailPassword'
-  ];
-  
-  protected $logintype = ['logintypeUsernamePassword'];
+	const logintypeOptions = [
+		'logintypeUsernamePassword',
+		'logintypeEmailPassword'
+	];
+
+	protected $logintype = ['logintypeUsernamePassword'];
 
 
-  public static function getLogintypeLabel($logintype) {
+	public static function getLogintypeLabel($logintype) {
 		if ($logintype === self::logintypeOptions[0]) {
 			return __('Username sign-in');
 		} elseif ($logintype === self::logintypeOptions[1]) {
@@ -135,7 +134,7 @@ class Application extends WireData {
 			$this->___setAuthtype($values['authtype']);
 		}
 
-    if (isset($values['logintype']) && !!json_decode($values['logintype'])) {
+		if (isset($values['logintype']) && !!json_decode($values['logintype'])) {
 			$this->___setLogintype(json_decode($values['logintype']));
 		}
 
@@ -455,11 +454,11 @@ class Application extends WireData {
 		return $this->authtype;
 	}
 
-  public function ___setlogintype($logintype) {
-    $logintype = $this->sanitizer->options($logintype, self::logintypeOptions);
+	public function ___setLogintype($logintype) {
+		$logintype = $this->sanitizer->options($logintype, self::logintypeOptions);
 		if (!$this->isLogintypeValid($logintype)) {
-      throw new ApplicationException('No valid logintype');
-    }
+			throw new ApplicationException('No valid logintype');
+		}
 		$this->logintype = $logintype;
 		if ($this->initiated) {
 			$this->modified = time();
@@ -469,14 +468,13 @@ class Application extends WireData {
 	}
 
 	public function isLogintypeValid($value = []) {
-    // return true;
 		if (!count($value)) {
 			$value = $this->logintype;
 		}
 		return !!count($value);
 	}
 
-	public function getlogintype() {
+	public function getLogintype() {
 		return $this->logintype;
 	}
 
@@ -631,7 +629,7 @@ class Application extends WireData {
 			':token_secret' => $this->getTokenSecret(),
 			':accesstoken_secret' => $this->getAccesstokenSecret(),
 			':authtype' => $this->getAuthtype(),
-      ':logintype' => json_encode($this->getLogintype()),
+			':logintype' => json_encode($this->getLogintype()),
 			':expires_in' => $this->getExpiresIn()
 		];
 

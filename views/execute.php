@@ -1,5 +1,4 @@
 <?php
-
 namespace ProcessWire;
 
 ?>
@@ -89,10 +88,11 @@ namespace ProcessWire;
 </dl>
 <?php
 	}
-  ?>
+?>
 
 <dl class="uk-description-list uk-description-list-divider">
-	<h2><small><?= $this->_('Links: '); ?></small></h2>
+	<h2><small><?= $this->_('Links: '); ?></small>
+	</h2>
 	<dt>
 		<a style="display: flex; align-items: center; text-decoration: none;" class="label" target="_blank"
 			href="https://processwire.com/talk/topic/24014-new-module-appapi/">
@@ -111,7 +111,8 @@ namespace ProcessWire;
 			<?= $this->_('AppApi ProcessWire-Module'); ?>
 		</a>
 	</dt>
-	<dd style="margin-top: 12px;"><?= $this->_('AppApi in ProcessWire\'s official modules-directory'); ?>
+	<dd style="margin-top: 12px;">
+		<?= $this->_('AppApi in ProcessWire\'s official modules-directory'); ?>
 	</dd>
 
 	<dt>
@@ -121,7 +122,8 @@ namespace ProcessWire;
 			<?= $this->_('AppApi on Github'); ?>
 		</a>
 	</dt>
-	<dd style="margin-top: 12px;"><?= $this->_('Do you want to help with the development of the module? Then the Github repository is the right place to open issues or submit pull requests. Don\'t be shy! I am happy about every contribution!'); ?>
+	<dd style="margin-top: 12px;">
+		<?= $this->_('Do you want to help with the development of the module? Then the Github repository is the right place to open issues or submit pull requests. Don\'t be shy! I am happy about every contribution!'); ?>
 	</dd>
 
 	<dt>
@@ -131,6 +133,7 @@ namespace ProcessWire;
 			<?= $this->_('AppApi-Wiki'); ?>
 		</a>
 	</dt>
-	<dd style="margin-top: 12px;"><?= $this->_('Official documentation'); ?>
+	<dd style="margin-top: 12px;">
+		<?= $this->_('Official documentation'); ?>
 	</dd>
 </dl>
