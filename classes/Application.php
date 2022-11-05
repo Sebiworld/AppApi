@@ -1,5 +1,4 @@
 <?php
-
 namespace ProcessWire;
 
 class Application extends WireData {
@@ -45,6 +44,24 @@ class Application extends WireData {
 		}
 		return 'Unknown: ' . $authtype;
 	}
+
+	const logintypeOptions = [
+		'logintypeUsernamePassword',
+		'logintypeEmailPassword'
+	];
+
+	protected $logintype = ['logintypeUsernamePassword'];
+
+
+	public static function getLogintypeLabel($logintype) {
+		if ($logintype === self::logintypeOptions[0]) {
+			return __('Username sign-in');
+		} elseif ($logintype === self::logintypeOptions[1]) {
+			return __('Email sign-in');
+		}
+		return 'Unknown: ' . $loginype;
+	}
+
 
 	public function __construct(array $import = []) {
 		$this->id = null;
@@ -117,6 +134,10 @@ class Application extends WireData {
 			$this->___setAuthtype($values['authtype']);
 		}
 
+		if (isset($values['logintype']) && !!json_decode($values['logintype'])) {
+			$this->___setLogintype(json_decode($values['logintype']));
+		}
+
 		if (isset($values['expires_in'])) {
 			$this->___setExpiresIn($values['expires_in']);
 		}
@@ -130,7 +151,7 @@ class Application extends WireData {
 	}
 
 	public function ___isValid() {
-		return $this->isIDValid() && $this->isCreatedValid() && $this->isCreatedUserValid() && $this->isModifiedValid() && $this->isModifiedUserValid() && $this->isTitleValid() && $this->isDescriptionValid() && $this->isTokenSecretValid() && $this->isAccesstokenSecretValid() && $this->isAuthtypeValid() && $this->isExpiresInValid() && $this->isDefaultApplicationValid();
+		return $this->isIDValid() && $this->isCreatedValid() && $this->isCreatedUserValid() && $this->isModifiedValid() && $this->isModifiedUserValid() && $this->isTitleValid() && $this->isDescriptionValid() && $this->isTokenSecretValid() && $this->isAccesstokenSecretValid() && $this->isAuthtypeValid() && $this->isLogintypeValid() && $this->isExpiresInValid() && $this->isDefaultApplicationValid();
 	}
 
 	public function ___isNew() {
@@ -433,6 +454,30 @@ class Application extends WireData {
 		return $this->authtype;
 	}
 
+	public function ___setLogintype($logintype) {
+		$logintype = $this->sanitizer->options($logintype, self::logintypeOptions);
+		if (!$this->isLogintypeValid($logintype)) {
+			throw new ApplicationException('No valid logintype');
+		}
+		$this->logintype = $logintype;
+		if ($this->initiated) {
+			$this->modified = time();
+			$this->modifiedUser = $this->wire('user');
+		}
+		return $this->logintype;
+	}
+
+	public function isLogintypeValid($value = []) {
+		if (!count($value)) {
+			$value = $this->logintype;
+		}
+		return !!count($value);
+	}
+
+	public function getLogintype() {
+		return $this->logintype;
+	}
+
 	public function ___getApikeys() {
 		if ($this->isNew()) {
 			return new WireArray();
@@ -584,6 +629,7 @@ class Application extends WireData {
 			':token_secret' => $this->getTokenSecret(),
 			':accesstoken_secret' => $this->getAccesstokenSecret(),
 			':authtype' => $this->getAuthtype(),
+			':logintype' => json_encode($this->getLogintype()),
 			':expires_in' => $this->getExpiresIn()
 		];
 
@@ -593,7 +639,7 @@ class Application extends WireData {
 			$queryVars[':id'] = $this->getID();
 
 			try {
-				$updateStatement = 'UPDATE `' . AppApi::tableApplications . '` SET `created_user_id`=:created_user_id, `created`=:created, `modified_user_id`=:modified_user_id, `modified`=:modified, `title`=:title, `description`=:description, `default_application`=:default_application, `token_secret`=:token_secret, `accesstoken_secret`=:accesstoken_secret, `authtype`=:authtype, `expires_in`=:expires_in WHERE `id`=:id;';
+				$updateStatement = 'UPDATE `' . AppApi::tableApplications . '` SET `created_user_id`=:created_user_id, `created`=:created, `modified_user_id`=:modified_user_id, `modified`=:modified, `title`=:title, `description`=:description, `default_application`=:default_application, `token_secret`=:token_secret, `accesstoken_secret`=:accesstoken_secret, `authtype`=:authtype, `logintype`=:logintype, `expires_in`=:expires_in WHERE `id`=:id;';
 				if ($this->isDefaultApplication()) {
 					$updateStatement .= 'UPDATE `' . AppApi::tableApplications . '` SET `default_application`=0 WHERE `id`!=:id;';
 				}
@@ -611,7 +657,7 @@ class Application extends WireData {
 
 		// New application should be saved into db:
 		try {
-			$createStatement = 'INSERT INTO `' . AppApi::tableApplications . '` (`id`, `created_user_id`, `created`,`modified_user_id`, `modified`, `title`, `description`, `default_application`, `token_secret`, `accesstoken_secret`, `authtype`, `expires_in`) VALUES (NULL, :created_user_id, :created, :modified_user_id, :modified, :title, :description, :default_application, :token_secret, :accesstoken_secret, :authtype, :expires_in);';
+			$createStatement = 'INSERT INTO `' . AppApi::tableApplications . '` (`id`, `created_user_id`, `created`,`modified_user_id`, `modified`, `title`, `description`, `default_application`, `token_secret`, `accesstoken_secret`, `authtype`, `logintype`, `expires_in`) VALUES (NULL, :created_user_id, :created, :modified_user_id, :modified, :title, :description, :default_application, :token_secret, :accesstoken_secret, :authtype, :logintype, :expires_in);';
 			if ($this->isDefaultApplication()) {
 				$createStatement .= 'UPDATE `' . AppApi::tableApplications . '` SET `default_application`=0 WHERE `id`!=:id;';
 			}

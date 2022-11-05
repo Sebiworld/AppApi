@@ -1,5 +1,4 @@
 <?php
-
 namespace ProcessWire;
 
 if (!wire('user')->hasPermission(AppApi::manageApplicationsPermission)) {
