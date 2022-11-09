@@ -1,5 +1,4 @@
 <?php
-
 namespace ProcessWire;
 
 if (!wire('user')->hasPermission(AppApi::manageApplicationsPermission)) {
@@ -235,6 +234,7 @@ if (isset($messages['errors']) && is_array($messages['errors'])) {
 <p style='padding-top: 20px;'>
 	<a
 		href='<?= $this->wire('page')->url . 'application/edit/' . $apptoken->getApplicationID(); ?>'>
-		<i class="fa fa-arrow-left"></i>&nbsp;<?= $this->_('Go Back'); ?>
+		<i
+			class="fa fa-arrow-left"></i>&nbsp;<?= $this->_('Go Back'); ?>
 	</a>
 </p>

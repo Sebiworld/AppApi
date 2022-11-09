@@ -1,5 +1,4 @@
 <?php
-
 namespace ProcessWire;
 
 if (isset($locked) && $locked === true) {
@@ -76,6 +75,7 @@ echo $form->render();
 
 <p style='padding-top: 20px;'>
 	<a href='<?= $this->wire('page')->url; ?>'>
-		<i class="fa fa-arrow-left"></i>&nbsp;<?= $this->_('Go Back'); ?>
+		<i
+			class="fa fa-arrow-left"></i>&nbsp;<?= $this->_('Go Back'); ?>
 	</a>
 </p>
