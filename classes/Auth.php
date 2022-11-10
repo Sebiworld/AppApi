@@ -424,15 +424,20 @@ class Auth extends WireData {
 		}
 
 		if (
-			isset($headersParams->username) &&
-			!empty($this->wire('sanitizer')->pageName($headersParams->username)) &&
 			isset($headersParams->password) &&
-			!empty('' . $headersParams->password)
+			!empty('' . $headersParams->password) &&
+			isset($headersParams->username) &&
+			(
+				!empty($email = $this->wire('sanitizer')->email($headersParams->username))
+				or
+				!empty($username = $this->wire('sanitizer')->pageName($headersParams->username))
+			)
 		) {
 			return [
 				'method' => 'any-password',
 				'params' => [
-					'username' => $headersParams->username,
+					'username' => !$email && !empty($username) ? $username : null,
+					'email' => !empty($email) ? $email : null,
 					'password' => $headersParams->password
 				],
 			];
