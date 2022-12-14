@@ -129,15 +129,8 @@ class Auth extends WireData {
 			$username = isset($params->username) ? $params->username : null;
 			$password = isset($params->password) ? $params->password : null;
 
-			if (empty($username) || empty($password)) {
-				throw new AuthException('Login not successful', 401);
-			}
-
-			$user = $this->wire('users')->get('name=' . $username);
-
-			// prevent username sniffing by just throwing a general exception:
-			if ($user->id) {
-				$loggedIn = $this->wire('session')->login($user->name, $password);
+			if (!empty($username) && !empty($password)) {
+				$user = $this->wire('users')->get('name=' . $username);
 			}
 		}
 
@@ -150,15 +143,8 @@ class Auth extends WireData {
 			$email = isset($params->email) ? $params->email : (isset($params->username) ? $params->username : null);
 			$password = isset($params->password) ? $params->password : null;
 
-			if (empty($email) || empty($password)) {
-				throw new AuthException('Login not successful', 401);
-			}
-
-			$user = $this->wire('users')->get('email=' . $email);
-
-
-			if ($user->id) {
-				$loggedIn = $this->wire('session')->login($user->name, $password);
+			if (!empty($email) && !empty($password)) {
+				$user = $this->wire('users')->get('email=' . $email);
 			}
 		}
 
@@ -166,6 +152,9 @@ class Auth extends WireData {
 		if (!$user || !$user->id) {
 			throw new AuthException('Login not successful', 401);
 		}
+
+		$loggedIn = $this->wire('session')->login($user->name, $password);
+
 
 		if ($loggedIn) {
 			if ($this->application->getAuthtype() === Application::authtypeSession) {
@@ -188,7 +177,7 @@ class Auth extends WireData {
 			}
 		}
 
-		throw new AuthException('Login not successfull', 401);
+		throw new AuthException('Login not successful', 401);
 	}
 
 	protected function ___createRefreshToken($args = []) {
@@ -424,28 +413,11 @@ class Auth extends WireData {
 		}
 
 		if (
-			isset($headersParams->password) &&
-			!empty('' . $headersParams->password) &&
 			isset($headersParams->username) &&
 			(
-				!empty($email = $this->wire('sanitizer')->email($headersParams->username))
-				or
-				!empty($username = $this->wire('sanitizer')->pageName($headersParams->username))
-			)
-		) {
-			return [
-				'method' => 'any-password',
-				'params' => [
-					'username' => !$email && !empty($username) ? $username : null,
-					'email' => !empty($email) ? $email : null,
-					'password' => $headersParams->password
-				],
-			];
-		}
-
-		if (
-			isset($headersParams->username) &&
-			!empty($this->wire('sanitizer')->email($headersParams->username)) &&
+				!empty($this->wire('sanitizer')->email($headersParams->username)) ||
+				!empty($this->wire('sanitizer')->pageName($headersParams->username))
+			) &&
 			isset($headersParams->password) &&
 			!empty('' . $headersParams->password)
 		) {

@@ -188,14 +188,13 @@ class AppApi extends Process implements Module {
 				$datenbank->exec($alterStatement);
 
 				$this->notices->add(new NoticeMessage('Successfully Altered Database-Scheme.'));
-			}  catch (\Exception $e) {
+			} catch (\Exception $e) {
 				$this->error('Error altering db-tables: ' . $e->getMessage());
 			}
 		} elseif (version_compare($fromVersion, '1.2.7', '<') && version_compare($toVersion, '1.2.6', '>')) {
 			// Add default_application column to application
 			try {
-
-        $alterStatement = '
+				$alterStatement = '
         ALTER TABLE `' . self::tableApplications . '` ADD COLUMN `logintype` JSON NOT NULL;
         ';
 
@@ -203,7 +202,7 @@ class AppApi extends Process implements Module {
 				$datenbank->exec($alterStatement);
 
 				$this->notices->add(new NoticeMessage('Successfully Altered Database-Scheme.'));
-			}  catch (\Exception $e) {
+			} catch (\Exception $e) {
 				$this->error('Error altering db-tables: ' . $e->getMessage());
 			}
 		}

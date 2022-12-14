@@ -52,9 +52,19 @@ class Router extends WireData {
 			// Registered Routes can overwrite default routes, user-defined routes in Routes.php can overwrite external routes:
 			$allRoutes = array_merge($flatDefaultRoutes, $flatRegisteredRoutes, $flatUserRoutes);
 
+			$routesWithoutDuplicates = [];
+			foreach ($allRoutes as $item) {
+				if (!isset($item[1]) || !isset($item[0])) {
+					continue;
+				}
+				$routesWithoutDuplicates[$item[1] . '#' . $item[0]] = $item;
+			}
+			$routesWithoutDuplicates = array_values($routesWithoutDuplicates);
+
+
 			// create FastRoute Dispatcher:
-			$router = function (\FastRoute\RouteCollector $r) use ($allRoutes) {
-				foreach ($allRoutes as $key => $route) {
+			$router = function (\FastRoute\RouteCollector $r) use ($routesWithoutDuplicates) {
+				foreach ($routesWithoutDuplicates as $key => $route) {
 					if (!is_array($route)) {
 						continue;
 					}
@@ -312,7 +322,7 @@ class Router extends WireData {
 			// Check first item in item array to see if it is also an array
 			if (is_array(reset($item))) {
 				self::flattenGroup($putInArray, $item, $prefix . '/' . $key);
-			} else {
+			} else if (isset($item[1])) {
 				$item[1] = $prefix . '/' . $item[1];
 				array_push($putInArray, $item);
 			}
