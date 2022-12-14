@@ -34,7 +34,7 @@ class Application extends WireData {
 	 */
 	const authtypeDoubleJWT = 2;
 
-	public static function getAuthtypeLabel($authtype) {
+  public static function getAuthtypeLabel($authtype) {
 		if ($authtype === self::authtypeSession) {
 			return __('PHP Session');
 		} elseif ($authtype === self::authtypeSingleJWT) {
