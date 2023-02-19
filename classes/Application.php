@@ -55,9 +55,9 @@ class Application extends WireData {
 
 	public static function getLogintypeLabel($logintype) {
 		if ($logintype === self::logintypeOptions[0]) {
-			return __('Username sign-in');
+			return __('Username Sign-In');
 		} elseif ($logintype === self::logintypeOptions[1]) {
-			return __('Email sign-in');
+			return __('Email Sign-In');
 		}
 		return 'Unknown: ' . $loginype;
 	}

@@ -24,7 +24,7 @@ class AppApi extends Process implements Module {
 		return [
 			'title' => 'AppApi',
 			'summary' => 'Module to create a REST API with ProcessWire',
-			'version' => '1.2.7',
+			'version' => '1.2.8',
 			'author' => 'Sebastian Schendel',
 			'icon' => 'terminal',
 			'href' => 'https://modules.processwire.com/modules/app-api/',
@@ -82,7 +82,7 @@ class AppApi extends Process implements Module {
     `title` varchar(100) NOT NULL,
     `description` TEXT,
     `authtype` int(11) NOT NULL,
-    `logintype` JSON NOT NULL,
+    `logintype` LONGTEXT NOT NULL,
     `token_secret` varchar(100) NOT NULL,
     `expires_in` int(11) NOT NULL,
     `accesstoken_secret` varchar(100) NOT NULL,
@@ -188,22 +188,21 @@ class AppApi extends Process implements Module {
 				$datenbank->exec($alterStatement);
 
 				$this->notices->add(new NoticeMessage('Successfully Altered Database-Scheme.'));
-			}  catch (\Exception $e) {
+			} catch (\Exception $e) {
 				$this->error('Error altering db-tables: ' . $e->getMessage());
 			}
 		} elseif (version_compare($fromVersion, '1.2.7', '<') && version_compare($toVersion, '1.2.6', '>')) {
 			// Add default_application column to application
 			try {
-
-        $alterStatement = '
-        ALTER TABLE `' . self::tableApplications . '` ADD COLUMN `logintype` JSON NOT NULL;
+				$alterStatement = '
+        ALTER TABLE `' . self::tableApplications . '` ADD COLUMN `logintype` LONGTEXT NOT NULL;
         ';
 
 				$datenbank = wire('database');
 				$datenbank->exec($alterStatement);
 
 				$this->notices->add(new NoticeMessage('Successfully Altered Database-Scheme.'));
-			}  catch (\Exception $e) {
+			} catch (\Exception $e) {
 				$this->error('Error altering db-tables: ' . $e->getMessage());
 			}
 		}

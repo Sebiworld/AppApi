@@ -61,6 +61,7 @@ class Router extends WireData {
 			}
 			$routesWithoutDuplicates = array_values($routesWithoutDuplicates);
 
+
 			// create FastRoute Dispatcher:
 			$router = function (\FastRoute\RouteCollector $r) use ($routesWithoutDuplicates) {
 				foreach ($routesWithoutDuplicates as $key => $route) {
