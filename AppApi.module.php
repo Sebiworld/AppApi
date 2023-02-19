@@ -82,7 +82,7 @@ class AppApi extends Process implements Module {
     `title` varchar(100) NOT NULL,
     `description` TEXT,
     `authtype` int(11) NOT NULL,
-    `logintype` JSON NOT NULL,
+    `logintype` LONGTEXT NOT NULL,
     `token_secret` varchar(100) NOT NULL,
     `expires_in` int(11) NOT NULL,
     `accesstoken_secret` varchar(100) NOT NULL,
@@ -195,7 +195,7 @@ class AppApi extends Process implements Module {
 			// Add default_application column to application
 			try {
 				$alterStatement = '
-        ALTER TABLE `' . self::tableApplications . '` ADD COLUMN `logintype` JSON NOT NULL;
+        ALTER TABLE `' . self::tableApplications . '` ADD COLUMN `logintype` LONGTEXT NOT NULL;
         ';
 
 				$datenbank = wire('database');
