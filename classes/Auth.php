@@ -135,7 +135,7 @@ class Auth extends WireData {
 		}
 
 		if (
-			!$loggedIn &&
+			(!$user || !$user->id) &&
 			in_array($accessMethod, ['email-password', 'any-password']) &&
 			in_array('logintypeEmailPassword', $allowedLoginTypes)
 		) {
