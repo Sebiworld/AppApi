@@ -8,7 +8,7 @@ This module helps you to create an api, to which an app or an external service c
 
 [![Current Version](https://img.shields.io/github/v/tag/Sebiworld/AppApi?label=Current%20Version)](https://img.shields.io/github/v/tag/Sebiworld/AppApi?label=Current%20Version) [![Current Version](https://img.shields.io/github/issues-closed-raw/Sebiworld/AppApi?color=%2356d364)](https://img.shields.io/github/issues-closed-raw/Sebiworld/AppApi?color=%2356d364) [![Current Version](https://img.shields.io/github/issues-raw/Sebiworld/AppApi)](https://img.shields.io/github/issues-raw/Sebiworld/AppApi)
 
-<a href="https://www.buymeacoffee.com/Sebi.dev" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
+<a href='https://ko-fi.com/E1E2LOEPF' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi3.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 
 | | |
 | ------------------: | -------------------------------------------------------------------------- |
