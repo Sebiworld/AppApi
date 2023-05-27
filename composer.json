@@ -21,5 +21,10 @@
             "email": "post@thomasaull.de",
             "homepage": "https://www.thomasaull.de"
         }
-    ]
+    ],
+    "config": {
+        "allow-plugins": {
+            "hari/pw-module": true
+        }
+    }
 }
