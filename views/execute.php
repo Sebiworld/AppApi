@@ -21,7 +21,16 @@ namespace ProcessWire;
 		<a style="display: flex; align-items: center; text-decoration: none;" class="label"
 			href="<?= $this->wire('page')->url . 'application/new'; ?>">
 			<i style="margin-right: 10px;" class="fa fa-2x fa-fw fa-plus ui-priority-secondary"></i>
-			<?= $this->_('Add a new Application'); ?>
+			<?= $this->_('Add A New Application'); ?>
+		</a>
+	</dt>
+	<dd></dd>
+
+	<dt>
+		<a style="display: flex; align-items: center; text-decoration: none;" class="label"
+			href="<?= $this->wire('page')->url . 'endpoints'; ?>">
+			<i style="margin-right: 10px;" class="fa fa-2x fa-fw fa-exchange ui-priority-secondary"></i>
+			<?= $this->_('See Endpoints'); ?>
 		</a>
 	</dt>
 	<dd></dd>

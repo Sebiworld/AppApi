@@ -477,6 +477,26 @@ class AppApi extends Process implements Module {
 		];
 	}
 
+	public function ___executeEndpoints() {
+		$this->headline($this->_('AppApi') . ' ' . $this->_('Endpoints'));
+
+		try {
+			$router = new Router();
+			$endpoints = $router->getRoutesWithoutDuplicates($this->registeredRoutes);
+
+			return [
+				'endpointUrl' => $this->wire('config')->urls->httpRoot . $this->endpoint,
+				'endpoints' => $endpoints
+			];
+		} catch (\Exception $e) {
+			echo '<h2>' . $this->_('Access denied') . '</h2>';
+			echo "<p>{$e->getMessage()}</p>";
+		}
+		return [
+			'endpoints' => new WireArray()
+		];
+	}
+
 	public function getApplication($id) {
 		$application = false;
 		$applicationID = $this->sanitizer->int($id);
@@ -835,5 +855,26 @@ class AppApi extends Process implements Module {
 		$this->registeredRoutes[$endpoint] = $routeDefinition;
 
 		return true;
+	}
+
+	/**
+	 * Replaces placeholders in a text.
+	 *
+	 * @param string $text
+	 * @param array $replacements key-value store of replacements (key is replacement-name)
+	 *
+	 * return string
+	 */
+	public static function replacePlaceholders($text, $replacements) {
+		if (!is_array($replacements) || !is_string($text)) {
+			return $text;
+		}
+
+		$output = '' . $text;
+		foreach ($replacements as $key => $value) {
+			$output = str_replace('{{' . $key . '}}', $value, $output);
+		}
+
+		return $output;
 	}
 }
