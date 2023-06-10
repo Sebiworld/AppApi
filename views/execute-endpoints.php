@@ -21,13 +21,43 @@ $table->headerRow([
 	$this->_('Settings')
 ]);
 
+$methodColors = [
+	'OPTIONS', 'GET', 'POST', 'UPDATE', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'CONNECT', 'TRACE'
+];
+
 if (isset($endpoints) && is_array($endpoints)) {
 	foreach ($endpoints as $endpointKey => $endpoint) {
 		foreach ($endpoint as $index => $child) {
 			$method = $child[0];
+			$methodStyles = [
+				'display: inline-block',
+				'position: relative',
+				'padding: 8px 24px',
+				'border-radius: 4px'
+			];
+			$methodAddition = '';
 			if ($method === 'OPTIONS' && !empty($child[2]) && is_array($child[2])) {
-				$method .= ' (' . implode(', ', $child[2]) . ')';
+				$methodAddition = '<br><small>(' . implode(', ', $child[2]) . ')</small>';
+				$methodStyles[] = 'background: #8d939e';
+				$methodStyles[] = 'color: #ffffff';
+			} else if ($method === 'GET') {
+				$methodStyles[] = 'background: #61affe';
+				$methodStyles[] = 'color: #ffffff';
+			} else if ($method === 'POST') {
+				$methodStyles[] = 'background: #49cc90';
+				$methodStyles[] = 'color: #ffffff';
+			} else if ($method === 'UPDATE' || $method === 'PUT' || $method === 'PATCH') {
+				$methodStyles[] = 'background: #fca130';
+				$methodStyles[] = 'color: #ffffff';
+			} else if ($method === 'DELETE') {
+				$methodStyles[] = 'background: #f93e3e';
+				$methodStyles[] = 'color: #ffffff';
+			} else {
+				$methodStyles[] = 'background: #d9e1ea';
+				$methodStyles[] = 'color: #354b60';
 			}
+
+			$method = '<code style="' . implode(';', $methodStyles) . '">' . $method . $methodAddition . '</code>';
 
 			$handler = '';
 			if (!empty($child[2]) && !is_array($child[2])) {
@@ -45,8 +75,8 @@ if (isset($endpoints) && is_array($endpoints)) {
 			}
 
 			$table->row([
-				'<code style="font-weight: bold; ' . ($index === 0 ? '' : 'color: transparent;') . '">' . $endpointKey . '</code>',
-				'<code>' . $method . '</code>',
+				'<strong ' . ($index === 0 ? '' : 'style="color: transparent;"') . '>' . $endpointKey . '</strong>',
+				$method,
 				'<code>' . $handler . '</code>',
 				!empty($settings) ? '<code>' . json_encode($settings) . '</code>' : ''
 			], [
