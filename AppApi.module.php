@@ -482,7 +482,7 @@ class AppApi extends Process implements Module {
 
 		try {
 			$router = new Router();
-			$endpoints = $router->getRoutesWithoutDuplicates($this->registeredRoutes);
+			$endpoints = $router->getRoutesWithoutDuplicates($this->registeredRoutes, true);
 
 			return [
 				'endpointUrl' => $this->wire('config')->urls->httpRoot . $this->endpoint,
@@ -852,7 +852,25 @@ class AppApi extends Process implements Module {
 			return false;
 		}
 
-		$this->registeredRoutes[$endpoint] = $routeDefinition;
+		$item = [
+			'routeDefinition' => $routeDefinition
+		];
+
+		try {
+			$trace = debug_backtrace();
+
+			if (isset($trace[0]['file'])) {
+				$item['trace'] = [
+					'file' => $trace[0]['file'] ?? '',
+					'line' => $trace[0]['line'] ?? '',
+					'class' => $trace[0]['class'] ?? '',
+					'function' => $trace[0]['function'] ?? ''
+				];
+			}
+		} catch (\Exception $e) {
+		}
+
+		$this->registeredRoutes[$endpoint] = $item;
 
 		return true;
 	}

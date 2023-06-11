@@ -21,10 +21,6 @@ $table->headerRow([
 	$this->_('Settings')
 ]);
 
-$methodColors = [
-	'OPTIONS', 'GET', 'POST', 'UPDATE', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'CONNECT', 'TRACE'
-];
-
 if (isset($endpoints) && is_array($endpoints)) {
 	foreach ($endpoints as $endpointKey => $endpoint) {
 		foreach ($endpoint as $index => $child) {
@@ -66,6 +62,34 @@ if (isset($endpoints) && is_array($endpoints)) {
 			if (!empty($child[3]) && !is_array($child[3])) {
 				$handler .= '::' . $child[3] . '()';
 			}
+			if (!empty($handler)) {
+				$handler = '<code>' . $handler . '</code>';
+			}
+
+			if (!empty($child[5]) && is_array($child[5])) {
+				$traceParts = [];
+				if (isset($child[5]['file'])) {
+					$traceParts[] = $this->_('Defined in') . ' ' . $child[5]['file'];
+				}
+				if (isset($child[5]['line'])) {
+					$traceParts[] = $this->_('line') . ' ' . $child[5]['line'];
+				}
+				// if (isset($child[5]['class'])) {
+				// 	$classPart = $child[5]['class'];
+				// 	if (isset($child[5]['function'])) {
+				// 		$classPart .= '::' . $child[5]['function'] . '()';
+				// 	}
+
+				// 	$traceParts[] = '<br>' . $classPart;
+				// }
+
+				if (!empty($traceParts)) {
+					if (!empty($handler)) {
+						$handler .= '<br>';
+					}
+					$handler .= '<i><small>' . implode(', ', $traceParts) . '</small></i>';
+				}
+			}
 
 			$settings = [];
 			if (!empty($child[4]) && is_array($child[4])) {
@@ -77,7 +101,7 @@ if (isset($endpoints) && is_array($endpoints)) {
 			$table->row([
 				'<strong ' . ($index === 0 ? '' : 'style="color: transparent;"') . '>' . $endpointKey . '</strong>',
 				$method,
-				'<code>' . $handler . '</code>',
+				$handler,
 				!empty($settings) ? '<code>' . json_encode($settings) . '</code>' : ''
 			], [
 				'separator' => $index === 0
@@ -135,3 +159,7 @@ $toolbarOutput = $form->render();
       class="fa fa-arrow-left"></i>&nbsp;<?= $this->_('Go Back'); ?>
   </a>
 </p>
+
+<pre>
+  <?php var_dump($endpoints); ?>
+</pre>

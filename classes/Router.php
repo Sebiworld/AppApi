@@ -27,25 +27,57 @@ class Router extends WireData {
 		}
 	}
 
-	private function getRoutesWithoutDuplicatesFlat($registeredRoutes) {
-		// $routes are coming from this file:
-		$routesPath = $this->wire('modules')->AppApi->routes_path;
-		if (is_string($routesPath) && !empty($routesPath) && substr($routesPath, -1) !== '/') {
-			require_once wire('config')->paths->root . $routesPath;
-		} else {
-			require_once wire('config')->paths->site . 'api/Routes.php';
+	private static function pathFromPwRoot($fullPath) {
+		$rootPath = wire('config')->paths->root;
+		if (substr($fullPath, 0, strlen($rootPath)) === $rootPath) {
+			return '/' . substr($fullPath, strlen($rootPath));
 		}
+		return $fullPath;
+	}
+
+	private function getRoutesWithoutDuplicatesFlat($registeredRoutes, $includeTrace = false) {
+		// $routes are coming from this file:
+		$routesPathRelative = $this->wire('modules')->AppApi->routes_path;
+		$routesPath = wire('config')->paths->site . 'api/Routes.php';
+		if (is_string($routesPathRelative) && !empty($routesPathRelative) && substr($routesPathRelative, -1) !== '/') {
+			$routesPath = wire('config')->paths->root . $routesPathRelative;
+		}
+		require_once $routesPath;
 
 		$flatDefaultRoutes = [];
-		self::flattenGroup($flatDefaultRoutes, DefaultRoutes::get());
+		if ($includeTrace) {
+			self::flattenGroup($flatDefaultRoutes, DefaultRoutes::get(), '', [
+				'file' => wire('config')->urls->AppApi . 'classes/DefaultRoutes.php'
+			]);
+		} else {
+			self::flattenGroup($flatDefaultRoutes, DefaultRoutes::get());
+		}
 
 		$flatRegisteredRoutes = [];
 		if (is_array($registeredRoutes) && !empty($registeredRoutes)) {
-			self::flattenGroup($flatRegisteredRoutes, $registeredRoutes);
+			foreach ($registeredRoutes as $key => $route) {
+				if (!isset($route['routeDefinition'])) {
+					continue;
+				}
+				$def = [];
+				$def[$key] = $route['routeDefinition'];
+
+				if ($includeTrace) {
+					self::flattenGroup($flatRegisteredRoutes, $def, '', $route['trace'] ?? []);
+				} else {
+					self::flattenGroup($flatRegisteredRoutes, $def);
+				}
+			}
 		}
 
 		$flatUserRoutes = [];
-		self::flattenGroup($flatUserRoutes, $routes);
+		if ($includeTrace) {
+			self::flattenGroup($flatUserRoutes, $routes, '', [
+				'file' => self::pathFromPwRoot($routesPath)
+			]);
+		} else {
+			self::flattenGroup($flatUserRoutes, $routes);
+		}
 
 		// Registered Routes can overwrite default routes, user-defined routes in Routes.php can overwrite external routes:
 		$allRoutes = array_merge($flatDefaultRoutes, $flatRegisteredRoutes, $flatUserRoutes);
@@ -61,8 +93,8 @@ class Router extends WireData {
 		return array_values($routesWithoutDuplicates);
 	}
 
-	public function getRoutesWithoutDuplicates($registeredRoutes) {
-		$routesWithoutDuplicates = $this->getRoutesWithoutDuplicatesFlat($registeredRoutes);
+	public function getRoutesWithoutDuplicates($registeredRoutes, $includeTrace = false) {
+		$routesWithoutDuplicates = $this->getRoutesWithoutDuplicatesFlat($registeredRoutes, $includeTrace);
 		$groupedRoutes = [];
 
 		foreach ($routesWithoutDuplicates as $key => $route) {
@@ -363,13 +395,30 @@ class Router extends WireData {
 		return $default;
 	}
 
-	protected static function flattenGroup(&$putInArray, $group, $prefix = '') {
+	protected static function flattenGroup(&$putInArray, $group, $prefix = '', $traceData = []) {
 		foreach ($group as $key => $item) {
 			// Check first item in item array to see if it is also an array
 			if (is_array(reset($item))) {
-				self::flattenGroup($putInArray, $item, $prefix . '/' . $key);
+				self::flattenGroup($putInArray, $item, $prefix . '/' . $key, $traceData);
 			} else if (isset($item[1])) {
 				$item[1] = $prefix . '/' . $item[1];
+
+				if (!empty($traceData)) {
+					if (!isset($item[2])) {
+						$item[2] = '';
+					}
+					if (!isset($item[3])) {
+						$item[3] = '';
+					}
+					if (!isset($item[4])) {
+						$item[4] = [];
+					}
+					$item[5] = $traceData;
+					if (isset($item[5]['file'])) {
+						$item[5]['file'] = self::pathFromPwRoot($item[5]['file']);
+					}
+				}
+
 				array_push($putInArray, $item);
 			}
 		}
