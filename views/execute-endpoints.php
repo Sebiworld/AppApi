@@ -159,7 +159,3 @@ $toolbarOutput = $form->render();
       class="fa fa-arrow-left"></i>&nbsp;<?= $this->_('Go Back'); ?>
   </a>
 </p>
-
-<pre>
-  <?php var_dump($endpoints); ?>
-</pre>
