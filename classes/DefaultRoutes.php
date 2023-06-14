@@ -1,5 +1,4 @@
 <?php
-
 namespace ProcessWire;
 
 class DefaultRoutes {
@@ -8,9 +7,18 @@ class DefaultRoutes {
 
 		'auth' => [
 			['OPTIONS', '', ['GET', 'POST', 'DELETE']],
-			['GET', '', Auth::class, 'currentUser'],
-			['POST', '', Auth::class, 'login'],
-			['DELETE', '', Auth::class, 'logout', ['auth' => false]]
+			['GET', '', Auth::class, 'currentUser', [], [
+				// documentation
+				'summary' => 'Get the current user'
+			]],
+			['POST', '', Auth::class, 'login', [], [
+				// documentation
+				'summary' => 'Login User'
+			]],
+			['DELETE', '', Auth::class, 'logout', ['auth' => false], [
+				// documentation
+				'summary' => 'Logout User'
+			]]
 		],
 
 		'auth/access' => [

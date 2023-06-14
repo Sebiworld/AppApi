@@ -1,16 +1,6 @@
 <?php
 namespace ProcessWire;
 
-/**
- * Router.php
- *
- * Stuff taken from https://gist.github.com/clsource/dc7be74afcbfc5fe752c
- * and Example Code from @lostkobrakai
- * and some stuff I put in there by myself
- */
-
-// $routesPath = "{$this->config->paths->site}api/Routes.php";
-
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/AppApiHelper.php';
 require_once __DIR__ . '/DefaultRoutes.php';
@@ -35,6 +25,23 @@ class Router extends WireData {
 		return $fullPath;
 	}
 
+	/**
+	 * Merges all registered routes to a flat, duplicate-free routes-array that can be used by FastRoute.
+	 *
+	 * Flat route definition:
+	 * [0] method
+	 * [1] url
+	 * [2] handler-class
+	 * [3] function
+	 * [4] settings data
+	 * [5] documentation data
+	 * [6] trace data
+	 *
+	 * @param array $registeredRoutes External endpoint-routes that are registered via AppApi->registerRoute()
+	 * @param boolean $includeTrace If true, the output array will include trace data at index 6
+	 *
+	 * @return array
+	 */
 	private function getRoutesWithoutDuplicatesFlat($registeredRoutes, $includeTrace = false) {
 		// $routes are coming from this file:
 		$routesPathRelative = $this->wire('modules')->AppApi->routes_path;
@@ -413,9 +420,13 @@ class Router extends WireData {
 					if (!isset($item[4])) {
 						$item[4] = [];
 					}
-					$item[5] = $traceData;
-					if (isset($item[5]['file'])) {
-						$item[5]['file'] = self::pathFromPwRoot($item[5]['file']);
+					if (!isset($item[5])) {
+						$item[5] = [];
+					}
+
+					$item[6] = $traceData;
+					if (isset($item[6]['file'])) {
+						$item[6]['file'] = self::pathFromPwRoot($item[6]['file']);
 					}
 				}
 

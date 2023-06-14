@@ -480,20 +480,29 @@ class AppApi extends Process implements Module {
 	public function ___executeEndpoints() {
 		$this->headline($this->_('AppApi') . ' ' . $this->_('Endpoints'));
 
+		$this->config->styles->add(
+			$this->config->urls->AppApi . 'assets/AppApi.css'
+		);
+
+		$action = $this->sanitizer->text($this->input->urlSegment2);
+
 		try {
 			$router = new Router();
 			$endpoints = $router->getRoutesWithoutDuplicates($this->registeredRoutes, true);
 
 			return [
 				'endpointUrl' => $this->wire('config')->urls->httpRoot . $this->endpoint,
-				'endpoints' => $endpoints
+				'endpoints' => $endpoints,
+				'action' => $action
 			];
 		} catch (\Exception $e) {
 			echo '<h2>' . $this->_('Access denied') . '</h2>';
 			echo "<p>{$e->getMessage()}</p>";
 		}
 		return [
-			'endpoints' => new WireArray()
+			'endpointUrl' => $this->wire('config')->urls->httpRoot . $this->endpoint,
+			'endpoints' => new WireArray(),
+			'action' => $action
 		];
 	}
 
@@ -845,7 +854,8 @@ class AppApi extends Process implements Module {
 	 *
 	 * @param string $endpoint
 	 * @param array $routeDefinition
-	 * @return void
+	 *
+	 * @return boolean
 	 */
 	public function registerRoute($endpoint, $routeDefinition) {
 		if (!is_string($endpoint) || empty($endpoint) || !is_array($routeDefinition)) {
