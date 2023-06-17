@@ -1,22 +1,14 @@
 <?php
 namespace ProcessWire;
 
-/**
- * Router.php
- *
- * Stuff taken from https://gist.github.com/clsource/dc7be74afcbfc5fe752c
- * and Example Code from @lostkobrakai
- * and some stuff I put in there by myself
- */
-
-// $routesPath = "{$this->config->paths->site}api/Routes.php";
-
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/AppApiHelper.php';
 require_once __DIR__ . '/DefaultRoutes.php';
 require_once __DIR__ . '/Auth.php';
 
 class Router extends WireData {
+	const methodsOrder = ['OPTIONS', 'GET', 'POST', 'UPDATE', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'CONNECT', 'TRACE'];
+
 	public function ___setCorsHeaders() {
 		if (isset($_SERVER['HTTP_ORIGIN'])) {
 			header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
@@ -25,42 +17,135 @@ class Router extends WireData {
 		}
 	}
 
+	private static function pathFromPwRoot($fullPath) {
+		$rootPath = wire('config')->paths->root;
+		if (substr($fullPath, 0, strlen($rootPath)) === $rootPath) {
+			return '/' . substr($fullPath, strlen($rootPath));
+		}
+		return $fullPath;
+	}
+
+	/**
+	 * Merges all registered routes to a flat, duplicate-free routes-array that can be used by FastRoute.
+	 *
+	 * Flat route definition:
+	 * [0] method
+	 * [1] url
+	 * [2] handler-class
+	 * [3] function
+	 * [4] settings data
+	 * [5] documentation data
+	 * [6] trace data
+	 *
+	 * @param array $registeredRoutes External endpoint-routes that are registered via AppApi->registerRoute()
+	 * @param boolean $includeTrace If true, the output array will include trace data at index 6
+	 *
+	 * @return array
+	 */
+	private function getRoutesWithoutDuplicatesFlat($registeredRoutes, $includeTrace = false) {
+		// $routes are coming from this file:
+		$routesPathRelative = $this->wire('modules')->AppApi->routes_path;
+		$routesPath = wire('config')->paths->site . 'api/Routes.php';
+		if (is_string($routesPathRelative) && !empty($routesPathRelative) && substr($routesPathRelative, -1) !== '/') {
+			$routesPath = wire('config')->paths->root . $routesPathRelative;
+		}
+		require_once $routesPath;
+
+		$flatDefaultRoutes = [];
+		if ($includeTrace) {
+			self::flattenGroup($flatDefaultRoutes, DefaultRoutes::get(), '', [
+				'file' => wire('config')->urls->AppApi . 'classes/DefaultRoutes.php'
+			]);
+		} else {
+			self::flattenGroup($flatDefaultRoutes, DefaultRoutes::get());
+		}
+
+		$flatRegisteredRoutes = [];
+		if (is_array($registeredRoutes) && !empty($registeredRoutes)) {
+			foreach ($registeredRoutes as $key => $route) {
+				if (!isset($route['routeDefinition'])) {
+					continue;
+				}
+				$def = [];
+				$def[$key] = $route['routeDefinition'];
+
+				if ($includeTrace) {
+					self::flattenGroup($flatRegisteredRoutes, $def, '', $route['trace'] ?? []);
+				} else {
+					self::flattenGroup($flatRegisteredRoutes, $def);
+				}
+			}
+		}
+
+		$flatUserRoutes = [];
+		if ($includeTrace) {
+			self::flattenGroup($flatUserRoutes, $routes, '', [
+				'file' => self::pathFromPwRoot($routesPath)
+			]);
+		} else {
+			self::flattenGroup($flatUserRoutes, $routes);
+		}
+
+		// Registered Routes can overwrite default routes, user-defined routes in Routes.php can overwrite external routes:
+		$allRoutes = array_merge($flatDefaultRoutes, $flatRegisteredRoutes, $flatUserRoutes);
+
+		$routesWithoutDuplicates = [];
+		foreach ($allRoutes as $item) {
+			if (!isset($item[1]) || !isset($item[0])) {
+				continue;
+			}
+			$routesWithoutDuplicates[$item[1] . '#' . $item[0]] = $item;
+		}
+
+		return array_values($routesWithoutDuplicates);
+	}
+
+	public function getRoutesWithoutDuplicates($registeredRoutes, $includeTrace = false) {
+		$routesWithoutDuplicates = $this->getRoutesWithoutDuplicatesFlat($registeredRoutes, $includeTrace);
+		$groupedRoutes = [];
+
+		foreach ($routesWithoutDuplicates as $key => $route) {
+			if (!is_array($route)) {
+				continue;
+			}
+			$route[1] = '/' . trim($route[1], '/');
+			if (!isset($groupedRoutes[$route[1]]) || !is_array($groupedRoutes[$route[1]])) {
+				$groupedRoutes[$route[1]] = [];
+			}
+			$groupedRoutes[$route[1]][] = $route;
+		}
+
+		foreach ($groupedRoutes as $key => $children) {
+			if (!is_array($groupedRoutes[$key])) {
+				continue;
+			}
+
+			usort($groupedRoutes[$key], function ($a, $b) {
+				$sortKeyA = array_search($a[0], SELF::methodsOrder);
+				$sortKeyB = array_search($b[0], SELF::methodsOrder);
+
+				if ($sortKeyA === false && $sortKeyB === false) {
+					return 0;
+				} else if ($sortKeyA === false) {
+					return -1;
+				} else if ($sortKeyB === false) {
+					return 1;
+				}
+
+				return $sortKeyA > $sortKeyB ? 1 : -1;
+			});
+		}
+		ksort($groupedRoutes);
+
+		return $groupedRoutes;
+	}
+
 	public function ___go($registeredRoutes) {
 		$this->registerErrorHandlers();
 		$this->setCorsHeaders();
 
 		try {
-			// $routes are coming from this file:
-			$routesPath = $this->wire('modules')->AppApi->routes_path;
-			if (is_string($routesPath) && !empty($routesPath) && substr($routesPath, -1) !== '/') {
-				require_once wire('config')->paths->root . $routesPath;
-			} else {
-				require_once wire('config')->paths->site . 'api/Routes.php';
-			}
-
-			$flatDefaultRoutes = [];
-			self::flattenGroup($flatDefaultRoutes, DefaultRoutes::get());
-
-			$flatRegisteredRoutes = [];
-			if (is_array($registeredRoutes) && !empty($registeredRoutes)) {
-				self::flattenGroup($flatRegisteredRoutes, $registeredRoutes);
-			}
-
-			$flatUserRoutes = [];
-			self::flattenGroup($flatUserRoutes, $routes);
-
-			// Registered Routes can overwrite default routes, user-defined routes in Routes.php can overwrite external routes:
-			$allRoutes = array_merge($flatDefaultRoutes, $flatRegisteredRoutes, $flatUserRoutes);
-
-			$routesWithoutDuplicates = [];
-			foreach ($allRoutes as $item) {
-				if (!isset($item[1]) || !isset($item[0])) {
-					continue;
-				}
-				$routesWithoutDuplicates[$item[1] . '#' . $item[0]] = $item;
-			}
-			$routesWithoutDuplicates = array_values($routesWithoutDuplicates);
-
+			$routesWithoutDuplicates = $this->getRoutesWithoutDuplicatesFlat($registeredRoutes);
 
 			// create FastRoute Dispatcher:
 			$router = function (\FastRoute\RouteCollector $r) use ($routesWithoutDuplicates) {
@@ -317,13 +402,34 @@ class Router extends WireData {
 		return $default;
 	}
 
-	protected function flattenGroup(&$putInArray, $group, $prefix = '') {
+	protected static function flattenGroup(&$putInArray, $group, $prefix = '', $traceData = []) {
 		foreach ($group as $key => $item) {
 			// Check first item in item array to see if it is also an array
 			if (is_array(reset($item))) {
-				self::flattenGroup($putInArray, $item, $prefix . '/' . $key);
+				self::flattenGroup($putInArray, $item, $prefix . '/' . $key, $traceData);
 			} else if (isset($item[1])) {
 				$item[1] = $prefix . '/' . $item[1];
+
+				if (!empty($traceData)) {
+					if (!isset($item[2])) {
+						$item[2] = '';
+					}
+					if (!isset($item[3])) {
+						$item[3] = '';
+					}
+					if (!isset($item[4])) {
+						$item[4] = [];
+					}
+					if (!isset($item[5])) {
+						$item[5] = [];
+					}
+
+					$item[6] = $traceData;
+					if (isset($item[6]['file'])) {
+						$item[6]['file'] = self::pathFromPwRoot($item[6]['file']);
+					}
+				}
+
 				array_push($putInArray, $item);
 			}
 		}

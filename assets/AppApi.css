@@ -1,0 +1,63 @@
+.appapi-content-wrapper p {
+  width: 42em;
+  max-width: 100%;
+}
+
+.appapi-content-wrapper .method-indicator {
+  display: inline-block;
+  position: relative;
+  padding: 8px 24px;
+  border-radius: 4px;
+  background: #d9e1ea;
+  color: #354b60;
+}
+
+.appapi-content-wrapper .endpoints-table .group-row {
+  border-top: 0 none;
+  background: #F2F2F2;
+  border: 1px solid #e5e5e5;
+}
+
+.appapi-content-wrapper .endpoints-table .method-row.first {
+  border-top: 0 none;
+}
+
+.appapi-content-wrapper .endpoints-table td:first-child,
+.appapi-content-wrapper .endpoints-table th:first-child {
+  padding-left: 8px;
+}
+
+.appapi-content-wrapper .endpoints-table td:nth-child(3),
+.appapi-content-wrapper .endpoints-table th:nth-child(3) {
+  min-width: 250px;
+}
+
+.appapi-content-wrapper .endpoints-table td:last-child,
+.appapi-content-wrapper .endpoints-table th:last-child {
+  padding-right: 8px;
+
+}
+
+.appapi-content-wrapper .content-box {
+  position: relative;
+  display: block;
+  padding: 10px 16px;
+  margin-top: 32px;
+  margin-bottom: 32px;
+  margin-left: -16px;
+  margin-right: -16px;
+  background: #F2F2F2;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  width: 42em;
+  max-width: 100%;
+}
+
+.appapi-content-wrapper .content-box p:last-child {
+  margin-bottom: 0;
+}
+
+.appapi-content-wrapper .inline-action-button {
+  display: block;
+  margin-top: 8px;
+}

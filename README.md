@@ -2,6 +2,8 @@
 
 This module helps you to create an api, to which an app or an external service can connect to.
 
+![A screen with the open AppApi module page](https://backend.sebi.dev/site/assets/files/1476/imac-and-ipad-on-top-of-a-white-desk-mockup-b4767.0x260.png)
+
 **A special thanks goes to [Thomas Aull](https://github.com/thomasaull)** , whose module [RestApi](https://modules.processwire.com/modules/rest-api/) was the starting point to this project.
 
 **Credits:** go to [Benjamin Milde](https://github.com/LostKobrakai) for his code example on how to use FastRoute with ProcessWire and [Camilo Castro](https://gist.github.com/clsource) for this [Gist](https://gist.github.com/clsource/dc7be74afcbfc5fe752c)

@@ -25,7 +25,7 @@ $table->headerRow([
 
 if ($applications instanceof WireArray && $applications->count > 0) {
 	foreach ($applications as $app) {
-		$reihe = [
+		$row = [
 			'<a href="' . $this->wire('page')->url . 'application/edit/' . $app->getID() . '">' . $app->getTitle() . '</a>',
 			Application::getAuthtypeLabel($app->getAuthtype()),
 			wire('datetime')->date('', $app->getCreated()),
@@ -34,7 +34,7 @@ if ($applications instanceof WireArray && $applications->count > 0) {
 			'<a href="' . $this->wire('page')->url . 'application/delete/' . $app->getID() . '"><i class="fa fa-trash"></i></a>',
 		];
 
-		$table->row($reihe);
+		$table->row($row);
 	}
 
 	$tableOutput = $table->render();

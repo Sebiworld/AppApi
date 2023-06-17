@@ -24,7 +24,7 @@ class AppApi extends Process implements Module {
 		return [
 			'title' => 'AppApi',
 			'summary' => 'Module to create a REST API with ProcessWire',
-			'version' => '1.2.10',
+			'version' => '1.3.0',
 			'author' => 'Sebastian Schendel',
 			'icon' => 'terminal',
 			'href' => 'https://modules.processwire.com/modules/app-api/',
@@ -477,6 +477,39 @@ class AppApi extends Process implements Module {
 		];
 	}
 
+	public function ___executeEndpoints() {
+		$this->headline($this->_('AppApi') . ' ' . $this->_('Endpoints'));
+
+		$this->config->styles->add(
+			$this->config->urls->AppApi . 'assets/AppApi.css'
+		);
+
+		$action = $this->sanitizer->text($this->input->urlSegment2);
+
+		try {
+			$router = new Router();
+			$endpoints = $router->getRoutesWithoutDuplicates($this->registeredRoutes, true);
+
+			return [
+				'host' => $this->wire('config')->urls->httpRoot,
+				'basePath' => $this->endpoint,
+				'endpointUrl' => $this->wire('config')->urls->httpRoot . $this->endpoint,
+				'endpoints' => $endpoints,
+				'action' => $action
+			];
+		} catch (\Exception $e) {
+			echo '<h2>' . $this->_('Access denied') . '</h2>';
+			echo "<p>{$e->getMessage()}</p>";
+		}
+		return [
+			'host' => $this->wire('config')->urls->httpRoot,
+			'basePath' => $this->endpoint,
+			'endpointUrl' => $this->wire('config')->urls->httpRoot . $this->endpoint,
+			'endpoints' => new WireArray(),
+			'action' => $action
+		];
+	}
+
 	public function getApplication($id) {
 		$application = false;
 		$applicationID = $this->sanitizer->int($id);
@@ -825,15 +858,55 @@ class AppApi extends Process implements Module {
 	 *
 	 * @param string $endpoint
 	 * @param array $routeDefinition
-	 * @return void
+	 *
+	 * @return boolean
 	 */
 	public function registerRoute($endpoint, $routeDefinition) {
 		if (!is_string($endpoint) || empty($endpoint) || !is_array($routeDefinition)) {
 			return false;
 		}
 
-		$this->registeredRoutes[$endpoint] = $routeDefinition;
+		$item = [
+			'routeDefinition' => $routeDefinition
+		];
+
+		try {
+			$trace = debug_backtrace();
+
+			if (isset($trace[0]['file'])) {
+				$item['trace'] = [
+					'file' => $trace[0]['file'] ?? '',
+					'line' => $trace[0]['line'] ?? '',
+					'class' => $trace[0]['class'] ?? '',
+					'function' => $trace[0]['function'] ?? ''
+				];
+			}
+		} catch (\Exception $e) {
+		}
+
+		$this->registeredRoutes[$endpoint] = $item;
 
 		return true;
+	}
+
+	/**
+	 * Replaces placeholders in a text.
+	 *
+	 * @param string $text
+	 * @param array $replacements key-value store of replacements (key is replacement-name)
+	 *
+	 * return string
+	 */
+	public static function replacePlaceholders($text, $replacements) {
+		if (!is_array($replacements) || !is_string($text)) {
+			return $text;
+		}
+
+		$output = '' . $text;
+		foreach ($replacements as $key => $value) {
+			$output = str_replace('{{' . $key . '}}', $value, $output);
+		}
+
+		return $output;
 	}
 }
