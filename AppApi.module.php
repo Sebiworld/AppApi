@@ -491,6 +491,8 @@ class AppApi extends Process implements Module {
 			$endpoints = $router->getRoutesWithoutDuplicates($this->registeredRoutes, true);
 
 			return [
+				'host' => $this->wire('config')->urls->httpRoot,
+				'basePath' => $this->endpoint,
 				'endpointUrl' => $this->wire('config')->urls->httpRoot . $this->endpoint,
 				'endpoints' => $endpoints,
 				'action' => $action
@@ -500,6 +502,8 @@ class AppApi extends Process implements Module {
 			echo "<p>{$e->getMessage()}</p>";
 		}
 		return [
+			'host' => $this->wire('config')->urls->httpRoot,
+			'basePath' => $this->endpoint,
 			'endpointUrl' => $this->wire('config')->urls->httpRoot . $this->endpoint,
 			'endpoints' => new WireArray(),
 			'action' => $action

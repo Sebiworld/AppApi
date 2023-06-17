@@ -29,6 +29,74 @@ $openApiOutput = [
 		'title' => 'AppApi Endpoints',
 		'version' => '1.0.0'
 	],
+	'servers' => [
+		['url' => $endpointUrl]
+	],
+	'security' => [
+		['apiKey' => []]
+	],
+	'components' => [
+		'schemas' => [
+			'AppApiException' => [
+				'type' => 'object',
+				'required' => ['error'],
+				'properties' => [
+					'error' => [
+						'type' => 'string',
+						'example' => 'Refresh Token expired. Please log in to start a new session.'
+					],
+					'error_code' => [
+						'type' => 'string',
+						'example' => 'refresh_token_expired'
+					],
+					'devmessage' => [
+						'type' => 'object',
+						'required' => ['class', 'code', 'message', 'location', 'line'],
+						'properties' => [
+							'class' => [
+								'type' => 'string'
+							],
+							'code' => [
+								'type' => 'integer',
+								'format' => 'int64'
+							],
+							'message' => [
+								'type' => 'string'
+							],
+							'location' => [
+								'type' => 'string'
+							],
+							'line' => [
+								'type' => 'integer',
+								'format' => 'int64'
+							]
+						]
+					]
+				]
+			]
+		],
+		'securitySchemes' => [
+			'apiKey' => [
+				'type' => 'apiKey',
+				'name' => 'X-API-KEY',
+				'in' => 'header'
+			],
+			'basicAuth' => [
+				'type' => 'http',
+				'scheme' => 'basic'
+			],
+			'bearerAuth' => [
+				'type' => 'http',
+				'scheme' => 'bearer',
+				'bearerFormat' => 'JWT'
+			],
+			'bearerRefreshAuth' => [
+				'type' => 'http',
+				'scheme' => 'bearer',
+				'bearerFormat' => 'JWT'
+			]
+		]
+	],
 	'paths' => []
 ];
 if (isset($endpoints) && is_array($endpoints)) {
@@ -49,18 +117,36 @@ if (isset($endpoints) && is_array($endpoints)) {
 				continue;
 			}
 
-			if (!empty($child[5]) && is_array($child[5])) {
+			if ($child[0] !== '*') {
 				$methodLowercase = strtolower($child[0]);
 				$openApiOutput['paths'][$endpointPath][$methodLowercase] = $child[5] ?? [];
 
+				if (empty($openApiOutput['paths'][$endpointPath][$methodLowercase]['summary']) && $methodLowercase === 'options') {
+					$openApiOutput['paths'][$endpointPath][$methodLowercase]['summary'] = 'Preflight options';
+				}
+
 				if (empty($openApiOutput['paths'][$endpointPath][$methodLowercase]['responses'])) {
-					$openApiOutput['paths'][$endpointPath][$methodLowercase]['responses'] = [
-						'200' => [
-							'description' => 'Successfull operation'
+					$openApiOutput['paths'][$endpointPath][$methodLowercase]['responses'] = [];
+				}
+				if (empty($openApiOutput['paths'][$endpointPath][$methodLowercase]['responses']['200'])) {
+					$openApiOutput['paths'][$endpointPath][$methodLowercase]['responses']['200'] = [
+						'description' => 'Successfull operation'
+					];
+				}
+				if (empty($openApiOutput['paths'][$endpointPath][$methodLowercase]['responses']['default'])) {
+					$openApiOutput['paths'][$endpointPath][$methodLowercase]['responses']['default'] = [
+						'description' => 'Unexpected error',
+						'content' => [
+							'application/json' => [
+								'schema' => [
+									'$ref' => '#/components/schemas/AppApiException'
+								]
+							]
 						]
 					];
 				}
 			}
+
 
 			// Build method cell:
 			$method = $child[0];
@@ -119,15 +205,15 @@ if (isset($endpoints) && is_array($endpoints)) {
 				}
 			}
 
-			$settings = [];
-			if (!empty($child[4]) && is_array($child[4])) {
-				foreach ($child[4] as $key => $value) {
-					$settings[] = $key . ': ' . json_encode($value);
-				}
-			}
-			if (!empty($settings)) {
-				$handler .= '<br>' . $this->_('Settings: ') . '<code>' . json_encode($settings) . '</code>';
-			}
+			// $settings = [];
+			// if (!empty($child[4]) && is_array($child[4])) {
+			// 	foreach ($child[4] as $key => $value) {
+			// 		$settings[] = $key . ': ' . json_encode($value);
+			// 	}
+			// }
+			// if (!empty($settings)) {
+			// 	$handler .= '<br>' . $this->_('Settings: ') . '<code>' . json_encode($settings) . '</code>';
+			// }
 
 			$table->row([
 				'<strong style="color: transparent;">' . $endpointPath . '</strong>',
@@ -153,7 +239,7 @@ if (empty($tableOutput)) {
 
 if ($action === 'action-get-openapi') {
 	echo '<pre>';
-	echo json_encode($openApiOutput, JSON_PRETTY_PRINT + JSON_UNESCAPED_SLASHES);
+	echo json_encode($openApiOutput, JSON_PRETTY_PRINT + JSON_UNESCAPED_SLASHES + JSON_UNESCAPED_UNICODE + JSON_UNESCAPED_LINE_TERMINATORS);
 	echo '</pre>';
 	die();
 }
@@ -178,10 +264,10 @@ $toolbarOutput = $form->render();
 
 <div class="appapi-content-wrapper">
 
-	<p style="width: 42em; max-width: 100%;">
+	<p>
 		<?= $this->_('These are all enpoints that are registered to be handled by AppApi.'); ?>
 	</p>
-	<p style="width: 42em; max-width: 100%;">
+	<p>
 		<?= AppApi::replacePlaceholders(
 	$this->_('{{l1}}Here{{closelink}} you will learn how to create your own Api endpoints in routes.php. In addition, other ProcessWire modules can {{l2}}register{{closelink}} their own endpoints with AppApi, which will then also be listed here. You can even overwrite the default Routes with your custom implementations!'),
 	[
@@ -194,7 +280,7 @@ $toolbarOutput = $form->render();
 	</p>
 
 	<div class="content-box">
-		<p style="width: 42em; max-width: 100%;">
+		<p>
 			<?= AppApi::replacePlaceholders(
 	$this->_('Did you think about {{l1}}adding a proper documentation array{{closelink}} to your custom endpoints? AppApi has a fully functioning {{l2}}OpenAPI 3.0.3 Spec{{closelink}} JSON for you that can be used with {{l3}}Swagger{{closelink}} or similar tools.'),
 	[
