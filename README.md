@@ -43,10 +43,7 @@ This module helps you to create an api, to which an app or an external service c
   - [3.1: Output Formatting](https://github.com/Sebiworld/AppApi/wiki/3.1:-Output-Formatting)
   - [3.2: Error Handling](https://github.com/Sebiworld/AppApi/wiki/3.2:-Error-Handling)
   - [3.3: Example: Listing Users](https://github.com/Sebiworld/AppApi/wiki/3.3:-Example:-Listing-Users)
-  - [3.4: Example: Universal Twack Api](https://github.com/Sebiworld/AppApi/wiki/3.4:-Example:-Universal-Twack-Api)
-    - [3.4.1: Routes](https://github.com/Sebiworld/AppApi/wiki/3.4:-Example:-Universal-Twack-Api#example2-routes)
-    - [3.4.2: Page Handlers](https://github.com/Sebiworld/AppApi/wiki/3.4:-Example:-Universal-Twack-Api#example2-page-handlers)
-    - [3.4.3: File Handlers](https://github.com/Sebiworld/AppApi/wiki/3.4:-Example:-Universal-Twack-Api#example2-file-handlers)
+  - [3.4: Add Documentation](https://github.com/Sebiworld/AppApi/wiki/3.4:-Add-Documentation)
 - [4: AppApi Modules](https://github.com/Sebiworld/AppApi/wiki/4.0:-AppApi-Modules)
 
 <a name="installation"></a>
