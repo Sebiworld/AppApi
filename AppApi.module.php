@@ -848,6 +848,12 @@ class AppApi extends Process implements Module {
 				'title' => $content->title,
 				'value' => $content->value
 			];
+		} elseif ($content instanceof WireArray) {
+			foreach ($content as $item) {
+				$output[] = self::getAjaxOf($item);
+			}
+		} elseif ($content instanceof WireData) {
+			$output = $content->getArray();
 		}
 
 		return $output;
