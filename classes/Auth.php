@@ -113,6 +113,14 @@ class Auth extends WireData {
 		return $jwt;
 	}
 
+	public function ___doCurrentUser($data) {
+		return [
+			'id' => wire('user')->id,
+			'name' => wire('user')->name,
+			'loggedIn' => wire('user')->isLoggedIn()
+		];
+	}
+
 	public function ___doLogin($data) {
 		$access = $this->getLogintype($data);
 		$loggedIn = false;
@@ -602,11 +610,7 @@ class Auth extends WireData {
 		return self::getInstance()->getAccessToken();
 	}
 
-	public static function currentUser() {
-		return [
-			'id' => wire('user')->id,
-			'name' => wire('user')->name,
-			'loggedIn' => wire('user')->isLoggedIn()
-		];
+	public static function currentUser($data) {
+		return self::getInstance()->doCurrentUser($data);
 	}
 }
