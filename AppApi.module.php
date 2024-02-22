@@ -791,22 +791,25 @@ class AppApi extends Process implements Module {
 			];
 
 			if ($content instanceof PageImage) {
-				$output['basename_mini'] = $content->size(600, 0)->basename;
-				$output['width'] = $content->width;
-				$output['height'] = $content->height;
-				$output['dimension_ratio'] = round($content->width / $content->height, 2);
+				try {
+					$output['basename_mini'] = $content->size(600, 0)->basename;
+					$output['width'] = $content->width;
+					$output['height'] = $content->height;
+					$output['dimension_ratio'] = round($content->width / $content->height, 2);
 
-				if ($content->original) {
-					$output['original'] = [
-						'basename' => $content->original->basename,
-						'name' => $content->original->name,
-						'filesize' => $content->original->filesize,
-						'filesizeStr' => $content->original->filesizeStr,
-						'ext' => $content->original->ext,
-						'width' => $content->original->width,
-						'height' => $content->original->height,
-						'dimension_ratio' => round($content->original->width / $content->original->height, 2)
-					];
+					if ($content->original) {
+						$output['original'] = [
+							'basename' => $content->original->basename,
+							'name' => $content->original->name,
+							'filesize' => $content->original->filesize,
+							'filesizeStr' => $content->original->filesizeStr,
+							'ext' => $content->original->ext,
+							'width' => $content->original->width,
+							'height' => $content->original->height,
+							'dimension_ratio' => round($content->original->width / $content->original->height, 2)
+						];
+					}
+				} catch (\Exception $e) {
 				}
 			}
 
