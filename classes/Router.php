@@ -445,12 +445,13 @@ class Router extends WireData {
 		if (error_reporting()) {
 			$return = new \StdClass();
 			$return->error = 'Internal Server Error';
+			$return->error_reporting = error_reporting();
 			$return->devmessage = [
 				'message' => $errStr,
 				'location' => $errFile,
 				'line' => $errLine
 			];
-			self::displayOrLogError($return, 500);
+			self::logError($return, 500);
 		}
 	}
 
@@ -489,45 +490,47 @@ class Router extends WireData {
 			}
 		}
 
-		self::displayOrLogError($return, $responseCode);
+		self::logError($return, $responseCode);
+		self::displayError($return, $responseCode);
 	}
 
-	public static function displayOrLogError($error, $status = 500) {
-		if (wire('config')->debug !== true) {
-			$message = 'An Error occurred.';
-			if ($error instanceof \Throwable) {
-				$message = $error->getMessage();
-			} elseif (is_object($error) && isset($error->devmessage)) {
-				$message = implode(', ', array_map(
-					function ($v, $k) {
-						return sprintf("%s='%s'", $k, $v);
-					},
-					$error->devmessage,
-					array_keys($error->devmessage)
-				));
-			} elseif (is_object($error) && isset($error->message)) {
-				$message = $error->message;
-			} elseif (is_string($error)) {
-				$message = $error;
-			}
-
-			$url = wire('modules')->AppApi->endpoint;
-			if (empty($url)) {
-				$url = '/api';
-			} else {
-				$url = '/' . trim($url, '/');
-			}
-			$url .= SELF::getCurrentUrl();
-
-			wire('log')->save(
-				AppApi::logExceptions,
-				$message,
-				[
-					'url' => $url
-				]
-			);
+	public static function logError($error, $status = 500) {
+		if (isset(wire('config')->app_api_log_errors) && wire('config')->app_api_log_errors === false) {
+			return;
 		}
-		self::displayError($error, $status);
+
+		$message = 'An Error occurred.';
+		if ($error instanceof \Throwable) {
+			$message = $error->getMessage();
+		} elseif (is_object($error) && isset($error->devmessage)) {
+			$message = implode(', ', array_map(
+				function ($v, $k) {
+					return sprintf("%s='%s'", $k, $v);
+				},
+				$error->devmessage,
+				array_keys($error->devmessage)
+			));
+		} elseif (is_object($error) && isset($error->message)) {
+			$message = $error->message;
+		} elseif (is_string($error)) {
+			$message = $error;
+		}
+
+		$url = wire('modules')->AppApi->endpoint;
+		if (empty($url)) {
+			$url = '/api';
+		} else {
+			$url = '/' . trim($url, '/');
+		}
+		$url .= SELF::getCurrentUrl();
+
+		wire('log')->save(
+			AppApi::logExceptions,
+			$message,
+			[
+				'url' => $url
+			]
+		);
 	}
 
 	public static function displayError($error, $status = 500) {
@@ -537,7 +540,7 @@ class Router extends WireData {
 			AppApi::sendResponse($status, $return);
 		}
 
-		if (isset($error->devmessage) && !(wire('user')->isSuperuser() || wire('config')->debug === true)) {
+		if (isset($error->devmessage) && !(wire('user')->isSuperuser() || wire('config')->debug === true || wire('config')->app_api_enable_devmessages === true)) {
 			unset($error->devmessage);
 		}
 
