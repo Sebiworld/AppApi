@@ -24,7 +24,7 @@ class AppApi extends Process implements Module {
 		return [
 			'title' => 'AppApi',
 			'summary' => 'Module to create a REST API with ProcessWire',
-			'version' => '1.3.2',
+			'version' => '1.3.3',
 			'author' => 'Sebastian Schendel',
 			'icon' => 'terminal',
 			'href' => 'https://modules.processwire.com/modules/app-api/',
@@ -787,15 +787,18 @@ class AppApi extends Process implements Module {
 				'filesize' => $content->filesize,
 				'filesizeStr' => $content->filesizeStr,
 				'page_id' => $content->page->id,
-				'ext' => $content->ext
+				'ext' => $content->ext,
+				'http_url' => $content->httpUrl
 			];
 
 			if ($content instanceof PageImage) {
 				try {
 					$output['basename_mini'] = $content->size(600, 0)->basename;
-					$output['width'] = $content->width;
+					$output['width'] = @$content->width;
 					$output['height'] = $content->height;
-					$output['dimension_ratio'] = round($content->width / $content->height, 2);
+					if (is_numeric($content->width) && !empty($content->width) && is_numeric($content->height) && !empty($content->height)) {
+						$output['dimension_ratio'] = round($content->width / $content->height, 2);
+					}
 
 					if ($content->original) {
 						$output['original'] = [
@@ -805,9 +808,12 @@ class AppApi extends Process implements Module {
 							'filesizeStr' => $content->original->filesizeStr,
 							'ext' => $content->original->ext,
 							'width' => $content->original->width,
-							'height' => $content->original->height,
-							'dimension_ratio' => round($content->original->width / $content->original->height, 2)
+							'height' => $content->original->height
 						];
+
+						if (is_numeric($content->original->width) && !empty($content->original->width) && is_numeric($content->original->height) && !empty($content->original->height)) {
+							$output['original']['dimension_ratio'] = round($content->original->width / $content->original->height, 2);
+						}
 					}
 				} catch (\Exception $e) {
 				}
