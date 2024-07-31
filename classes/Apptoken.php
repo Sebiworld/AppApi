@@ -119,6 +119,13 @@ class Apptoken extends WireData {
 		return $this->isValid() && $this->getNotBeforeTime() <= time() && ($this->getExpirationTime() === null || $this->getExpirationTime() > time());
 	}
 
+	/**
+	 * @deprecated
+	 */
+	public function ___isAccessable() {
+		return $this->___isAccessible();
+	}
+
 	public function isNew() {
 		return empty($this->id);
 	}

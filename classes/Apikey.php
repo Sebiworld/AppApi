@@ -1,5 +1,4 @@
 <?php
-
 namespace ProcessWire;
 
 class Apikey extends WireData {
@@ -89,6 +88,9 @@ class Apikey extends WireData {
 
 		if (isset($values['accessible_until'])) {
 			$this->___setAccessibleUntil($values['accessible_until']);
+		} else if (isset($values['accessable_until'])) {
+			// Deprecated fallback:
+			$this->___setAccessibleUntil($values['accessible_until']);
 		}
 	}
 
@@ -105,6 +107,13 @@ class Apikey extends WireData {
 
 	public function ___isAccessible() {
 		return $this->isValid() && ($this->getAccessibleUntil() === null || $this->getAccessibleUntil() > time());
+	}
+
+	/**
+	 * @deprecated
+	 */
+	public function ___isAccessable() {
+		return $this->isAccessible();
 	}
 
 	public function ___isNew() {
@@ -370,6 +379,13 @@ class Apikey extends WireData {
 		return $this->accessibleUntil;
 	}
 
+	/**
+	 * @deprecated
+	 */
+	public function ___setAccessableUntil($accessibleUntil) {
+		return $this->___setAccessibleUntil($accessibleUntil);
+	}
+
 	public function isAccessibleUntilValid($value = false) {
 		if ($value === false) {
 			$value = $this->accessibleUntil;
@@ -377,8 +393,22 @@ class Apikey extends WireData {
 		return $value === null || (is_integer($value) && $value > 0);
 	}
 
+	/**
+	 * @deprecated
+	 */
+	public function isAccessableUntilValid($value = false) {
+		return $this->isAccessibleUntilValid($value);
+	}
+
 	public function ___getAccessibleUntil() {
 		return $this->accessibleUntil;
+	}
+
+	/**
+	 * @deprecated
+	 */
+	public function ___getAccessableUntil() {
+		return $this->___getAccessibleUntil();
 	}
 
 	public function ___delete() {
