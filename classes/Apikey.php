@@ -13,7 +13,7 @@ class Apikey extends WireData {
 	protected $key;
 	protected $version;
 	protected $description;
-	protected $accessableUntil;
+	protected $accessibleUntil;
 
 	public function __construct($import = []) {
 		$this->id = null;
@@ -25,7 +25,7 @@ class Apikey extends WireData {
 		$this->key = '';
 		$this->version = '';
 		$this->description = '';
-		$this->accessableUntil = null;
+		$this->accessibleUntil = null;
 
 		if (is_array($import) && wireCount($import) > 0) {
 			$this->import($import);
@@ -87,8 +87,8 @@ class Apikey extends WireData {
 			$this->___setDescription($values['description']);
 		}
 
-		if (isset($values['accessable_until'])) {
-			$this->___setAccessableUntil($values['accessable_until']);
+		if (isset($values['accessible_until'])) {
+			$this->___setAccessibleUntil($values['accessible_until']);
 		}
 	}
 
@@ -100,11 +100,11 @@ class Apikey extends WireData {
 	}
 
 	public function ___isValid() {
-		return $this->isApplicationIDValid() && $this->isIDValid() && $this->isCreatedValid() && $this->isCreatedUserValid() && $this->isModifiedValid() && $this->isModifiedUserValid() && $this->isKeyValid() && $this->isVersionValid() && $this->isDescriptionValid() && $this->isAccessableUntilValid();
+		return $this->isApplicationIDValid() && $this->isIDValid() && $this->isCreatedValid() && $this->isCreatedUserValid() && $this->isModifiedValid() && $this->isModifiedUserValid() && $this->isKeyValid() && $this->isVersionValid() && $this->isDescriptionValid() && $this->isAccessibleUntilValid();
 	}
 
-	public function ___isAccessable() {
-		return $this->isValid() && ($this->getAccessableUntil() === null || $this->getAccessableUntil() > time());
+	public function ___isAccessible() {
+		return $this->isValid() && ($this->getAccessibleUntil() === null || $this->getAccessibleUntil() > time());
 	}
 
 	public function ___isNew() {
@@ -349,36 +349,36 @@ class Apikey extends WireData {
 		return $this->description;
 	}
 
-	public function ___setAccessableUntil($accessableUntil) {
-		if (is_string($accessableUntil)) {
-			$accessableUntil = strtotime($accessableUntil);
+	public function ___setAccessibleUntil($accessibleUntil) {
+		if (is_string($accessibleUntil)) {
+			$accessibleUntil = strtotime($accessibleUntil);
 		}
 
-		if (!$accessableUntil || !is_integer($accessableUntil) || $accessableUntil <= 0) {
-			$accessableUntil = null;
+		if (!$accessibleUntil || !is_integer($accessibleUntil) || $accessibleUntil <= 0) {
+			$accessibleUntil = null;
 		}
 
-		if (!$this->isAccessableUntilValid($accessableUntil)) {
-			throw new ApikeyException('No valid accessable-until date');
+		if (!$this->isAccessibleUntilValid($accessibleUntil)) {
+			throw new ApikeyException('No valid accessible-until date');
 		}
 
-		$this->accessableUntil = $accessableUntil;
+		$this->accessibleUntil = $accessibleUntil;
 		if ($this->initiated) {
 			$this->modified = time();
 			$this->modifiedUser = $this->wire('user');
 		}
-		return $this->accessableUntil;
+		return $this->accessibleUntil;
 	}
 
-	public function isAccessableUntilValid($value = false) {
+	public function isAccessibleUntilValid($value = false) {
 		if ($value === false) {
-			$value = $this->accessableUntil;
+			$value = $this->accessibleUntil;
 		}
 		return $value === null || (is_integer($value) && $value > 0);
 	}
 
-	public function ___getAccessableUntil() {
-		return $this->accessableUntil;
+	public function ___getAccessibleUntil() {
+		return $this->accessibleUntil;
 	}
 
 	public function ___delete() {
@@ -417,7 +417,7 @@ class Apikey extends WireData {
 			':key' => $this->getKey(),
 			':version' => $this->getVersion(),
 			':description' => $this->getDescription(),
-			':accessable_until' => $this->getAccessableUntil() === null ? null : date('Y-m-d G:i:s', $this->getAccessableUntil())
+			':accessible_until' => $this->getAccessibleUntil() === null ? null : date('Y-m-d G:i:s', $this->getAccessibleUntil())
 		];
 
 		if (!$this->isNew()) {
@@ -426,7 +426,7 @@ class Apikey extends WireData {
 			$queryVars[':id'] = $this->getID();
 
 			try {
-				$query = $db->prepare('UPDATE `' . AppApi::tableApikeys . '` SET `application_id`=:application_id, `created_user_id`=:created_user_id, `created`=:created, `modified_user_id`=:modified_user_id, `modified`=:modified, `key`=:key, `version`=:version, `description`=:description, `accessable_until`=:accessable_until WHERE `id`=:id;');
+				$query = $db->prepare('UPDATE `' . AppApi::tableApikeys . '` SET `application_id`=:application_id, `created_user_id`=:created_user_id, `created`=:created, `modified_user_id`=:modified_user_id, `modified`=:modified, `key`=:key, `version`=:version, `description`=:description, `accessible_until`=:accessible_until WHERE `id`=:id;');
 				$query->closeCursor();
 				$query->execute($queryVars);
 			} catch (\Exception $e) {
@@ -439,7 +439,7 @@ class Apikey extends WireData {
 
 		// New apikey should be saved into db:
 		try {
-			$query = $db->prepare('INSERT INTO `' . AppApi::tableApikeys . '` (`application_id`,`id`, `created_user_id`, `created`,`modified_user_id`, `modified`, `key`, `version`, `description`, `accessable_until`) VALUES (:application_id, NULL, :created_user_id, :created, :modified_user_id, :modified, :key, :version, :description, :accessable_until);');
+			$query = $db->prepare('INSERT INTO `' . AppApi::tableApikeys . '` (`application_id`,`id`, `created_user_id`, `created`,`modified_user_id`, `modified`, `key`, `version`, `description`, `accessible_until`) VALUES (:application_id, NULL, :created_user_id, :created, :modified_user_id, :modified, :key, :version, :description, :accessible_until);');
 			$query->closeCursor();
 			$query->execute($queryVars);
 			$this->id = $db->lastInsertId();

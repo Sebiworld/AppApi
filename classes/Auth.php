@@ -65,7 +65,7 @@ class Auth extends WireData {
 	}
 
 	public function isApikeyValid() {
-		return ($this->apikey instanceof Apikey && $this->apikey->isAccessable() && $this->application instanceof Application) || ($this->apikey === false && $this->application instanceof Application);
+		return ($this->apikey instanceof Apikey && $this->apikey->isAccessible() && $this->application instanceof Application) || ($this->apikey === false && $this->application instanceof Application);
 	}
 
 	public function getApikeyLog() {
@@ -236,7 +236,7 @@ class Auth extends WireData {
 			throw new AuthException('Invalid User', 400);
 		}
 
-		if (!$refreshtokenFromDB->isAccessable()) {
+		if (!$refreshtokenFromDB->isAccessible()) {
 			throw new RefreshtokenExpiredException();
 		}
 
@@ -502,7 +502,7 @@ class Auth extends WireData {
 					throw new AccesstokenInvalidException();
 				}
 
-				if (!$refreshtokenFromDB->isAccessable()) {
+				if (!$refreshtokenFromDB->isAccessible()) {
 					throw new RefreshtokenExpiredException();
 				}
 

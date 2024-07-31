@@ -100,7 +100,7 @@ class AppApi extends Process implements Module {
     `key` varchar(100) NOT NULL,
     `version` varchar(100) NOT NULL,
     `description` TEXT,
-    `accessable_until` datetime,
+    `accessible_until` datetime,
     PRIMARY KEY (`id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;';
 
@@ -163,7 +163,9 @@ class AppApi extends Process implements Module {
 				$application->setTitle('My Rest-Application');
 				$application->setDescription('Application was automatically generated with information from an older module-version.');
 			}
-		} elseif (version_compare($fromVersion, '1.1.0', '<')) {
+		}
+
+		if (version_compare($fromVersion, '1.1.0', '<')) {
 			// Add default_application column to application
 			try {
 				$alterStatement = '
@@ -177,7 +179,9 @@ class AppApi extends Process implements Module {
 			} catch (\Exception $e) {
 				$this->error('Error altering db-tables: ' . $e->getMessage());
 			}
-		} elseif (version_compare($fromVersion, '1.1.0', '==') && version_compare($toVersion, '1.1.1', '==')) {
+		}
+
+		if (version_compare($fromVersion, '1.1.0', '==') && version_compare($toVersion, '1.1.1', '==')) {
 			// Add default_application column to application
 			try {
 				$alterStatement = '
@@ -191,11 +195,29 @@ class AppApi extends Process implements Module {
 			} catch (\Exception $e) {
 				$this->error('Error altering db-tables: ' . $e->getMessage());
 			}
-		} elseif (version_compare($fromVersion, '1.2.7', '<') && version_compare($toVersion, '1.2.6', '>')) {
+		}
+
+		if (version_compare($fromVersion, '1.2.7', '<') && version_compare($toVersion, '1.2.6', '>')) {
 			// Add default_application column to application
 			try {
 				$alterStatement = '
         ALTER TABLE `' . self::tableApplications . '` ADD COLUMN `logintype` LONGTEXT NOT NULL;
+        ';
+
+				$datenbank = wire('database');
+				$datenbank->exec($alterStatement);
+
+				$this->notices->add(new NoticeMessage('Successfully Altered Database-Scheme.'));
+			} catch (\Exception $e) {
+				$this->error('Error altering db-tables: ' . $e->getMessage());
+			}
+		}
+
+		if (version_compare($fromVersion, '1.3.3', '<') && version_compare($toVersion, '1.3.3', '>=')) {
+			// Rename accessable_until column to accessible_until
+			try {
+				$alterStatement = '
+        ALTER TABLE `' . self::tableApplications . '` RENAME COLUMN `accessable_until` TO `accessible_until`;
         ';
 
 				$datenbank = wire('database');

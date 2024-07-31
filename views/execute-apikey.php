@@ -71,14 +71,14 @@ $field->value = $apikey->getDescription();
 $field->collapsed = Inputfield::collapsedBlank;
 $form->add($field);
 
-// Accessable until:
+// Accessible until:
 $field = $this->modules->get('InputfieldDatetime');
-$field->label = $this->_('Accessable until');
+$field->label = $this->_('Accessible until');
 $field->description = $this->_('Use this field to lock this apikey after the given datetime.');
-$field->attr('id+name', 'form_accessable_until');
+$field->attr('id+name', 'form_accessible_until');
 $field->columnWidth = '100%';
 $field->required = 0;
-$field->value = $apikey->getAccessableUntil();
+$field->value = $apikey->getAccessibleUntil();
 $field->datepicker = InputfieldDatetime::datepickerFocus;
 $field->timeInputSelect = true;
 $field->timeInputFormat = 'H:i:s';
@@ -126,7 +126,7 @@ if (wire('input')->post('action-save')) {
 			$apikey->setKey($form->get('form_key')->attr('value'));
 			$apikey->setVersion($form->get('form_version')->attr('value'));
 			$apikey->setDescription($form->get('form_description')->attr('value'));
-			$apikey->setAccessableUntil($form->get('form_accessable_until')->attr('value'));
+			$apikey->setAccessibleUntil($form->get('form_accessible_until')->attr('value'));
 
 			if (!$apikey->save()) {
 				throw new \Exception('The apikey could not be saved.');
