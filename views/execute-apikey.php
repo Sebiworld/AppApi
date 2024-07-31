@@ -82,6 +82,8 @@ $field->value = $apikey->getAccessibleUntil();
 $field->datepicker = InputfieldDatetime::datepickerFocus;
 $field->timeInputSelect = true;
 $field->timeInputFormat = 'H:i:s';
+$field->inputType = 'html';
+$field->htmlType = 'datetime';
 $field->collapsed = Inputfield::collapsedBlank;
 $form->add($field);
 
