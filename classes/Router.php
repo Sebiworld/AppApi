@@ -495,7 +495,7 @@ class Router extends WireData {
 	}
 
 	public static function logError($error, $status = 500) {
-		if (isset(wire('config')->app_api_log_errors) && wire('config')->app_api_log_errors === false) {
+		if (isset(wire('config')->appApiLogErrors) && wire('config')->appApiLogErrors === false) {
 			return;
 		}
 
@@ -540,7 +540,7 @@ class Router extends WireData {
 			AppApi::sendResponse($status, $return);
 		}
 
-		if (isset($error->devmessage) && !(wire('user')->isSuperuser() || wire('config')->debug === true || wire('config')->app_api_enable_devmessages === true)) {
+		if (isset($error->devmessage) && !(wire('user')->isSuperuser() || wire('config')->debug === true || wire('config')->appApiEnableDevmessages === true)) {
 			unset($error->devmessage);
 		}
 
