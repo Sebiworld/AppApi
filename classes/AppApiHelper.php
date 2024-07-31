@@ -1,5 +1,4 @@
 <?php
-
 namespace ProcessWire;
 
 class AppApiHelper {
@@ -31,7 +30,7 @@ class AppApiHelper {
 				$sanitizer = $sanitizer[1];
 			}
 
-			if (!method_exists(wire('sanitizer'), $sanitizer)) {
+			if (!method_exists(wire('sanitizer'), $sanitizer) && !method_exists(wire('sanitizer'), '___' . $sanitizer)) {
 				throw new AppApiException("Sanitizer: '$sanitizer' is no valid sanitizer", 400);
 			}
 
