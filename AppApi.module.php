@@ -29,7 +29,7 @@ class AppApi extends Process implements Module {
 			'icon' => 'terminal',
 			'href' => 'https://modules.processwire.com/modules/app-api/',
 			'requires' => [
-				'PHP>=7.2.0',
+				'PHP>=8.1.0',
 				'ProcessWire>=3.0.98'
 			],
 
