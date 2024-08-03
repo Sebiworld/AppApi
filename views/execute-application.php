@@ -30,7 +30,7 @@ if (!$application->isNew()) {
 		$this->_('Version'),
 		$this->_('Created'),
 		$this->_('Created by'),
-		$this->_('Accessable until'),
+		$this->_('Accessible until'),
 		$this->_('Actions')
 	]);
 
@@ -43,7 +43,7 @@ if (!$application->isNew()) {
 				$apikey->getVersion(),
 				wire('datetime')->date('', $apikey->getCreated()),
 				$apikey->getCreatedUserLink(),
-				wire('datetime')->date('', $apikey->getAccessableUntil()),
+				wire('datetime')->date('', $apikey->getAccessibleUntil()),
 				'<a href="' . $this->wire('page')->url . 'apikey/delete/' . $apikey->getID() . '"><i class="fa fa-trash"></i></a>'
 			];
 

@@ -5,6 +5,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/AppApiHelper.php';
 
 use \Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 class Auth extends WireData {
 	protected $apikey = false;
@@ -65,7 +66,7 @@ class Auth extends WireData {
 	}
 
 	public function isApikeyValid() {
-		return ($this->apikey instanceof Apikey && $this->apikey->isAccessable() && $this->application instanceof Application) || ($this->apikey === false && $this->application instanceof Application);
+		return ($this->apikey instanceof Apikey && $this->apikey->isAccessible() && $this->application instanceof Application) || ($this->apikey === false && $this->application instanceof Application);
 	}
 
 	public function getApikeyLog() {
@@ -217,7 +218,7 @@ class Auth extends WireData {
 		}
 
 		// throws exception if token is invalid:
-		$token = JWT::decode($tokenString, $this->application->getTokenSecret(), ['HS256']);
+		$token = JWT::decode($tokenString, new Key($this->application->getTokenSecret(), 'HS256'));
 		if (!is_object($token)) {
 			throw new AuthException('Invalid Token', 400);
 		}
@@ -236,7 +237,7 @@ class Auth extends WireData {
 			throw new AuthException('Invalid User', 400);
 		}
 
-		if (!$refreshtokenFromDB->isAccessable()) {
+		if (!$refreshtokenFromDB->isAccessible()) {
 			throw new RefreshtokenExpiredException();
 		}
 
@@ -302,7 +303,7 @@ class Auth extends WireData {
 				try {
 					$secret = $this->application->getAccesstokenSecret();
 
-					$token = JWT::decode($tokenString, $secret, ['HS256']);
+					$token = JWT::decode($tokenString, new Key($secret, 'HS256'));
 				} catch (\Firebase\JWT\ExpiredException $e) {
 					throw new AccesstokenExpiredException();
 				} catch (\Firebase\JWT\BeforeValidException $e) {
@@ -468,7 +469,7 @@ class Auth extends WireData {
 				if (!$singleJwt) {
 					$secret = $this->application->getAccesstokenSecret();
 				}
-				$token = JWT::decode($tokenString, $secret, ['HS256']);
+				$token = JWT::decode($tokenString, new Key($secret, 'HS256'));
 			} catch (\Firebase\JWT\ExpiredException $e) {
 				throw new AccesstokenExpiredException();
 			} catch (\Firebase\JWT\BeforeValidException $e) {
@@ -502,7 +503,7 @@ class Auth extends WireData {
 					throw new AccesstokenInvalidException();
 				}
 
-				if (!$refreshtokenFromDB->isAccessable()) {
+				if (!$refreshtokenFromDB->isAccessible()) {
 					throw new RefreshtokenExpiredException();
 				}
 

@@ -130,7 +130,7 @@ if (isset($endpoints) && is_array($endpoints)) {
 				}
 				if (empty($openApiOutput['paths'][$endpointPath][$methodLowercase]['responses']['200'])) {
 					$openApiOutput['paths'][$endpointPath][$methodLowercase]['responses']['200'] = [
-						'description' => 'Successfull operation'
+						'description' => 'Successful operation'
 					];
 				}
 				if (empty($openApiOutput['paths'][$endpointPath][$methodLowercase]['responses']['default'])) {
@@ -264,7 +264,7 @@ $toolbarOutput = $form->render();
 <div class="appapi-content-wrapper">
 
 	<p>
-		<?= $this->_('These are all enpoints that are registered to be handled by AppApi.'); ?>
+		<?= $this->_('These are all endpoints that are registered to be handled by AppApi.'); ?>
 	</p>
 	<p>
 		<?= AppApi::replacePlaceholders(

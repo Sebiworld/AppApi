@@ -24,7 +24,7 @@ class AppApi extends Process implements Module {
 		return [
 			'title' => 'AppApi',
 			'summary' => 'Module to create a REST API with ProcessWire',
-			'version' => '1.3.2',
+			'version' => '1.3.3',
 			'author' => 'Sebastian Schendel',
 			'icon' => 'terminal',
 			'href' => 'https://modules.processwire.com/modules/app-api/',
@@ -100,7 +100,7 @@ class AppApi extends Process implements Module {
     `key` varchar(100) NOT NULL,
     `version` varchar(100) NOT NULL,
     `description` TEXT,
-    `accessable_until` datetime,
+    `accessible_until` datetime,
     PRIMARY KEY (`id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;';
 
@@ -163,7 +163,9 @@ class AppApi extends Process implements Module {
 				$application->setTitle('My Rest-Application');
 				$application->setDescription('Application was automatically generated with information from an older module-version.');
 			}
-		} elseif (version_compare($fromVersion, '1.1.0', '<')) {
+		}
+
+		if (version_compare($fromVersion, '1.1.0', '<')) {
 			// Add default_application column to application
 			try {
 				$alterStatement = '
@@ -177,7 +179,9 @@ class AppApi extends Process implements Module {
 			} catch (\Exception $e) {
 				$this->error('Error altering db-tables: ' . $e->getMessage());
 			}
-		} elseif (version_compare($fromVersion, '1.1.0', '==') && version_compare($toVersion, '1.1.1', '==')) {
+		}
+
+		if (version_compare($fromVersion, '1.1.0', '==') && version_compare($toVersion, '1.1.1', '==')) {
 			// Add default_application column to application
 			try {
 				$alterStatement = '
@@ -191,11 +195,29 @@ class AppApi extends Process implements Module {
 			} catch (\Exception $e) {
 				$this->error('Error altering db-tables: ' . $e->getMessage());
 			}
-		} elseif (version_compare($fromVersion, '1.2.7', '<') && version_compare($toVersion, '1.2.6', '>')) {
+		}
+
+		if (version_compare($fromVersion, '1.2.7', '<') && version_compare($toVersion, '1.2.6', '>')) {
 			// Add default_application column to application
 			try {
 				$alterStatement = '
         ALTER TABLE `' . self::tableApplications . '` ADD COLUMN `logintype` LONGTEXT NOT NULL;
+        ';
+
+				$datenbank = wire('database');
+				$datenbank->exec($alterStatement);
+
+				$this->notices->add(new NoticeMessage('Successfully Altered Database-Scheme.'));
+			} catch (\Exception $e) {
+				$this->error('Error altering db-tables: ' . $e->getMessage());
+			}
+		}
+
+		if (version_compare($fromVersion, '1.3.3', '<') && version_compare($toVersion, '1.3.3', '>=')) {
+			// Rename accessable_until column to accessible_until
+			try {
+				$alterStatement = '
+        ALTER TABLE `' . self::tableApplications . '` RENAME COLUMN `accessable_until` TO `accessible_until`;
         ';
 
 				$datenbank = wire('database');
@@ -787,26 +809,35 @@ class AppApi extends Process implements Module {
 				'filesize' => $content->filesize,
 				'filesizeStr' => $content->filesizeStr,
 				'page_id' => $content->page->id,
-				'ext' => $content->ext
+				'ext' => $content->ext,
+				'http_url' => $content->httpUrl
 			];
 
 			if ($content instanceof PageImage) {
-				$output['basename_mini'] = $content->size(600, 0)->basename;
-				$output['width'] = $content->width;
-				$output['height'] = $content->height;
-				$output['dimension_ratio'] = round($content->width / $content->height, 2);
+				try {
+					$output['basename_mini'] = $content->size(600, 0)->basename;
+					$output['width'] = @$content->width;
+					$output['height'] = $content->height;
+					if (is_numeric($content->width) && !empty($content->width) && is_numeric($content->height) && !empty($content->height)) {
+						$output['dimension_ratio'] = round($content->width / $content->height, 2);
+					}
 
-				if ($content->original) {
-					$output['original'] = [
-						'basename' => $content->original->basename,
-						'name' => $content->original->name,
-						'filesize' => $content->original->filesize,
-						'filesizeStr' => $content->original->filesizeStr,
-						'ext' => $content->original->ext,
-						'width' => $content->original->width,
-						'height' => $content->original->height,
-						'dimension_ratio' => round($content->original->width / $content->original->height, 2)
-					];
+					if ($content->original) {
+						$output['original'] = [
+							'basename' => $content->original->basename,
+							'name' => $content->original->name,
+							'filesize' => $content->original->filesize,
+							'filesizeStr' => $content->original->filesizeStr,
+							'ext' => $content->original->ext,
+							'width' => $content->original->width,
+							'height' => $content->original->height
+						];
+
+						if (is_numeric($content->original->width) && !empty($content->original->width) && is_numeric($content->original->height) && !empty($content->original->height)) {
+							$output['original']['dimension_ratio'] = round($content->original->width / $content->original->height, 2);
+						}
+					}
+				} catch (\Exception $e) {
 				}
 			}
 

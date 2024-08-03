@@ -27,7 +27,7 @@ class DefaultRoutes {
 				'parameters' => [],
 				'responses' => [
 					'200' => [
-						'description' => 'Successfull operation',
+						'description' => 'Successful operation',
 						'content' => [
 							'application/json' => [
 								'schema' => [
@@ -96,7 +96,7 @@ class DefaultRoutes {
 				],
 				'responses' => [
 					'200' => [
-						'description' => 'Login was successfull. Depending on the auth-type that is defined in the application, the response will be only the username (PHP session auth), username and jwt (Single JWT) or username and refresh_token (Double JWT)',
+						'description' => 'Login was successful. Depending on the auth-type that is defined in the application, the response will be only the username (PHP session auth), username and jwt (Single JWT) or username and refresh_token (Double JWT)',
 						'content' => [
 							'application/json' => [
 								'schema' => [
@@ -167,7 +167,7 @@ class DefaultRoutes {
 				'parameters' => [],
 				'responses' => [
 					'200' => [
-						'description' => 'Logout was successfull.',
+						'description' => 'Logout was successful.',
 						'content' => [
 							'application/json' => [
 								'schema' => [
@@ -217,7 +217,7 @@ class DefaultRoutes {
 				'parameters' => [],
 				'responses' => [
 					'200' => [
-						'description' => 'Renewing the access token was successfull. This will invalidate the used refresh-token and will return a new refresh-token and a new access-token.',
+						'description' => 'Renewing the access token was successful. This will invalidate the used refresh-token and will return a new refresh-token and a new access-token.',
 						'content' => [
 							'application/json' => [
 								'schema' => [
