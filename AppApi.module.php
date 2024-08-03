@@ -217,7 +217,7 @@ class AppApi extends Process implements Module {
 			// Rename accessable_until column to accessible_until
 			try {
 				$alterStatement = '
-        ALTER TABLE `' . self::tableApplications . '` RENAME COLUMN `accessable_until` TO `accessible_until`;
+        ALTER TABLE `' . self::tableApikeys . '` RENAME COLUMN `accessable_until` TO `accessible_until`;
         ';
 
 				$datenbank = wire('database');
