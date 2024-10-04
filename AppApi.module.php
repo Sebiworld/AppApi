@@ -884,7 +884,7 @@ class AppApi extends Process implements Module {
 				$output[] = self::getAjaxOf($item);
 			}
 		} elseif ($content instanceof WireData) {
-			$output = self::getAjaxOf($content->getArray());
+			$output = $content->getArray();
 		} elseif (is_array($content)) {
 			foreach ($content as $key => $value) {
 				$output[$key] = self::getAjaxOf($value);
