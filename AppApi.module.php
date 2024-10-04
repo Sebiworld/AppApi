@@ -24,7 +24,7 @@ class AppApi extends Process implements Module {
 		return [
 			'title' => 'AppApi',
 			'summary' => 'Module to create a REST API with ProcessWire',
-			'version' => '1.3.3',
+			'version' => '1.3.4',
 			'author' => 'Sebastian Schendel',
 			'icon' => 'terminal',
 			'href' => 'https://modules.processwire.com/modules/app-api/',
@@ -884,7 +884,15 @@ class AppApi extends Process implements Module {
 				$output[] = self::getAjaxOf($item);
 			}
 		} elseif ($content instanceof WireData) {
-			$output = $content->getArray();
+			$output = self::getAjaxOf($content->getArray());
+		} elseif (is_array($content)) {
+			foreach ($content as $key => $value) {
+				$output[$key] = self::getAjaxOf($value);
+			}
+		} elseif ($content instanceof \StdClass) {
+			foreach ($content as $key => $value) {
+				$output[$key] = self::getAjaxOf($value);
+			}
 		}
 
 		return $output;
