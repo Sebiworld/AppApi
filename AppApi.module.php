@@ -29,7 +29,7 @@ class AppApi extends Process implements Module {
 			'icon' => 'terminal',
 			'href' => 'https://modules.processwire.com/modules/app-api/',
 			'requires' => [
-				'PHP>=7.2.0',
+				'PHP>=8.1.0',
 				'ProcessWire>=3.0.98'
 			],
 
@@ -217,7 +217,7 @@ class AppApi extends Process implements Module {
 			// Rename accessable_until column to accessible_until
 			try {
 				$alterStatement = '
-        ALTER TABLE `' . self::tableApplications . '` RENAME COLUMN `accessable_until` TO `accessible_until`;
+        ALTER TABLE `' . self::tableApikeys . '` RENAME COLUMN `accessable_until` TO `accessible_until`;
         ';
 
 				$datenbank = wire('database');
