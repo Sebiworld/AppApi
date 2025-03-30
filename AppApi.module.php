@@ -24,7 +24,7 @@ class AppApi extends Process implements Module {
 		return [
 			'title' => 'AppApi',
 			'summary' => 'Module to create a REST API with ProcessWire',
-			'version' => '1.3.4',
+			'version' => '1.3.5',
 			'author' => 'Sebastian Schendel',
 			'icon' => 'terminal',
 			'href' => 'https://modules.processwire.com/modules/app-api/',
@@ -818,8 +818,13 @@ class AppApi extends Process implements Module {
 					$output['basename_mini'] = $content->size(600, 0)->basename;
 					$output['width'] = @$content->width;
 					$output['height'] = $content->height;
+
 					if (is_numeric($content->width) && !empty($content->width) && is_numeric($content->height) && !empty($content->height)) {
 						$output['dimension_ratio'] = round($content->width / $content->height, 2);
+					}
+
+					if (!empty($content->caption)) {
+						$output['caption'] = $content->caption;
 					}
 
 					if ($content->original) {
