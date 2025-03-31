@@ -559,20 +559,30 @@ class Auth extends WireData {
 	protected function ___getBearerToken() {
 		$authorizationHeader = $this->getAuthorizationHeader();
 
-		if ($authorizationHeader === null || !is_string($authorizationHeader) || strlen($authorizationHeader) < 7) {
-			if ($_GET && isset($_GET['authorization'])) {
-				$authorizationHeader = $_GET['authorization'];
-				if ($authorizationHeader === null || !is_string($authorizationHeader) || strlen($authorizationHeader) < 7) {
-					return null;
-				}
-			} else {
+		if (!empty($authorizationHeader) && is_string($authorizationHeader) && strlen($authorizationHeader) >= 7) {
+			if (substr($authorizationHeader, 0, 7) !== 'Bearer ') {
 				return null;
 			}
+
+			return trim(substr($authorizationHeader, 7));
 		}
-		if (substr($authorizationHeader, 0, 7) !== 'Bearer ') {
-			return null;
+
+		// Fallback with "authorization" GET-parameter:
+		if ($_GET && isset($_GET['authorization'])) {
+			$authorizationHeader = $_GET['authorization'];
+
+			if ($authorizationHeader === null || !is_string($authorizationHeader) || strlen($authorizationHeader) < 7) {
+				return null;
+			}
+
+			if (substr($authorizationHeader, 0, 7) !== 'Bearer ') {
+				return trim($authorizationHeader);
+			}
+
+			return trim(substr($authorizationHeader, 7));
 		}
-		return trim(substr($authorizationHeader, 7));
+
+		return null;
 	}
 
 	protected function ___getAuthorizationHeader() {
