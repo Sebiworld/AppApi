@@ -24,7 +24,7 @@ class AppApi extends Process implements Module {
 		return [
 			'title' => 'AppApi',
 			'summary' => 'Module to create a REST API with ProcessWire',
-			'version' => '1.3.6',
+			'version' => '1.3.7',
 			'author' => 'Sebastian Schendel',
 			'icon' => 'terminal',
 			'href' => 'https://modules.processwire.com/modules/app-api/',
@@ -812,6 +812,8 @@ class AppApi extends Process implements Module {
 				'ext' => $content->ext,
 				'http_url' => $content->httpUrl
 			];
+
+			$output['secure'] = $content->page->secureFiles();
 
 			if ($content instanceof PageImage) {
 				try {
