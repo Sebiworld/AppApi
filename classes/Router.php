@@ -490,7 +490,11 @@ class Router extends WireData {
 			}
 		}
 
-		self::logError($return, $responseCode);
+		// Do not log non-error exceptions (e.g. 204)
+		if (!is_numeric($responseCode) || $responseCode >= 400) {
+			self::logError($return, $responseCode);
+		}
+
 		self::displayError($return, $responseCode);
 	}
 
