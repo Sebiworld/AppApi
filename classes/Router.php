@@ -261,7 +261,7 @@ class Router extends WireData {
 		}
 
 		if (!Auth::getInstance()->isApikeyValid()) {
-			throw new AppApiException('Apikey not valid.', 401);
+			throw new AppApiException('Apikey not valid.', 401, ['errorcode' => 'invalid_apikey']);
 		}
 
 		if (!isset($handler[0]) || !is_string($handler[0]) || !isset($handler[1]) || !is_string($handler[1]) || !isset($handler[2])) {
@@ -283,16 +283,16 @@ class Router extends WireData {
 
 		// Check if the route is only allowed for a specific application-id:
 		if (!empty($routeParams['application']) && $routeParams['application'] !== Auth::getInstance()->getApplication()->getID()) {
-			throw new AppApiException('Route not allowed for this application', 400);
+			throw new AppApiException('Route not allowed for this application', 400, ['errorcode' => 'route_not_allowed_for_application']);
 		}
 
 		if (!empty($routeParams['applications']) && is_array($routeParams['applications']) && !in_array(Auth::getInstance()->getApplication()->getID(), $routeParams['applications'])) {
-			throw new AppApiException('Route not allowed for this application', 400);
+			throw new AppApiException('Route not allowed for this application', 400, ['errorcode' => 'route_not_allowed_for_application']);
 		}
 
 		// Check if particular route does need auth:
 		if (isset($routeParams['auth']) && $routeParams['auth'] === true && !$this->wire('user')->isLoggedIn()) {
-			throw new AppApiException('User does not have authorization', 401);
+			throw new AppApiException('User does not have authorization', 401, ['errorcode' => 'user_not_authorized']);
 		}
 
 		// Check if the current user has one of the required roles for this route:
@@ -308,7 +308,11 @@ class Router extends WireData {
 				}
 			}
 			if (!$roleFound) {
-				throw new AppApiException('User does not have one of the required roles for this route.', 403);
+				throw new AppApiException(
+					'User does not have one of the required roles for this route.',
+					403,
+					['errorcode' => 'user_missing_required_role']
+			);
 			}
 		}
 

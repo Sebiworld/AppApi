@@ -17,7 +17,7 @@ class AppApiHelper {
 
 			// Check if Param exists
 			if (!isset($data->$name)) {
-				throw new AppApiException("Required parameter: '$param' missing!", 400);
+				throw new AppApiException("Required parameter: '$param' missing!", 400, ['errorcode' => 'missing_required_parameter']);
 			}
 
 			$sanitizer = explode('|', $param);
@@ -31,7 +31,7 @@ class AppApiHelper {
 			}
 
 			if (!method_exists(wire('sanitizer'), $sanitizer) && !method_exists(wire('sanitizer'), '___' . $sanitizer)) {
-				throw new AppApiException("Sanitizer: '$sanitizer' is no valid sanitizer", 400);
+				throw new AppApiException("Sanitizer: '$sanitizer' is no valid sanitizer", 400, ['errorcode' => 'invalid_sanitizer']);
 			}
 
 			$data->$name = wire('sanitizer')->$sanitizer($data->$name);
