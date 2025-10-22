@@ -640,7 +640,14 @@ class AppApi extends Process implements Module {
 	}
 
 	protected function checkIfApiRequest() {
-		$url = $this->sanitizer->url($_SERVER['REQUEST_URI']);
+		$url = ltrim($this->sanitizer->url($_SERVER['REQUEST_URI']), "/");
+
+		$rootUrl = ltrim(wire('config')->urls->root, "/");
+		if (substr($url, 0, strlen($rootUrl)) === $rootUrl) {
+			$url = substr($url, strlen($rootUrl));
+		}
+
+		$url = '/' . $url;
 
 		// support / in endpoint url:
 		$endpoint = str_replace('/', "\/", $this->endpoint);

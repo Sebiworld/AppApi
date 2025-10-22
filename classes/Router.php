@@ -199,7 +199,14 @@ class Router extends WireData {
 	 * @return string url
 	 */
 	protected static function getCurrentUrl() {
-		$url = wire('sanitizer')->url($_SERVER['REQUEST_URI']);
+		$url = ltrim(wire('sanitizer')->url($_SERVER['REQUEST_URI']), "/");
+
+		$rootUrl = ltrim(wire('config')->urls->root, "/");
+		if (substr($url, 0, strlen($rootUrl)) === $rootUrl) {
+			$url = substr($url, strlen($rootUrl));
+		}
+
+		$url = '/' . $url;
 
 		//strip query parameters from url
 		$url = preg_replace('/[?].+$/i', '', $url);
