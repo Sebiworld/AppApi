@@ -159,7 +159,8 @@ class Router extends WireData {
 					$url = $route[1];
 
 					// add trailing slash if not present:
-					if (substr($url, -1) !== '/') {
+					$lastChar = substr($url, -1);
+					if ($lastChar !== '/'&& $lastChar !== ']') {
 						$url .= '/';
 					}
 
