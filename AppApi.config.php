@@ -33,4 +33,9 @@ $config = [
 		'label' => 'Use URLs relative to ProcessWire root',
 		'notes' => 'If activated, all URLs returned by the api endpoints will be relative to the ProcessWire root URL. Can be useful if ProcessWire is installed in a sub-directory.'
 	],
+	'disable_automatic_access_control_headers' => [
+		'type' => 'checkbox',
+		'label' => 'Disable the automatic setting of Access-Control-Allow-Origin headers',
+		'notes' => 'If activated, AppApi will not add any access-control-headers by itself. You need to take care of that on your own to prevent CORS issues.'
+	],
 ];

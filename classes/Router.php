@@ -10,7 +10,9 @@ class Router extends WireData {
 	const methodsOrder = ['OPTIONS', 'GET', 'POST', 'UPDATE', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'CONNECT', 'TRACE'];
 
 	public function ___setCorsHeaders() {
-		if (isset($_SERVER['HTTP_ORIGIN'])) {
+		$disableAutoHeaders = !!@wire('modules')->getConfig('AppApi', 'disable_automatic_access_control_headers');
+
+		if (isset($_SERVER['HTTP_ORIGIN']) && !$disableAutoHeaders) {
 			header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
 			header('Access-Control-Allow-Headers: Content-Type, AUTHORIZATION, X-API-KEY');
 			header('Access-Control-Allow-Credentials: true');
