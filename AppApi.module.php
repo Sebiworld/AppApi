@@ -639,8 +639,26 @@ class AppApi extends Process implements Module {
 		$this->addHookBefore('ProcessPageView::pageNotFound', $this, 'handleApiRequest');
 	}
 
-	protected function checkIfApiRequest() {
-		$url = ltrim($this->sanitizer->url($_SERVER['REQUEST_URI']), "/");
+	/**
+	 * Removes the root URL from a given URL, if configured to do so and if ProcessWire is installed in a subdirectory.
+	 *
+	 * @param string $url The URL to process.
+	 * @param bool $force If true, forces the removal of the root URL regardless of configuration.
+	 *
+	 * @return string The URL relative to the root.
+	 */
+	public static function getUrlRelativeToRoot($url, $force = false){
+		if(!is_string($url) || empty($url)){
+			return '';
+		}
+
+		$urlsRelativeToRoot = !@wire('modules')->getConfig('AppApi', 'urls_relative_to_root');
+
+		if(!$force || !$urlsRelativeToRoot){
+			return $url;
+		}
+
+		$url = ltrim(wire('sanitizer')->url($url), "/");
 
 		$rootUrl = ltrim(wire('config')->urls->root, "/");
 		if (substr($url, 0, strlen($rootUrl)) === $rootUrl) {
@@ -648,6 +666,21 @@ class AppApi extends Process implements Module {
 		}
 
 		$url = '/' . $url;
+
+		return $url;
+	}
+
+	/**
+	 * Get the request URI relative to the ProcessWire root URL.
+	 *
+	 * @return string The relative request URI.
+	 */
+	public static function getRelativeRequestUrl(){
+		return self::getUrlRelativeToRoot($_SERVER['REQUEST_URI'], true);
+	}
+
+	protected function checkIfApiRequest() {
+		$url = self::getRelativeRequestUri();
 
 		// support / in endpoint url:
 		$endpoint = str_replace('/', "\/", $this->endpoint);
@@ -883,7 +916,7 @@ class AppApi extends Process implements Module {
 				'title' => $content->title,
 				'created' => $content->created,
 				'modified' => $content->modified,
-				'url' => $content->url,
+				'url' => self::getUrlRelativeToRoot($content->url),
 				'httpUrl' => $content->httpUrl,
 				'template' => self::getAjaxOf($content->template)
 			];

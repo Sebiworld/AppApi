@@ -28,4 +28,9 @@ $config = [
 		'label' => 'Deactivate URL Hook',
 		'notes' => 'Will deactivate route-handling by ProcessWire URL hook and fallback to ProcessPageView::pageNotFound hook.'
 	],
+	'urls_relative_to_root' => [
+		'type' => 'checkbox',
+		'label' => 'Use URLs relative to ProcessWire root',
+		'notes' => 'If activated, all URLs returned by the api endpoints will be relative to the ProcessWire root URL. Can be useful if ProcessWire is installed in a sub-directory.'
+	],
 ];
