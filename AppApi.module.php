@@ -652,9 +652,9 @@ class AppApi extends Process implements Module {
 			return '';
 		}
 
-		$urlsRelativeToRoot = !@wire('modules')->getConfig('AppApi', 'urls_relative_to_root');
+		$urlsRelativeToRoot = !!@wire('modules')->getConfig('AppApi', 'urls_relative_to_root');
 
-		if(!$force || !$urlsRelativeToRoot){
+		if(!$force && !$urlsRelativeToRoot){
 			return $url;
 		}
 
@@ -671,6 +671,54 @@ class AppApi extends Process implements Module {
 	}
 
 	/**
+	 * Removes the root URL part from a given http-URL, if configured to do so and if ProcessWire is installed in a subdirectory.
+	 *
+	 * @param string $url The http-URL to process.
+	 * @param bool $force If true, forces the removal of the root URL regardless of configuration.
+	 *
+	 * @return string The http-URL relative to the root.
+	 */
+	public static function getHttpUrlRelativeToRoot($url, $force = false){
+		if(!is_string($url) || empty($url)){
+			return '';
+		}
+
+		$urlsRelativeToRoot = !!@wire('modules')->getConfig('AppApi', 'urls_relative_to_root');
+
+		if(!$force && !$urlsRelativeToRoot){
+			return $url;
+		}
+
+		// Split between domain and path:
+		$firstSlashPos = strpos($url, '/');
+		if($firstSlashPos === false){
+			return $url;
+		}
+
+		if($firstSlashPos > 0 && substr($url, $firstSlashPos -1, 1) === ':'){
+			$firstSlashPos = strpos($url, '/', $firstSlashPos + 2);
+		}
+
+		if($firstSlashPos === false){
+			return $url;
+		}
+
+		$domainPart = substr($url, 0, $firstSlashPos);
+		$pathPart = substr($url, $firstSlashPos);
+
+		$pathPart = ltrim(wire('sanitizer')->url($pathPart), "/");
+
+		$rootUrl = ltrim(wire('config')->urls->root, "/");
+		if (substr($pathPart, 0, strlen($rootUrl)) === $rootUrl) {
+			$pathPart = substr($pathPart, strlen($rootUrl));
+		}
+
+		$pathPart = '/' . $pathPart;
+
+		return $domainPart . $pathPart;
+	}
+
+	/**
 	 * Get the request URI relative to the ProcessWire root URL.
 	 *
 	 * @return string The relative request URI.
@@ -680,7 +728,7 @@ class AppApi extends Process implements Module {
 	}
 
 	protected function checkIfApiRequest() {
-		$url = self::getRelativeRequestUri();
+		$url = self::getRelativeRequestUrl();
 
 		// support / in endpoint url:
 		$endpoint = str_replace('/', "\/", $this->endpoint);
@@ -917,7 +965,7 @@ class AppApi extends Process implements Module {
 				'created' => $content->created,
 				'modified' => $content->modified,
 				'url' => self::getUrlRelativeToRoot($content->url),
-				'httpUrl' => $content->httpUrl,
+				'httpUrl' => self::getHttpUrlRelativeToRoot($content->httpUrl),
 				'template' => self::getAjaxOf($content->template)
 			];
 		} elseif ($content instanceof SelectableOption) {
