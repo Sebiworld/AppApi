@@ -649,7 +649,7 @@ class AppApi extends Process implements Module {
 	 */
 	public static function getUrlRelativeToRoot($url, $force = false){
 		if(!is_string($url) || empty($url)){
-			return '';
+			return $url;
 		}
 
 		$urlsRelativeToRoot = !!@wire('modules')->getConfig('AppApi', 'urls_relative_to_root');
@@ -680,7 +680,7 @@ class AppApi extends Process implements Module {
 	 */
 	public static function getHttpUrlRelativeToRoot($url, $force = false){
 		if(!is_string($url) || empty($url)){
-			return '';
+			return $url;
 		}
 
 		$urlsRelativeToRoot = !!@wire('modules')->getConfig('AppApi', 'urls_relative_to_root');
@@ -716,6 +716,34 @@ class AppApi extends Process implements Module {
 		$pathPart = '/' . $pathPart;
 
 		return $domainPart . $pathPart;
+	}
+
+	/**
+	 * Replaces all links in the given text to be relative to the ProcessWire root URL, if configured to do so.
+	 *
+	 * @param string $text The text containing links to process.
+	 *
+	 * @return string The text with links adjusted to be relative to the root.
+	 */
+	public static function replaceRootLinksInText($text){
+		if(!is_string($text) || empty($text)){
+			return $text;
+		}
+
+		$urlsRelativeToRoot = !!@wire('modules')->getConfig('AppApi', 'urls_relative_to_root');
+
+		if(!$urlsRelativeToRoot){
+			return $url;
+		}
+
+		$pattern = '/<a(.*)href="([^"]*)"(.*)>/';
+
+		$parsedText = preg_replace_callback($pattern, function($matches){
+			$newLink = self::getUrlRelativeToRoot($matches[2]);
+			return '<a' . $matches[1] . 'href="' . $newLink . '"' . $matches[3] . '>';
+		}, $text);
+
+		return $parsedText;
 	}
 
 	/**
