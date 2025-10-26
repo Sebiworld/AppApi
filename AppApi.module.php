@@ -658,6 +658,7 @@ class AppApi extends Process implements Module {
 			return $url;
 		}
 
+		$urlStartsWithSlash = substr($url, 0, 1) === '/';
 		$url = ltrim(wire('sanitizer')->url($url), "/");
 
 		$rootUrl = ltrim(wire('config')->urls->root, "/");
@@ -665,7 +666,9 @@ class AppApi extends Process implements Module {
 			$url = substr($url, strlen($rootUrl));
 		}
 
-		$url = '/' . $url;
+		if($urlStartsWithSlash){
+			$url = '/' . $url;
+		}
 
 		return $url;
 	}
