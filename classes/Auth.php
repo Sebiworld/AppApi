@@ -85,7 +85,7 @@ class Auth extends WireData {
 
 	protected function ___createSingleJWTToken($args = []) {
 		if ($this->wire('user')->isGuest()) {
-			throw new AuthException('user is not logged in', 401);
+			throw new AuthException('User is not logged in', 401, ['errorcode' => 'user_not_logged_in']);
 		}
 
 		$apptoken = new Apptoken($this->application->getID());
@@ -159,7 +159,7 @@ class Auth extends WireData {
 
 		// prevent username sniffing by just throwing a general exception:
 		if (!$user || !$user->id) {
-			throw new AuthException('Login not successful', 401);
+			throw new AuthException('Login not successful', 401, ['errorcode' => 'login_not_successful']);
 		}
 
 		$loggedIn = $this->wire('session')->login($user->name, $password);
@@ -186,12 +186,12 @@ class Auth extends WireData {
 			}
 		}
 
-		throw new AuthException('Login not successful', 401);
+		throw new AuthException('Login not successful', 401, ['errorcode' => 'login_not_successful']);
 	}
 
 	protected function ___createRefreshToken($args = []) {
 		if ($this->wire('user')->isGuest()) {
-			throw new AuthException('user is not logged in', 401);
+			throw new AuthException('user is not logged in', 401, ['errorcode' => 'user_not_logged_in']);
 		}
 
 		$apptoken = new Apptoken($this->application->getID());
@@ -209,32 +209,32 @@ class Auth extends WireData {
 
 	public function ___getAccessToken() {
 		if ($this->application->getAuthtype() !== Application::authtypeDoubleJWT) {
-			throw new AuthException('Your api-key does not support double-jwt authentication.', 400);
+			throw new AuthException('Your api-key does not support double-jwt authentication.', 400, ['errorcode' => 'invalid_authentication_type']);
 		}
 
 		$tokenString = $this->getBearerToken();
 		if ($tokenString === null || !is_string($tokenString) || empty($tokenString)) {
-			throw new AuthException('No valid refreshtoken found.', 400);
+			throw new AuthException('No valid refreshtoken found.', 400, ['errorcode' => 'no_valid_refreshtoken_found']);
 		}
 
 		// throws exception if token is invalid:
 		$token = JWT::decode($tokenString, new Key($this->application->getTokenSecret(), 'HS256'));
 		if (!is_object($token)) {
-			throw new AuthException('Invalid Token', 400);
+			throw new AuthException('Invalid Token', 400, ['errorcode' => 'invalid_token']);
 		}
 
 		$user = $this->wire('users')->get('id=' . $this->wire('sanitizer')->int($token->sub));
 		if (!($user instanceof User) || !$user->id) {
-			throw new AuthException('Invalid User', 400);
+			throw new AuthException('Invalid User', 400, ['errorcode' => 'invalid_user']);
 		}
 
 		$refreshtokenFromDB = $this->application->getApptoken($token->jti);
 		if (!$refreshtokenFromDB instanceof Apptoken || !$refreshtokenFromDB->isValid()) {
-			throw new AuthException('Invalid Token', 400);
+			throw new AuthException('Invalid Token', 400, ['errorcode' => 'invalid_token']);
 		}
 
 		if ($user->isGuest() || $refreshtokenFromDB->getUser()->id !== $user->id) {
-			throw new AuthException('Invalid User', 400);
+			throw new AuthException('Invalid User', 400, ['errorcode' => 'invalid_user']);
 		}
 
 		if (!$refreshtokenFromDB->isAccessible()) {
@@ -263,7 +263,7 @@ class Auth extends WireData {
 
 	protected function ___createAccessTokenJWT(User $user, $args = []) {
 		if ($user->isGuest()) {
-			throw new AuthException('user is not logged in', 401);
+			throw new AuthException('user is not logged in', 401, ['errorcode' => 'user_not_logged_in']);
 		}
 
 		$apptoken = new Apptoken($this->application->getID());
@@ -440,7 +440,7 @@ class Auth extends WireData {
 		}
 
 		header('WWW-Authenticate: Basic realm="Access denied"');
-		throw new AuthException('Login not successful', 401);
+		throw new AuthException('Login not successful', 401, ['errorcode' => 'login_not_successful']);
 	}
 
 	/**

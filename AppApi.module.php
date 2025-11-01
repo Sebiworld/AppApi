@@ -24,7 +24,7 @@ class AppApi extends Process implements Module {
 		return [
 			'title' => 'AppApi',
 			'summary' => 'Module to create a REST API with ProcessWire',
-			'version' => '1.3.7',
+			'version' => '1.4.0',
 			'author' => 'Sebastian Schendel',
 			'icon' => 'terminal',
 			'href' => 'https://modules.processwire.com/modules/app-api/',
@@ -639,8 +639,127 @@ class AppApi extends Process implements Module {
 		$this->addHookBefore('ProcessPageView::pageNotFound', $this, 'handleApiRequest');
 	}
 
+	/**
+	 * Removes the root URL from a given URL, if configured to do so and if ProcessWire is installed in a subdirectory.
+	 *
+	 * @param string $url The URL to process.
+	 * @param bool $force If true, forces the removal of the root URL regardless of configuration.
+	 *
+	 * @return string The URL relative to the root.
+	 */
+	public static function getUrlRelativeToRoot($url, $force = false){
+		if(!is_string($url) || empty($url)){
+			return $url;
+		}
+
+		$urlsRelativeToRoot = !!@wire('modules')->getConfig('AppApi', 'urls_relative_to_root');
+
+		if(!$force && !$urlsRelativeToRoot){
+			return $url;
+		}
+
+		$urlStartsWithSlash = substr($url, 0, 1) === '/';
+		$url = ltrim(wire('sanitizer')->url($url), "/");
+
+		$rootUrl = ltrim(wire('config')->urls->root, "/");
+		if (substr($url, 0, strlen($rootUrl)) === $rootUrl) {
+			$url = substr($url, strlen($rootUrl));
+		}
+
+		if($urlStartsWithSlash){
+			$url = '/' . $url;
+		}
+
+		return $url;
+	}
+
+	/**
+	 * Removes the root URL part from a given http-URL, if configured to do so and if ProcessWire is installed in a subdirectory.
+	 *
+	 * @param string $url The http-URL to process.
+	 * @param bool $force If true, forces the removal of the root URL regardless of configuration.
+	 *
+	 * @return string The http-URL relative to the root.
+	 */
+	public static function getHttpUrlRelativeToRoot($url, $force = false){
+		if(!is_string($url) || empty($url)){
+			return $url;
+		}
+
+		$urlsRelativeToRoot = !!@wire('modules')->getConfig('AppApi', 'urls_relative_to_root');
+
+		if(!$force && !$urlsRelativeToRoot){
+			return $url;
+		}
+
+		// Split between domain and path:
+		$firstSlashPos = strpos($url, '/');
+		if($firstSlashPos === false){
+			return $url;
+		}
+
+		if($firstSlashPos > 0 && substr($url, $firstSlashPos -1, 1) === ':'){
+			$firstSlashPos = strpos($url, '/', $firstSlashPos + 2);
+		}
+
+		if($firstSlashPos === false){
+			return $url;
+		}
+
+		$domainPart = substr($url, 0, $firstSlashPos);
+		$pathPart = substr($url, $firstSlashPos);
+
+		$pathPart = ltrim(wire('sanitizer')->url($pathPart), "/");
+
+		$rootUrl = ltrim(wire('config')->urls->root, "/");
+		if (substr($pathPart, 0, strlen($rootUrl)) === $rootUrl) {
+			$pathPart = substr($pathPart, strlen($rootUrl));
+		}
+
+		$pathPart = '/' . $pathPart;
+
+		return $domainPart . $pathPart;
+	}
+
+	/**
+	 * Replaces all links in the given text to be relative to the ProcessWire root URL, if configured to do so.
+	 *
+	 * @param string $text The text containing links to process.
+	 *
+	 * @return string The text with links adjusted to be relative to the root.
+	 */
+	public static function replaceRootLinksInText($text){
+		if(!is_string($text) || empty($text)){
+			return $text;
+		}
+
+		$urlsRelativeToRoot = !!@wire('modules')->getConfig('AppApi', 'urls_relative_to_root');
+
+		if(!$urlsRelativeToRoot){
+			return $url;
+		}
+
+		$pattern = '/<a(.*)href="([^"]*)"(.*)>/';
+
+		$parsedText = preg_replace_callback($pattern, function($matches){
+			$newLink = self::getUrlRelativeToRoot($matches[2]);
+			return '<a' . $matches[1] . 'href="' . $newLink . '"' . $matches[3] . '>';
+		}, $text);
+
+		return $parsedText;
+	}
+
+	/**
+	 * Get the request URI relative to the ProcessWire root URL.
+	 *
+	 * @return string The relative request URI.
+	 */
+	public static function getRelativeRequestUrl(){
+		return self::getUrlRelativeToRoot($_SERVER['REQUEST_URI'], true);
+	}
+
 	protected function checkIfApiRequest() {
-		$url = $this->sanitizer->url($_SERVER['REQUEST_URI']);
+		$url = self::getRelativeRequestUrl();
 
 		// support / in endpoint url:
 		$endpoint = str_replace('/', "\/", $this->endpoint);
@@ -876,8 +995,8 @@ class AppApi extends Process implements Module {
 				'title' => $content->title,
 				'created' => $content->created,
 				'modified' => $content->modified,
-				'url' => $content->url,
-				'httpUrl' => $content->httpUrl,
+				'url' => self::getUrlRelativeToRoot($content->url),
+				'httpUrl' => self::getHttpUrlRelativeToRoot($content->httpUrl),
 				'template' => self::getAjaxOf($content->template)
 			];
 		} elseif ($content instanceof SelectableOption) {
