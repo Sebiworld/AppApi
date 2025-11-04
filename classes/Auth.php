@@ -14,21 +14,38 @@ class Auth extends WireData {
 	// Only needed for logging:
 	protected $tokenId = false;
 
-	public function ___initApikey() {
+	protected function getApiKeyHeader(){
 		$headers = AppApiHelper::getRequestHeaders();
-		$tokenFromGet = $_GET && isset($_GET['api_key']) ? $_GET['api_key'] : '';
 
-		if (!empty($headers['X-API-KEY']) || !empty($tokenFromGet)) {
-			$apikey = !empty($headers['X-API-KEY']) ? $headers['X-API-KEY'] : $tokenFromGet;
+		if(!empty($headers['X-API-KEY'])){
+			return $headers['X-API-KEY'];
+		}
+
+		if(!empty($headers['X_API_KEY'])){
+			return $headers['X_API_KEY'];
+		}
+
+		if($_GET && isset($_GET['api_key'])){
+			return $_GET['api_key'];
+		}
+
+		return null;
+	}
+
+	public function ___initApikey() {
+		$apiKey = $this->getApiKeyHeader();
+
+		if (!empty($apiKey)) {
 			try {
 				// Get apikey-object:
-				$apikeyString = $this->sanitizer->text($apikey);
+				$apiKeyString = $this->sanitizer->text($apiKey);
+
 				$db = $this->wire('database');
 				$query = $db->prepare('SELECT * FROM ' . AppApi::tableApikeys . ' WHERE `key`=:key;');
 				$query->closeCursor();
 
 				$query->execute([
-					':key' => $apikeyString
+					':key' => $apiKeyString
 				]);
 				$queueRaw = $query->fetch(\PDO::FETCH_ASSOC);
 				$this->apikey = new Apikey($queueRaw);

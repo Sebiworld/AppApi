@@ -34,6 +34,7 @@ This module helps you to create an api, to which an app or an external service c
 - [1: Home, Installation & Quickstart](https://github.com/Sebiworld/AppApi/wiki)
   - [FAQ](https://github.com/Sebiworld/AppApi/wiki/FAQ)
   - [Changelog](https://github.com/Sebiworld/AppApi/wiki/Changelog)
+  - [Module Configuration](https://github.com/Sebiworld/AppApi/wiki/Module-Configuration)
 - [2: Defining Applications](https://github.com/Sebiworld/AppApi/wiki/2.0:-Defining-Applications)
   - [2.1: Api-Keys](https://github.com/Sebiworld/AppApi/wiki/2.1:-Api-Keys)
   - [2.2: PHP-Session (Recommended for on-site usage)](https://github.com/Sebiworld/AppApi/wiki/2.2:-PHP-Session)
