@@ -12,6 +12,10 @@ class ComposerStaticInit2fe05b27b38198dc52df9b2efa7d449b
     );
 
     public static $prefixLengthsPsr4 = array (
+        'P' => 
+        array (
+            'ParagonIE\\Sodium\\' => 17,
+        ),
         'F' => 
         array (
             'Firebase\\JWT\\' => 13,
@@ -20,6 +24,10 @@ class ComposerStaticInit2fe05b27b38198dc52df9b2efa7d449b
     );
 
     public static $prefixDirsPsr4 = array (
+        'ParagonIE\\Sodium\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/paragonie/sodium_compat/namespaced',
+        ),
         'Firebase\\JWT\\' => 
         array (
             0 => __DIR__ . '/..' . '/firebase/php-jwt/src',
