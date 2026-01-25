@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'sebi.dev/app-api',
-        'pretty_version' => 'dev-main',
-        'version' => 'dev-main',
-        'reference' => 'bd364e8add168bba774d3702c161d9820c1802ee',
+        'pretty_version' => 'dev-develop',
+        'version' => 'dev-develop',
+        'reference' => '57d6da6eddf50f202dcea6873dd268276184fd84',
         'type' => 'pw-module',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -47,9 +47,9 @@
             'dev_requirement' => false,
         ),
         'sebi.dev/app-api' => array(
-            'pretty_version' => 'dev-main',
-            'version' => 'dev-main',
-            'reference' => 'bd364e8add168bba774d3702c161d9820c1802ee',
+            'pretty_version' => 'dev-develop',
+            'version' => 'dev-develop',
+            'reference' => '57d6da6eddf50f202dcea6873dd268276184fd84',
             'type' => 'pw-module',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
