@@ -3,7 +3,7 @@
         'name' => 'sebi.dev/app-api',
         'pretty_version' => 'dev-develop',
         'version' => 'dev-develop',
-        'reference' => '08416317bf4f317e025e0fedc2bbdcb77462359d',
+        'reference' => '57d6da6eddf50f202dcea6873dd268276184fd84',
         'type' => 'pw-module',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         'firebase/php-jwt' => array(
-            'pretty_version' => 'v6.10.1',
-            'version' => '6.10.1.0',
-            'reference' => '500501c2ce893c824c801da135d02661199f60c5',
+            'pretty_version' => 'v6.11.1',
+            'version' => '6.11.1.0',
+            'reference' => 'd1e91ecf8c598d073d0995afa8cd5c75c6e19e66',
             'type' => 'library',
             'install_path' => __DIR__ . '/../firebase/php-jwt',
             'aliases' => array(),
@@ -38,9 +38,9 @@
             'dev_requirement' => false,
         ),
         'paragonie/sodium_compat' => array(
-            'pretty_version' => 'v2.0.1',
-            'version' => '2.0.1.0',
-            'reference' => 'f65c82939ab17aeff538f9bf6d582f65cc7f255e',
+            'pretty_version' => 'v2.5.0',
+            'version' => '2.5.0.0',
+            'reference' => '4714da6efdc782c06690bc72ce34fae7941c2d9f',
             'type' => 'library',
             'install_path' => __DIR__ . '/../paragonie/sodium_compat',
             'aliases' => array(),
@@ -49,7 +49,7 @@
         'sebi.dev/app-api' => array(
             'pretty_version' => 'dev-develop',
             'version' => 'dev-develop',
-            'reference' => '08416317bf4f317e025e0fedc2bbdcb77462359d',
+            'reference' => '57d6da6eddf50f202dcea6873dd268276184fd84',
             'type' => 'pw-module',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
