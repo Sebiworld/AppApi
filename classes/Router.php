@@ -8,6 +8,8 @@ require_once __DIR__ . '/Auth.php';
 
 class Router extends WireData {
 	const methodsOrder = ['OPTIONS', 'GET', 'POST', 'UPDATE', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'CONNECT', 'TRACE'];
+	// Tracks the buffer nesting level so we can discard stray output safely.
+	private static $baseOutputBufferLevel = null;
 
 	public function ___setCorsHeaders() {
 		$disableAutoHeaders = !!@wire('modules')->getConfig('AppApi', 'disable_automatic_access_control_headers');
@@ -144,6 +146,7 @@ class Router extends WireData {
 
 	public function ___go($registeredRoutes) {
 		$this->registerErrorHandlers();
+		self::startOutputBuffer();
 		$this->setCorsHeaders();
 
 		try {
@@ -190,6 +193,7 @@ class Router extends WireData {
 				unset($return->responseCode);
 			}
 
+			self::clearOutputBuffer();
 			AppApi::sendResponse($responseCode, $return);
 		} catch (\Throwable $e) {
 			// Show Exception as json-response and exit.
@@ -460,9 +464,13 @@ class Router extends WireData {
 			];
 			self::logError($return, 500);
 		}
+
+		// Return true to prevent PHP from also rendering the warning/error to the client.
+		return true;
 	}
 
 	public static function handleFatalError() {
+		self::clearOutputBuffer();
 		$last_error = error_get_last();
 		if ($last_error && $last_error['type'] === E_ERROR) {
 			// fatal error
@@ -471,6 +479,7 @@ class Router extends WireData {
 	}
 
 	public static function handleException(\Throwable $e) {
+		self::clearOutputBuffer();
 		$return = new \StdClass();
 		if ($e instanceof AppApiException) {
 			foreach ($e->getAdditionals() as $key => $value) {
@@ -548,6 +557,7 @@ class Router extends WireData {
 		if (is_string($error)) {
 			$return = new \StdClass();
 			$return->error = (string) $error;
+			self::clearOutputBuffer();
 			AppApi::sendResponse($status, $return);
 		}
 
@@ -555,6 +565,43 @@ class Router extends WireData {
 			unset($error->devmessage);
 		}
 
+		self::clearOutputBuffer();
 		AppApi::sendResponse($status, $error);
+	}
+
+	/**
+	 * Start buffering output so any warnings from third-party code can be dropped before sending JSON.
+	 **/
+	private static function startOutputBuffer() {
+		if (self::$baseOutputBufferLevel === null) {
+			self::$baseOutputBufferLevel = ob_get_level();
+		}
+
+		ob_start();
+	}
+
+	/**
+	 * Bootstrap entry point to suppress error display and install handlers early for API calls.
+	 **/
+	public static function bootstrapForApiRequest() {
+		@ini_set('display_errors', '0');
+		@ini_set('display_startup_errors', '0');
+		$router = new self();
+		$router->registerErrorHandlers();
+
+		self::startOutputBuffer();
+	}
+
+	/**
+	 * Clear any output buffers above the base level to discard stray output.
+	 **/
+	private static function clearOutputBuffer() {
+		if (self::$baseOutputBufferLevel === null) {
+			return;
+		}
+
+		while (ob_get_level() > self::$baseOutputBufferLevel) {
+			ob_end_clean();
+		}
 	}
 }
