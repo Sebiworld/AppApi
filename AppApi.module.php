@@ -24,7 +24,7 @@ class AppApi extends Process implements Module {
 		return [
 			'title' => 'AppApi',
 			'summary' => 'Module to create a REST API with ProcessWire',
-			'version' => '1.4.2',
+			'version' => '1.4.3',
 			'author' => 'Sebastian Schendel',
 			'icon' => 'terminal',
 			'href' => 'https://modules.processwire.com/modules/app-api/',
@@ -1085,5 +1085,9 @@ class AppApi extends Process implements Module {
 		}
 
 		return $output;
+	}
+
+	public static function clearOutputBuffer() {
+		Router::clearOutputBuffer();
 	}
 }

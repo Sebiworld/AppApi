@@ -595,7 +595,7 @@ class Router extends WireData {
 	/**
 	 * Clear any output buffers above the base level to discard stray output.
 	 **/
-	private static function clearOutputBuffer() {
+	public static function clearOutputBuffer() {
 		if (self::$baseOutputBufferLevel === null) {
 			return;
 		}
