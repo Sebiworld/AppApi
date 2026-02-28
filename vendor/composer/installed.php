@@ -3,7 +3,7 @@
         'name' => 'sebi.dev/app-api',
         'pretty_version' => 'dev-develop',
         'version' => 'dev-develop',
-        'reference' => '57d6da6eddf50f202dcea6873dd268276184fd84',
+        'reference' => '4cd7d97073de1b6bb5d78f49034d65b619c75b22',
         'type' => 'pw-module',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         'firebase/php-jwt' => array(
-            'pretty_version' => 'v6.11.1',
-            'version' => '6.11.1.0',
-            'reference' => 'd1e91ecf8c598d073d0995afa8cd5c75c6e19e66',
+            'pretty_version' => 'v7.0.0',
+            'version' => '7.0.0.0',
+            'reference' => 'c03036fd5dbd530a95406ca3b5f6d7b24eaa3910',
             'type' => 'library',
             'install_path' => __DIR__ . '/../firebase/php-jwt',
             'aliases' => array(),
@@ -49,7 +49,7 @@
         'sebi.dev/app-api' => array(
             'pretty_version' => 'dev-develop',
             'version' => 'dev-develop',
-            'reference' => '57d6da6eddf50f202dcea6873dd268276184fd84',
+            'reference' => '4cd7d97073de1b6bb5d78f49034d65b619c75b22',
             'type' => 'pw-module',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
