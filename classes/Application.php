@@ -658,14 +658,18 @@ class Application extends WireData {
 		// New application should be saved into db:
 		try {
 			$createStatement = 'INSERT INTO `' . AppApi::tableApplications . '` (`id`, `created_user_id`, `created`,`modified_user_id`, `modified`, `title`, `description`, `default_application`, `token_secret`, `accesstoken_secret`, `authtype`, `logintype`, `expires_in`) VALUES (NULL, :created_user_id, :created, :modified_user_id, :modified, :title, :description, :default_application, :token_secret, :accesstoken_secret, :authtype, :logintype, :expires_in);';
-			if ($this->isDefaultApplication()) {
-				$createStatement .= 'UPDATE `' . AppApi::tableApplications . '` SET `default_application`=0 WHERE `id`!=:id;';
-			}
 
 			$query = $db->prepare($createStatement);
 			$query->closeCursor();
 			$query->execute($queryVars);
 			$this->id = $db->lastInsertId();
+
+			// Clear default flag on all other applications
+			if ($this->isDefaultApplication()) {
+				$clearQuery = $db->prepare('UPDATE `' . AppApi::tableApplications . '` SET `default_application`=0 WHERE `id`!=:id;');
+				$clearQuery->closeCursor();
+				$clearQuery->execute([':id' => $this->id]);
+			}
 		} catch (\Exception $e) {
 			$this->error('The application could not be saved: ' . $e->getMessage());
 			return false;
