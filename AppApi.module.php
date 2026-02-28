@@ -24,7 +24,7 @@ class AppApi extends Process implements Module {
 		return [
 			'title' => 'AppApi',
 			'summary' => 'Module to create a REST API with ProcessWire',
-			'version' => '1.4.4',
+			'version' => '1.4.5',
 			'author' => 'Sebastian Schendel',
 			'icon' => 'terminal',
 			'href' => 'https://modules.processwire.com/modules/app-api/',
@@ -664,16 +664,31 @@ class AppApi extends Process implements Module {
 			return $url;
 		}
 
+		$assetsUrl = wire('config')->urls->assets;
+		if(!empty($assetsUrl) && substr($url, 0, strlen($assetsUrl)) === $assetsUrl){
+			return $url;
+		}
+
 		$urlStartsWithSlash = substr($url, 0, 1) === '/';
-		$url = ltrim(wire('sanitizer')->url($url), "/");
+		$escapedSlash = json_encode('/');
+		$urlStartsWithEscapedSlash = substr($url, 0, strlen($escapedSlash)) === $escapedSlash;
+		$url = ltrim(ltrim(wire('sanitizer')->url($url), "/"), $escapedSlash);
+
+
 
 		$rootUrl = ltrim(wire('config')->urls->root, "/");
+		$escapedRootUrl = json_encode($rootUrl);
+
 		if (substr($url, 0, strlen($rootUrl)) === $rootUrl) {
 			$url = substr($url, strlen($rootUrl));
+		}else if (substr($url, 0, strlen($escapedRootUrl)) === $escapedRootUrl) {
+			$url = substr($url, strlen($escapedRootUrl));
 		}
 
 		if($urlStartsWithSlash){
 			$url = '/' . $url;
+		}else if($urlStartsWithEscapedSlash){
+			$url = $escapedSlash . $url;
 		}
 
 		return $url;
@@ -745,11 +760,11 @@ class AppApi extends Process implements Module {
 			return $url;
 		}
 
-		$pattern = '/<a(.*)href="([^"]*)"(.*)>/';
+		$pattern = '/<a([^>]*)href=([\'"])(.*?)\2([^>]*)>/i';
 
-		$parsedText = preg_replace_callback($pattern, function($matches){
-			$newLink = self::getUrlRelativeToRoot($matches[2]);
-			return '<a' . $matches[1] . 'href="' . $newLink . '"' . $matches[3] . '>';
+		$parsedText = preg_replace_callback($pattern, function($matches) {
+				$newLink = self::getUrlRelativeToRoot($matches[3]);
+				return '<a' . $matches[1] . 'href=' . $matches[2] . $newLink . $matches[2] . $matches[4] . '>';
 		}, $text);
 
 		return $parsedText;
