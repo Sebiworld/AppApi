@@ -24,7 +24,7 @@ class AppApi extends Process implements Module {
 		return [
 			'title' => 'AppApi',
 			'summary' => 'Module to create a REST API with ProcessWire',
-			'version' => '1.4.5',
+			'version' => '1.4.6',
 			'author' => 'Sebastian Schendel',
 			'icon' => 'terminal',
 			'href' => 'https://modules.processwire.com/modules/app-api/',
@@ -904,6 +904,14 @@ class AppApi extends Process implements Module {
 			$statusMessage = self::getStatusCodeMessage($status);
 			$status_header = $protocol . ' ' . $status . ' ' . $statusMessage;
 			header($status_header);
+		}
+
+		// 204 and 304 responses must not have a body (RFC 9110). Sending one makes
+		// HTTP/2 servers and clients abort the stream with a protocol error.
+		if ($status === 204 || $status === 304) {
+			header_remove('Content-Type');
+			ini_set('default_mimetype', '');
+			exit();
 		}
 
 		// Set content-type header, if its not explicitly set:
