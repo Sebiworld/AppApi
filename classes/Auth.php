@@ -139,6 +139,37 @@ class Auth extends WireData {
 		];
 	}
 
+	/**
+	 * Builds the selector to look up a user by login name or email address from a sanitized value.
+	 * Email addresses with internationalized domain names (and UTF-8 local parts) are allowed,
+	 * like in ProcessWire's email inputfield.
+	 *
+	 * @param string $field "name" or "email"
+	 * @param mixed $value Raw value from the request
+	 *
+	 * @return string|null Selector, or null if the value is not valid after sanitizing
+	 */
+	public static function getLoginUserSelector($field, $value) {
+		if (!is_string($value) || $value === '') {
+			return null;
+		}
+
+		$sanitizer = wire('sanitizer');
+		if ($field === 'email') {
+			$value = $sanitizer->email($value, ['allowIDN' => 2]);
+		} elseif ($field === 'name') {
+			$value = $sanitizer->pageNameUTF8($value);
+		} else {
+			return null;
+		}
+
+		if (!is_string($value) || $value === '') {
+			return null;
+		}
+
+		return $field . '=' . $sanitizer->selectorValue($value);
+	}
+
 	public function ___doLogin($data) {
 		$access = $this->getLogintype($data);
 		$loggedIn = false;
@@ -156,7 +187,10 @@ class Auth extends WireData {
 			$password = isset($params->password) ? $params->password : null;
 
 			if (!empty($username) && !empty($password)) {
-				$user = $this->wire('users')->get('name=' . $username);
+				$selector = self::getLoginUserSelector('name', $username);
+				if ($selector !== null) {
+					$user = $this->wire('users')->get($selector);
+				}
 			}
 		}
 
@@ -170,7 +204,10 @@ class Auth extends WireData {
 			$password = isset($params->password) ? $params->password : null;
 
 			if (!empty($email) && !empty($password)) {
-				$user = $this->wire('users')->get('email=' . $email);
+				$selector = self::getLoginUserSelector('email', $email);
+				if ($selector !== null) {
+					$user = $this->wire('users')->get($selector);
+				}
 			}
 		}
 
@@ -574,8 +611,23 @@ class Auth extends WireData {
 	}
 
 	protected function ___getBearerToken() {
-		$authorizationHeader = $this->getAuthorizationHeader();
+		return self::extractBearerToken(
+			$this->getAuthorizationHeader(),
+			is_array($_GET) ? $_GET : [],
+			!@$this->wire('modules')->getConfig('AppApi', 'disable_authorization_query_parameter')
+		);
+	}
 
+	/**
+	 * Extracts the bearer token from the Authorization header or, as a fallback, from the "authorization" query parameter.
+	 *
+	 * @param mixed $authorizationHeader Value of the Authorization header
+	 * @param array $query Query parameters (format of $_GET)
+	 * @param boolean $allowQueryParameter Whether the "authorization" query parameter may be used
+	 *
+	 * @return string|null
+	 */
+	public static function extractBearerToken($authorizationHeader, array $query = [], $allowQueryParameter = true) {
 		if (!empty($authorizationHeader) && is_string($authorizationHeader) && strlen($authorizationHeader) >= 7) {
 			if (substr($authorizationHeader, 0, 7) !== 'Bearer ') {
 				return null;
@@ -585,8 +637,8 @@ class Auth extends WireData {
 		}
 
 		// Fallback with "authorization" GET-parameter:
-		if ($_GET && isset($_GET['authorization'])) {
-			$authorizationHeader = $_GET['authorization'];
+		if ($allowQueryParameter && isset($query['authorization'])) {
+			$authorizationHeader = $query['authorization'];
 
 			if ($authorizationHeader === null || !is_string($authorizationHeader) || strlen($authorizationHeader) < 7) {
 				return null;
