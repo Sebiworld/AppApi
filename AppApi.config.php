@@ -38,4 +38,16 @@ $config = [
 		'label' => 'Disable the automatic setting of Access-Control-Allow-Origin headers',
 		'notes' => 'If activated, AppApi will not add any access-control-headers by itself. You need to take care of that on your own to prevent CORS issues.'
 	],
+	'allowed_origins' => [
+		'type' => 'textarea',
+		'label' => 'Allowed origins (CORS)',
+		'description' => 'Origins that may access the API from a browser, one per line (scheme, host and optional port, e.g. https://www.example.com or http://localhost:3000). A "*" in the host matches one or more characters except a dot, e.g. https://preview-*.example.com.',
+		'notes' => "Leave empty to allow every origin (previous behavior: the request's Origin is mirrored). If set, the Access-Control-* headers are only sent for matching origins, and a \"Vary: Origin\" header is added. Has no effect if the automatic access-control-headers are disabled.",
+		'rows' => 4
+	],
+	'disable_authorization_query_parameter' => [
+		'type' => 'checkbox',
+		'label' => 'Disable the "authorization" query parameter',
+		'notes' => 'If activated, access tokens are only accepted in the Authorization header, not as "?authorization=..." URL parameter. Tokens in URLs can end up in server logs, browser history and referrer headers.'
+	],
 ];

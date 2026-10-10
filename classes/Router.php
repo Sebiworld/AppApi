@@ -12,13 +12,84 @@ class Router extends WireData {
 	private static $baseOutputBufferLevel = null;
 
 	public function ___setCorsHeaders() {
-		$disableAutoHeaders = !!@wire('modules')->getConfig('AppApi', 'disable_automatic_access_control_headers');
+		$headers = self::getCorsHeaders(
+			$_SERVER['HTTP_ORIGIN'] ?? null,
+			@wire('modules')->getConfig('AppApi', 'allowed_origins'),
+			!!@wire('modules')->getConfig('AppApi', 'disable_automatic_access_control_headers')
+		);
 
-		if (isset($_SERVER['HTTP_ORIGIN']) && !$disableAutoHeaders) {
-			header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
-			header('Access-Control-Allow-Headers: Content-Type, AUTHORIZATION, X-API-KEY');
-			header('Access-Control-Allow-Credentials: true');
+		foreach ($headers as $header) {
+			header($header);
 		}
+	}
+
+	/**
+	 * Returns the CORS header lines for a regular (non-preflight) request.
+	 *
+	 * @param string|null $origin Value of the request's Origin header
+	 * @param string|array|null $allowedOrigins Allowed origins (one per line or as array). Empty: every origin is mirrored.
+	 * @param boolean $disableAutoHeaders If true, no headers are returned at all
+	 *
+	 * @return string[]
+	 */
+	public static function getCorsHeaders($origin, $allowedOrigins, $disableAutoHeaders = false) {
+		if ($disableAutoHeaders) {
+			return [];
+		}
+
+		$allowedOrigins = AppApiHelper::parseAllowedOrigins($allowedOrigins);
+		$headers = [];
+		if (!empty($allowedOrigins)) {
+			// The response depends on the Origin header, so caches must not mix them up:
+			$headers[] = 'Vary: Origin';
+		}
+
+		if (!is_string($origin) || $origin === '' || !AppApiHelper::isOriginAllowed($origin, $allowedOrigins)) {
+			return $headers;
+		}
+
+		$headers[] = "Access-Control-Allow-Origin: {$origin}";
+		$headers[] = 'Access-Control-Allow-Headers: Content-Type, AUTHORIZATION, X-API-KEY';
+		$headers[] = 'Access-Control-Allow-Credentials: true';
+
+		return $headers;
+	}
+
+	/**
+	 * Returns the additional CORS header lines for a preflight (OPTIONS) request.
+	 *
+	 * If a list of allowed origins is configured (and automatic headers are not disabled),
+	 * no headers are returned for origins that are not on the list.
+	 *
+	 * @param array $server Request data in the format of $_SERVER
+	 * @param mixed $allowedMethods Methods of the matched route handler (array) or anything else for the default methods
+	 * @param string|array|null $allowedOrigins Allowed origins (one per line or as array)
+	 * @param boolean $disableAutoHeaders If true, the list of allowed origins is not applied
+	 *
+	 * @return string[]
+	 */
+	public static function getPreflightHeaders(array $server, $allowedMethods, $allowedOrigins, $disableAutoHeaders = false) {
+		$allowedOrigins = AppApiHelper::parseAllowedOrigins($allowedOrigins);
+		if (!$disableAutoHeaders && !empty($allowedOrigins)) {
+			$origin = $server['HTTP_ORIGIN'] ?? null;
+			if (!is_string($origin) || $origin === '' || !AppApiHelper::isOriginAllowed($origin, $allowedOrigins)) {
+				return [];
+			}
+		}
+
+		$headers = [];
+		if (isset($server['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])) {
+			if (!is_array($allowedMethods)) {
+				$allowedMethods = ['GET', 'POST', 'PUT', 'DELETE'];
+			}
+			$headers[] = 'Access-Control-Allow-Methods: ' . implode(', ', $allowedMethods) . ', HEAD, OPTIONS';
+		}
+
+		if (isset($server['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'])) {
+			$headers[] = "Access-Control-Allow-Headers: {$server['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}";
+		}
+
+		return $headers;
 	}
 
 	private static function pathFromPwRoot($fullPath) {
@@ -245,16 +316,15 @@ class Router extends WireData {
 		$handler = $routeInfo[1];
 
 		if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-			if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])) {
-				$allowedMethods = ['GET', 'POST', 'PUT', 'DELETE'];
-				if (isset($handler[0]) && is_array($handler[0])) {
-					$allowedMethods = $handler[0];
-				}
-				header('Access-Control-Allow-Methods: ' . implode(', ', $allowedMethods) . ', HEAD, OPTIONS');
-			}
+			$preflightHeaders = self::getPreflightHeaders(
+				$_SERVER,
+				$handler[0] ?? null,
+				@$this->wire('modules')->getConfig('AppApi', 'allowed_origins'),
+				!!@$this->wire('modules')->getConfig('AppApi', 'disable_automatic_access_control_headers')
+			);
 
-			if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'])) {
-				header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
+			foreach ($preflightHeaders as $header) {
+				header($header);
 			}
 
 			return;
