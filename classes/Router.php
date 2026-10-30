@@ -282,14 +282,8 @@ class Router extends WireData {
 		//strip query parameters from url
 		$url = preg_replace('/[?].+$/i', '', $url);
 
-		// strip /api from request url:
-		$endpoint = wire('modules')->AppApi->endpoint;
-
-		// support / in endpoint url:
-		$endpoint = str_replace('/', "\/", $endpoint);
-
-		$regex = '/\/' . $endpoint . '\/?/';
-		$url = preg_replace($regex, '/', $url);
+		// strip the endpoint (e.g. /api) from the beginning of the request url:
+		$url = wire('modules')->AppApi->removeEndpointFromUrl($url);
 
 		// add trailing slash if not present:
 		if (substr($url, -1) !== '/') {
