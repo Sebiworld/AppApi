@@ -24,7 +24,7 @@ class AppApi extends Process implements Module {
 		return [
 			'title' => 'AppApi',
 			'summary' => 'Module to create a REST API with ProcessWire',
-			'version' => '1.5.0',
+			'version' => '1.5.1',
 			'author' => 'Sebastian Schendel',
 			'icon' => 'terminal',
 			'href' => 'https://modules.processwire.com/modules/app-api/',
@@ -632,15 +632,13 @@ class AppApi extends Process implements Module {
 			$this->endpoint = 'api';
 		}
 
-		$endpoint = $endpoint = str_replace('/', "\/", $this->endpoint);
-
 		// Suppress warnings as early as possible for API requests.
 		if ($this->checkIfApiRequest()) {
 			Router::bootstrapForApiRequest();
 		}
 
 		if (!@$this->wire('modules')->getConfig('AppApi', 'deactivate_url_hook')) {
-			$this->addHook('/' . $endpoint . '\/?.*', $this, 'handleApiRequest');
+			$this->addHook($this->getUrlHookPattern(), $this, 'handleApiRequest');
 		}
 		$this->addHookBefore('ProcessPageView::pageNotFound', $this, 'handleApiRequest');
 	}
@@ -779,16 +777,70 @@ class AppApi extends Process implements Module {
 		return self::getUrlRelativeToRoot($_SERVER['REQUEST_URI'], true);
 	}
 
+	/**
+	 * Get the configured endpoint without leading and trailing slashes (e.g. "api" or "api/v1").
+	 *
+	 * @return string The endpoint path, "api" if none is configured.
+	 */
+	public function getEndpointPath() {
+		$endpoint = trim((string) $this->endpoint, '/');
+		return $endpoint !== '' ? $endpoint : 'api';
+	}
+
+	/**
+	 * Get a regex that matches the endpoint at the beginning of a root-relative URL, only as a whole path segment.
+	 * "/api", "/api/", "/api/page" and "/api?x=1" match the endpoint "api", "/apifoo" does not.
+	 *
+	 * @return string
+	 */
+	protected function getEndpointRegex() {
+		return '#^/' . preg_quote($this->getEndpointPath(), '#') . '(?=[/?\#]|$)#';
+	}
+
+	/**
+	 * Get the ProcessWire URL hook pattern for the endpoint. It matches the endpoint itself and every path below it
+	 * ("/api", "/api/", "/api/..."), but not "/apifoo". The group captures nothing, so the hook gets no extra arguments.
+	 *
+	 * @return string
+	 */
+	protected function getUrlHookPattern() {
+		return '/' . preg_quote($this->getEndpointPath(), '#') . '(?:/?|/.+)';
+	}
+
+	/**
+	 * Checks whether a root-relative URL addresses the api endpoint.
+	 *
+	 * @param string $url URL relative to the ProcessWire root, starting with a slash.
+	 *
+	 * @return bool
+	 */
+	public function isEndpointUrl($url) {
+		return is_string($url) && preg_match($this->getEndpointRegex(), $url) === 1;
+	}
+
+	/**
+	 * Removes the endpoint from the beginning of a root-relative URL ("/api/page/" becomes "/page/").
+	 * URLs that do not address the endpoint are returned unchanged.
+	 *
+	 * @param string $url URL relative to the ProcessWire root, starting with a slash.
+	 *
+	 * @return string
+	 */
+	public function removeEndpointFromUrl($url) {
+		if (!$this->isEndpointUrl($url)) {
+			return $url;
+		}
+
+		$url = (string) preg_replace($this->getEndpointRegex(), '', $url, 1);
+		if (substr($url, 0, 1) !== '/') {
+			$url = '/' . $url;
+		}
+
+		return $url;
+	}
+
 	protected function checkIfApiRequest() {
-		$url = self::getRelativeRequestUrl();
-
-		// support / in endpoint url:
-		$endpoint = str_replace('/', "\/", $this->endpoint);
-
-		$regex = '/^\/' . $endpoint . '\/?.*/m';
-		preg_match($regex, $url, $matches);
-
-		return !!$matches;
+		return $this->isEndpointUrl(self::getRelativeRequestUrl());
 	}
 
 	public function ___handleApiRequest(HookEvent $event) {
