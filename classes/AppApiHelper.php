@@ -137,6 +137,18 @@ class AppApiHelper {
 	}
 
 	/**
+	 * Checks whether an Origin header value is a serialized origin ("scheme://host[:port]").
+	 * The opaque origin "null" and malformed values are not.
+	 *
+	 * @param string $origin Value of the Origin request header
+	 *
+	 * @return boolean
+	 */
+	public static function isValidOrigin($origin) {
+		return self::splitOrigin($origin) !== null;
+	}
+
+	/**
 	 * Splits an origin ("scheme://host[:port]") into its parts. Returns null if the value is not a valid origin.
 	 *
 	 * @param string $origin

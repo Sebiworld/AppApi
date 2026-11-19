@@ -27,7 +27,7 @@ class Router extends WireData {
 	 * Returns the CORS header lines for a regular (non-preflight) request.
 	 *
 	 * @param string|null $origin Value of the request's Origin header
-	 * @param string|array|null $allowedOrigins Allowed origins (one per line or as array). Empty: every origin is mirrored.
+	 * @param string|array|null $allowedOrigins Allowed origins (one per line or as array). Empty: every valid origin is mirrored ("null" is not).
 	 * @param boolean $disableAutoHeaders If true, no headers are returned at all
 	 *
 	 * @return string[]
@@ -38,13 +38,13 @@ class Router extends WireData {
 		}
 
 		$allowedOrigins = AppApiHelper::parseAllowedOrigins($allowedOrigins);
-		$headers = [];
-		if (!empty($allowedOrigins)) {
-			// The response depends on the Origin header, so caches must not mix them up:
-			$headers[] = 'Vary: Origin';
-		}
 
-		if (!is_string($origin) || $origin === '' || !AppApiHelper::isOriginAllowed($origin, $allowedOrigins)) {
+		// The response depends on the Origin header (mirrored or left out), so caches must not mix them up:
+		$headers = ['Vary: Origin'];
+
+		// "null" (sandboxed iframes, data: and file: documents) and malformed values are never mirrored,
+		// not even when the list of allowed origins is empty:
+		if (!is_string($origin) || !AppApiHelper::isValidOrigin($origin) || !AppApiHelper::isOriginAllowed($origin, $allowedOrigins)) {
 			return $headers;
 		}
 
