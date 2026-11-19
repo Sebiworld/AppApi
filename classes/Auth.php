@@ -174,6 +174,9 @@ class Auth extends WireData {
 		$access = $this->getLogintype($data);
 		$loggedIn = false;
 		$user = null;
+		$password = null;
+		// Name that was tried, used to throttle attempts for accounts that do not exist:
+		$attemptedName = null;
 		$accessMethod = $access['method'];
 		$allowedLoginTypes = $this->application->getLogintype();
 		$params = (object)$access['params'];
@@ -182,11 +185,12 @@ class Auth extends WireData {
 			in_array($accessMethod, ['username-password', 'any-password']) &&
 			in_array('logintypeUsernamePassword', $allowedLoginTypes)
 		) {
-			// Get login params
-			$username = isset($params->username) ? $params->username : null;
-			$password = isset($params->password) ? $params->password : null;
+			// Get login params (strings and numbers; anything else counts as a failed attempt)
+			$username = self::getStringParam($params, 'username');
+			$password = self::getStringParam($params, 'password');
 
-			if (!empty($username) && !empty($password)) {
+			if (!empty($username)) {
+				$attemptedName = $username;
 				$selector = self::getLoginUserSelector('name', $username);
 				if ($selector !== null) {
 					$user = $this->wire('users')->get($selector);
@@ -199,11 +203,14 @@ class Auth extends WireData {
 			in_array($accessMethod, ['email-password', 'any-password']) &&
 			in_array('logintypeEmailPassword', $allowedLoginTypes)
 		) {
-			// Get login params
-			$email = isset($params->email) ? $params->email : (isset($params->username) ? $params->username : null);
-			$password = isset($params->password) ? $params->password : null;
+			// Get login params (strings and numbers; anything else counts as a failed attempt)
+			$email = isset($params->email) ? self::getStringParam($params, 'email') : self::getStringParam($params, 'username');
+			$password = self::getStringParam($params, 'password');
 
-			if (!empty($email) && !empty($password)) {
+			if (!empty($email)) {
+				if ($attemptedName === null) {
+					$attemptedName = $email;
+				}
 				$selector = self::getLoginUserSelector('email', $email);
 				if ($selector !== null) {
 					$user = $this->wire('users')->get($selector);
@@ -211,13 +218,24 @@ class Auth extends WireData {
 			}
 		}
 
-		// prevent username sniffing by just throwing a general exception:
-		if (!$user || !$user->id) {
-			throw new AuthException('Login not successful', 401, ['errorcode' => 'login_not_successful']);
+		// SessionLoginThrottle only loads itself for form posts. Load it explicitly so that
+		// JSON bodies and the Authorization header are throttled as well.
+		$this->loadLoginThrottle();
+
+		// Known and unknown accounts take the same path (throttle and one password hash comparison),
+		// and every failure ends in the same response, so the answer does not reveal whether an account exists.
+		// A password that is not a non-empty string or number never matches, but still counts for the throttle.
+		try {
+			if ($user && $user->id && !empty($password)) {
+				$loggedIn = $this->wire('session')->login($user->name, $password);
+			} elseif ($user && $user->id) {
+				$this->failLoginAttempt($user->name, '');
+			} elseif ($attemptedName !== null) {
+				$this->failLoginAttempt($attemptedName, (string) $password);
+			}
+		} catch (SessionLoginThrottleException $e) {
+			$loggedIn = false;
 		}
-
-		$loggedIn = $this->wire('session')->login($user->name, $password);
-
 
 		if ($loggedIn) {
 			if ($this->application->getAuthtype() === Application::authtypeSession) {
@@ -241,6 +259,85 @@ class Auth extends WireData {
 		}
 
 		throw new AuthException('Login not successful', 401, ['errorcode' => 'login_not_successful']);
+	}
+
+	/**
+	 * Loads ProcessWire's SessionLoginThrottle module if it is installed. Its autoload condition
+	 * only matches form posts, so without this, logins with a JSON body or an Authorization header
+	 * would not be throttled.
+	 */
+	protected function loadLoginThrottle() {
+		$modules = $this->wire('modules');
+		if ($modules->isInstalled('SessionLoginThrottle')) {
+			$modules->get('SessionLoginThrottle');
+		}
+	}
+
+	/**
+	 * Returns a login value as a string. Numbers (e.g. from a JSON body) are converted,
+	 * anything else (arrays, objects, booleans, null) gives null.
+	 *
+	 * @param mixed $value
+	 *
+	 * @return string|null
+	 */
+	protected static function credentialToString($value) {
+		if (is_string($value)) {
+			return $value;
+		}
+		if (is_int($value) || is_float($value)) {
+			return (string) $value;
+		}
+		return null;
+	}
+
+	/**
+	 * Returns a login parameter as a string (see credentialToString()), or null.
+	 *
+	 * @param object $params
+	 * @param string $key
+	 *
+	 * @return string|null
+	 */
+	protected static function getStringParam($params, $key) {
+		return isset($params->{$key}) ? self::credentialToString($params->{$key}) : null;
+	}
+
+	/**
+	 * Checks whether the request data contains a password. Strings and numbers must not be empty.
+	 * Other values (arrays, objects, booleans, null) count as submitted and fail later, so that
+	 * they take the same path as a wrong password.
+	 *
+	 * @param mixed $data Request data
+	 *
+	 * @return boolean
+	 */
+	protected static function isPasswordSubmitted($data) {
+		if (!is_object($data) || !property_exists($data, 'password')) {
+			return false;
+		}
+		$password = self::credentialToString($data->password);
+		if ($password !== null) {
+			return !empty($password);
+		}
+		return true;
+	}
+
+	/**
+	 * Handles a login attempt that cannot succeed (no matching account, or no usable password) like a failed password check: the attempt counts for the login throttle (which may throw
+	 * a SessionLoginThrottleException), and the password is compared against a throwaway hash so
+	 * that the request takes about as long as a wrong password for an existing account.
+	 *
+	 * @param string $attemptedName Account name, or login name or email address from the request
+	 * @param string $password
+	 */
+	protected function failLoginAttempt($attemptedName, $password) {
+		$name = $this->wire('sanitizer')->pageNameUTF8((string) $attemptedName);
+		if (strlen($name) && !$this->wire('session')->allowLoginAttempt($name)) {
+			return;
+		}
+
+		$this->wire(new Password())->matches((string) $password);
 	}
 
 	protected function ___createRefreshToken($args = []) {
@@ -416,9 +513,9 @@ class Auth extends WireData {
 
 		if (
 			isset($data->username) &&
-			!empty($this->wire('sanitizer')->pageName($data->username)) &&
-			isset($data->password) &&
-			!empty('' . $data->password)
+			self::credentialToString($data->username) !== null &&
+			!empty($this->wire('sanitizer')->pageName(self::credentialToString($data->username))) &&
+			self::isPasswordSubmitted($data)
 		) {
 			// Authentication via POST-Param:
 			return [
@@ -432,9 +529,9 @@ class Auth extends WireData {
 
 		if (
 			isset($data->email) &&
-			!empty($this->wire('sanitizer')->email($data->email)) &&
-			isset($data->password) &&
-			!empty('' . $data->password)) {
+			self::credentialToString($data->email) !== null &&
+			!empty($this->wire('sanitizer')->email(self::credentialToString($data->email))) &&
+			self::isPasswordSubmitted($data)) {
 			// Authentication via POST-Param with email:
 			return [
 				'method' => 'email-password',
